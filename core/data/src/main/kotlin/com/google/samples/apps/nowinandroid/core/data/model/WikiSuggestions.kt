@@ -28,10 +28,17 @@ fun NetworkWikiSuggestionItem.asExternalModel(): WikiSuggestionItem =
         title = title,
         description = description,
         excerpt = excerpt,
-        thumbnailUrl = thumbnail?.url,
+        thumbnailUrl = thumbnail?.url?.toAbsoluteWikiUrl(),
     )
 
 fun NetworkWikiSuggestionsResponse.asExternalModel(): WikiSuggestionsResult =
     WikiSuggestionsResult(
         items = pages.map(NetworkWikiSuggestionItem::asExternalModel),
     )
+
+// 把 "//..." 风格的相对路径转成 "https://..." 这样的绝对路径
+private fun String.toAbsoluteWikiUrl(): String =
+    when {
+        startsWith("//") -> "https:$this"
+        else -> this
+    }

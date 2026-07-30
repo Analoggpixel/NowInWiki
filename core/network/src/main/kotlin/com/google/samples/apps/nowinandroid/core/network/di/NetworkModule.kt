@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.nowinandroid.core.network.di
 
+import android.util.Log
 import android.content.Context
 import androidx.tracing.trace
 import coil.ImageLoader
@@ -31,12 +32,20 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.Call
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 internal object NetworkModule {
+
+    /**
+     * Temporary explicit user agent for Wikimedia requests.
+     * Keep this header so external wiki APIs do not reject requests with HTTP 403.
+     */
+    private const val USER_AGENT =
+        "NowInAndroid-WikiClient/0.1 (2359414420xie@gmail.com) OkHttp/4.x Android"
 
     @Provides
     @Singleton
@@ -54,6 +63,15 @@ internal object NetworkModule {
     @Singleton
     fun okHttpCallFactory(): Call.Factory = trace("NiaOkHttpClient") {
         OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request: Request = chain.request()
+                    .newBuilder()
+                    .header("User-Agent", USER_AGENT)
+                    .build()
+                // Temporary connectivity debug log. Remove after Wikimedia request validation.
+                Log.d("WikiSuggestions", "request user-agent=${request.header("User-Agent")}")
+                chain.proceed(request)
+            }
             .addInterceptor(
                 HttpLoggingInterceptor()
                     .apply {

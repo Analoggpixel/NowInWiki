@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.nowinandroid.feature.search.impl
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -123,6 +124,7 @@ private fun SearchSuggestionItem(
             verticalAlignment = Alignment.Top,
         ) {
             if (thumbnailUrl != null) {
+                Log.d("WikiSuggestions", "thumbnailUrl=$thumbnailUrl")
                 DynamicAsyncImage(
                     imageUrl = thumbnailUrl,
                     contentDescription = item.title,
