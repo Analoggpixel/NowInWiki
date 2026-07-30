@@ -102,16 +102,22 @@ internal fun SearchScreen(
     onTopicClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel = hiltViewModel(),
+    searchSuggestionViewModel: SearchSuggestionViewModel = hiltViewModel(),
 ) {
     val recentSearchQueriesUiState by searchViewModel.recentSearchQueriesUiState.collectAsStateWithLifecycle()
     val searchResultUiState by searchViewModel.searchResultUiState.collectAsStateWithLifecycle()
     val searchQuery by searchViewModel.searchQuery.collectAsStateWithLifecycle()
+    val suggestionUiState by searchSuggestionViewModel.uiState.collectAsStateWithLifecycle()
     SearchScreen(
         modifier = modifier,
         searchQuery = searchQuery,
         recentSearchesUiState = recentSearchQueriesUiState,
         searchResultUiState = searchResultUiState,
-        onSearchQueryChanged = searchViewModel::onSearchQueryChanged,
+        searchSuggestionUiState = suggestionUiState,
+        onSearchQueryChanged = {
+            searchViewModel.onSearchQueryChanged(it)
+            searchSuggestionViewModel.onQueryChanged(it)
+        },
         onSearchTriggered = searchViewModel::onSearchTriggered,
         onClearRecentSearches = searchViewModel::clearRecentSearches,
         onNewsResourcesCheckedChanged = searchViewModel::setNewsResourceBookmarked,
@@ -120,6 +126,7 @@ internal fun SearchScreen(
         onBackClick = onBackClick,
         onInterestsClick = onInterestsClick,
         onTopicClick = onTopicClick,
+        onSuggestionClick = {},
     )
 }
 
@@ -129,6 +136,7 @@ internal fun SearchScreen(
     searchQuery: String = "",
     recentSearchesUiState: RecentSearchQueriesUiState = RecentSearchQueriesUiState.Loading,
     searchResultUiState: SearchResultUiState = SearchResultUiState.Loading,
+    searchSuggestionUiState: SearchSuggestionUiState = SearchSuggestionUiState.Idle,
     onSearchQueryChanged: (String) -> Unit = {},
     onSearchTriggered: (String) -> Unit = {},
     onClearRecentSearches: () -> Unit = {},
@@ -138,6 +146,7 @@ internal fun SearchScreen(
     onBackClick: () -> Unit = {},
     onInterestsClick: () -> Unit = {},
     onTopicClick: (String) -> Unit = {},
+    onSuggestionClick: (com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionItem) -> Unit = {},
 ) {
     TrackScreenViewEvent(screenName = "Search")
     Column(modifier = modifier) {
@@ -148,56 +157,13 @@ internal fun SearchScreen(
             onSearchTriggered = onSearchTriggered,
             searchQuery = searchQuery,
         )
-        when (searchResultUiState) {
-            SearchResultUiState.Loading,
-            SearchResultUiState.LoadFailed,
-            -> Unit
-
-            SearchResultUiState.SearchNotReady -> SearchNotReadyBody()
-            SearchResultUiState.EmptyQuery,
-            -> {
-                if (recentSearchesUiState is RecentSearchQueriesUiState.Success) {
-                    RecentSearchesBody(
-                        onClearRecentSearches = onClearRecentSearches,
-                        onRecentSearchClicked = {
-                            onSearchQueryChanged(it)
-                            onSearchTriggered(it)
-                        },
-                        recentSearchQueries = recentSearchesUiState.recentQueries.map { it.query },
-                    )
-                }
-            }
-
-            is SearchResultUiState.Success -> {
-                if (searchResultUiState.isEmpty()) {
-                    EmptySearchResultBody(
-                        searchQuery = searchQuery,
-                        onInterestsClick = onInterestsClick,
-                    )
-                    if (recentSearchesUiState is RecentSearchQueriesUiState.Success) {
-                        RecentSearchesBody(
-                            onClearRecentSearches = onClearRecentSearches,
-                            onRecentSearchClicked = {
-                                onSearchQueryChanged(it)
-                                onSearchTriggered(it)
-                            },
-                            recentSearchQueries = recentSearchesUiState.recentQueries.map { it.query },
-                        )
-                    }
-                } else {
-                    SearchResultBody(
-                        searchQuery = searchQuery,
-                        topics = searchResultUiState.topics,
-                        newsResources = searchResultUiState.newsResources,
-                        onSearchTriggered = onSearchTriggered,
-                        onTopicClick = onTopicClick,
-                        onNewsResourcesCheckedChanged = onNewsResourcesCheckedChanged,
-                        onNewsResourceViewed = onNewsResourceViewed,
-                        onFollowButtonClick = onFollowButtonClick,
-                    )
-                }
-            }
-        }
+        SearchSuggestionsScreen(
+            uiState = searchSuggestionUiState,
+            onSuggestionClick = onSuggestionClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+        )
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
     }
 }

@@ -56,9 +56,16 @@ val backendUrl = providers.fileContents(
     properties["BACKEND_URL"]
 }.orElse("http://example.com")
 
+val wikipediaBaseUrl = providers.provider {
+    "https://en.wikipedia.org/w/rest.php/v1/"
+}
+
 androidComponents {
     onVariants {
         it.buildConfigFields!!.put("BACKEND_URL", backendUrl.map { value ->
+            BuildConfigField(type = "String", value = """"$value"""", comment = null)
+        })
+        it.buildConfigFields!!.put("WIKIPEDIA_BASE_URL", wikipediaBaseUrl.map { value ->
             BuildConfigField(type = "String", value = """"$value"""", comment = null)
         })
     }
