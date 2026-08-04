@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.repository
+package com.google.samples.apps.nowinandroid.core.domain
 
+import com.google.samples.apps.nowinandroid.core.data.repository.WikiPageRepository
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
+import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
+import javax.inject.Inject
 
 /**
- * Data layer interface for wiki suggestions.
+ * A use case which returns a Wikipedia page (including rendered HTML)
+ * for the given title and language edition.
  */
-interface WikiSuggestionRepository {
-
-    /**
-     * Returns wiki search suggestions matching the given [query] from [language].
-     */
-    suspend fun getSuggestions(
-        query: String,
+class GetWikiPageUseCase @Inject constructor(
+    private val wikiPageRepository: WikiPageRepository,
+) {
+    suspend operator fun invoke(
+        title: String,
         language: WikiLanguage,
-    ): WikiSuggestionsResult
+    ): WikiPage =
+        wikiPageRepository.getPage(
+            title = title.trim(),
+            language = language,
+        )
 }

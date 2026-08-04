@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.repository
-
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
+package com.google.samples.apps.nowinandroid.core.model.data
 
 /**
- * Data layer interface for wiki suggestions.
+ * Internal app representation of a Wikipedia page suitable for rendering.
+ *
+ * This model is intentionally flatter than the network `with_html` DTO so upper layers do not need
+ * to know about nested fields such as `latest` and `license`.
  */
-interface WikiSuggestionRepository {
-
-    /**
-     * Returns wiki search suggestions matching the given [query] from [language].
-     */
-    suspend fun getSuggestions(
-        query: String,
-        language: WikiLanguage,
-    ): WikiSuggestionsResult
-}
+data class WikiPage(
+    val id: Long,
+    val key: String,
+    val title: String,
+    val html: String,
+    val contentModel: String,
+    val latestRevisionId: Long,
+    val latestTimestamp: String,
+    val licenseUrl: String,
+    val licenseTitle: String,
+)

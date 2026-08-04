@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.repository
+package com.google.samples.apps.nowinandroid.core.model.data;
 
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
-
-/**
- * Data layer interface for wiki suggestions.
- */
-interface WikiSuggestionRepository {
-
-    /**
-     * Returns wiki search suggestions matching the given [query] from [language].
-     */
-    suspend fun getSuggestions(
-        query: String,
-        language: WikiLanguage,
-    ): WikiSuggestionsResult
+public enum LanguageOption {
+    CHINESE,
+    ENGLISH,
+    JAPANESE,
+    RUSSIAN,
+    SPANISH,
 }

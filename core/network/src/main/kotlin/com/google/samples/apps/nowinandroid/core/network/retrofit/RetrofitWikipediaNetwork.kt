@@ -18,32 +18,43 @@ package com.google.samples.apps.nowinandroid.core.network.retrofit
 
 import android.util.Log
 import androidx.tracing.trace
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.network.BuildConfig
 import com.google.samples.apps.nowinandroid.core.network.WikipediaNetworkDataSource
+import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiPageWithHtml
 import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiSuggestionsResponse
+import com.google.samples.apps.nowinandroid.core.network.wikipediaPageWithHtmlUrl
+import com.google.samples.apps.nowinandroid.core.network.wikipediaSearchPageUrl
 import kotlinx.serialization.json.Json
 import okhttp3.Call
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.GET
-import retrofit2.http.Query
+import retrofit2.http.Url
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private interface RetrofitWikipediaApi {
-    @GET("search/page")
+    @GET
     suspend fun searchSuggestions(
-        @Query("q") query: String,
+        @Url url: String,
     ): NetworkWikiSuggestionsResponse
+
+    @GET
+    suspend fun getPageWithHtml(
+        @Url url: String,
+    ): NetworkWikiPageWithHtml
 }
 
+/**
+ * Placeholder base URL required by Retrofit. Real requests use absolute `@Url` values
+ * built from [WikiLanguage], so this host is not used for Wikipedia calls.
+ */
 private const val WIKIPEDIA_BASE_URL = BuildConfig.WIKIPEDIA_BASE_URL
 
 /**
  * [Retrofit] backed [WikipediaNetworkDataSource].
- *
- * This first version only supports search suggestions through the Wikipedia REST API.
  */
 @Singleton
 internal class RetrofitWikipediaNetwork @Inject constructor(
@@ -63,9 +74,25 @@ internal class RetrofitWikipediaNetwork @Inject constructor(
             .create(RetrofitWikipediaApi::class.java)
     }
 
-    override suspend fun searchSuggestions(query: String): NetworkWikiSuggestionsResponse =
-        wikipediaApi.searchSuggestions(query = query).also {
+    override suspend fun searchSuggestions(
+        query: String,
+        language: WikiLanguage,
+    ): NetworkWikiSuggestionsResponse {
+        val url = wikipediaSearchPageUrl(language = language, query = query)
+        return wikipediaApi.searchSuggestions(url = url).also {
             // Temporary connectivity debug log. Remove after suggestion chain is verified.
-            Log.d("WikiSuggestions", "network searchSuggestions query=$query pages=${it.pages.size}")
+            Log.d(
+                "WikiSuggestions",
+                "network searchSuggestions language=${language.code} url=$url pages=${it.pages.size}",
+            )
         }
+    }
+
+    override suspend fun getPageWithHtml(
+        title: String,
+        language: WikiLanguage,
+    ): NetworkWikiPageWithHtml =
+        wikipediaApi.getPageWithHtml(
+            url = wikipediaPageWithHtmlUrl(language = language, title = title),
+        )
 }

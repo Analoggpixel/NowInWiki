@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.repository
+package com.google.samples.apps.nowinandroid.core.data.model
 
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
+import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
+import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiPageWithHtml
 
-/**
- * Data layer interface for wiki suggestions.
- */
-interface WikiSuggestionRepository {
-
-    /**
-     * Returns wiki search suggestions matching the given [query] from [language].
-     */
-    suspend fun getSuggestions(
-        query: String,
-        language: WikiLanguage,
-    ): WikiSuggestionsResult
-}
+fun NetworkWikiPageWithHtml.asExternalModel(): WikiPage =
+    WikiPage(
+        id = id,
+        key = key,
+        title = title,
+        html = html,
+        contentModel = contentModel,
+        latestRevisionId = latest.id,
+        latestTimestamp = latest.timestamp,
+        licenseUrl = license.url,
+        licenseTitle = license.title,
+    )

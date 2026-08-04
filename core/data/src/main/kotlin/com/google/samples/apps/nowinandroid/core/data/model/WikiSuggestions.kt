@@ -28,7 +28,7 @@ fun NetworkWikiSuggestionItem.asExternalModel(): WikiSuggestionItem =
         title = title,
         description = description,
         excerpt = excerpt,
-        thumbnailUrl = thumbnail?.url?.toAbsoluteWikiUrl(),
+        thumbnailUrl = thumbnail?.url?.toAbsoluteWikiUrl()?.toHighResolution(),
     )
 
 fun NetworkWikiSuggestionsResponse.asExternalModel(): WikiSuggestionsResult =
@@ -42,3 +42,9 @@ private fun String.toAbsoluteWikiUrl(): String =
         startsWith("//") -> "https:$this"
         else -> this
     }
+
+private fun String.toHighResolution(size: Int = 250): String =
+    replace(
+        Regex("/\\d+px-"),
+        "/${size}px-",
+    )

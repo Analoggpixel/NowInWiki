@@ -19,17 +19,38 @@ package com.google.samples.apps.nowinandroid.feature.search.impl.navigation
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.google.samples.apps.nowinandroid.core.navigation.Navigator
-import com.google.samples.apps.nowinandroid.feature.interests.api.navigation.InterestsNavKey
 import com.google.samples.apps.nowinandroid.feature.search.api.navigation.SearchNavKey
+import com.google.samples.apps.nowinandroid.feature.search.api.navigation.SearchResultsNavKey
+import com.google.samples.apps.nowinandroid.feature.search.api.navigation.navigateToSearchResults
+import com.google.samples.apps.nowinandroid.feature.search.impl.SearchResultsScreen
 import com.google.samples.apps.nowinandroid.feature.search.impl.SearchScreen
-import com.google.samples.apps.nowinandroid.feature.topic.api.navigation.navigateToTopic
+import com.google.samples.apps.nowinandroid.feature.wikipage.api.navigation.WikiPageNavKey
+import com.google.samples.apps.nowinandroid.feature.wikipage.api.navigation.navigateToWikiPage
 
+// TODO: 后续可能把 SearchResultsNavKey 的 entry 拆成独立 searchResultsEntry，
+// 再在 NiaApp 的 entryProvider 里单独注册，与搜索输入页解耦。
 fun EntryProviderScope<NavKey>.searchEntry(navigator: Navigator) {
     entry<SearchNavKey> {
         SearchScreen(
             onBackClick = { navigator.goBack() },
-            onInterestsClick = { navigator.navigate(InterestsNavKey()) },
-            onTopicClick = navigator::navigateToTopic,
+            onSearchTriggered = { query, selectedLanguage ->
+                if (query.isNotBlank()) {
+                    navigator.navigateToSearchResults(query.trim(), selectedLanguage)
+                }
+            },
+            onSuggestionClick = { item ->
+                navigator.navigateToWikiPage(item.title)
+            },
+        )
+    }
+    entry<SearchResultsNavKey> { key ->
+        SearchResultsScreen(
+            navQuery = key.query,
+            selectedLanguage = key.selectedLanguage,
+            onBackClick = { navigator.goBack() },
+            onSuggestionClick = { item ->
+                navigator.navigateToWikiPage(item.title)
+            },
         )
     }
 }

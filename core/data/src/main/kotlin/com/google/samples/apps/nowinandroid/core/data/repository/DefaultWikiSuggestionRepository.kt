@@ -18,6 +18,7 @@ package com.google.samples.apps.nowinandroid.core.data.repository
 
 import android.util.Log
 import com.google.samples.apps.nowinandroid.core.data.model.asExternalModel
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
 import com.google.samples.apps.nowinandroid.core.network.WikipediaNetworkDataSource
 import javax.inject.Inject
@@ -26,10 +27,15 @@ internal class DefaultWikiSuggestionRepository @Inject constructor(
     private val wikipediaNetworkDataSource: WikipediaNetworkDataSource,
 ) : WikiSuggestionRepository {
 
-    override suspend fun getSuggestions(query: String): WikiSuggestionsResult {
+    override suspend fun getSuggestions(
+        query: String,
+        language: WikiLanguage,
+    ): WikiSuggestionsResult {
         // Temporary connectivity debug log. Remove after suggestion chain is verified.
-        Log.d("WikiSuggestions", "repository getSuggestions query=$query")
-        val result = wikipediaNetworkDataSource.searchSuggestions(query).asExternalModel()
+        Log.d("WikiSuggestions", "repository getSuggestions language=${language.code} query=$query")
+        val result = wikipediaNetworkDataSource
+            .searchSuggestions(query = query, language = language)
+            .asExternalModel()
         // Temporary connectivity debug log. Remove after suggestion chain is verified.
         Log.d("WikiSuggestions", "repository mapped suggestions count=${result.items.size}")
         return result

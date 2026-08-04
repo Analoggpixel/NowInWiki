@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.repository
+package com.google.samples.apps.nowinandroid.feature.wikipage.api.navigation
 
+import androidx.navigation3.runtime.NavKey
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
+import com.google.samples.apps.nowinandroid.core.navigation.Navigator
+import kotlinx.serialization.Serializable
 
-/**
- * Data layer interface for wiki suggestions.
- */
-interface WikiSuggestionRepository {
+@Serializable
+data class WikiPageNavKey(
+    val title: String,
+    val languageCode: String = WikiLanguage.ENGLISH.code,
+) : NavKey
 
-    /**
-     * Returns wiki search suggestions matching the given [query] from [language].
-     */
-    suspend fun getSuggestions(
-        query: String,
-        language: WikiLanguage,
-    ): WikiSuggestionsResult
+fun Navigator.navigateToWikiPage(
+    title: String,
+    language: WikiLanguage = WikiLanguage.ENGLISH,
+) {
+    navigate(WikiPageNavKey(title = title, languageCode = language.code))
 }

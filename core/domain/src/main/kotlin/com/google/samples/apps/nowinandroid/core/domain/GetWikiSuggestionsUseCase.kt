@@ -17,15 +17,22 @@
 package com.google.samples.apps.nowinandroid.core.domain
 
 import com.google.samples.apps.nowinandroid.core.data.repository.WikiSuggestionRepository
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
 import javax.inject.Inject
 
 /**
- * A use case which returns wiki search suggestions for the given query.
+ * A use case which returns wiki search suggestions for the given query and language.
  */
 class GetWikiSuggestionsUseCase @Inject constructor(
     private val wikiSuggestionRepository: WikiSuggestionRepository,
 ) {
-    suspend operator fun invoke(query: String): WikiSuggestionsResult =
-        wikiSuggestionRepository.getSuggestions(query.trim())
+    suspend operator fun invoke(
+        query: String,
+        language: WikiLanguage,
+    ): WikiSuggestionsResult =
+        wikiSuggestionRepository.getSuggestions(
+            query = query.trim(),
+            language = language,
+        )
 }

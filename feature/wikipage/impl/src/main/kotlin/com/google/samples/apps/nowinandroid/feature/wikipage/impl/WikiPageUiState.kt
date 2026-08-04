@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.repository
+package com.google.samples.apps.nowinandroid.feature.wikipage.impl
 
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
+import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
 
-/**
- * Data layer interface for wiki suggestions.
- */
-interface WikiSuggestionRepository {
+sealed interface WikiPageUiState {
+    data object Idle : WikiPageUiState
+    data object Loading : WikiPageUiState
+    data object Error : WikiPageUiState
 
-    /**
-     * Returns wiki search suggestions matching the given [query] from [language].
-     */
-    suspend fun getSuggestions(
-        query: String,
-        language: WikiLanguage,
-    ): WikiSuggestionsResult
+    data class Success(
+        val page: WikiPage,
+    ) : WikiPageUiState
 }

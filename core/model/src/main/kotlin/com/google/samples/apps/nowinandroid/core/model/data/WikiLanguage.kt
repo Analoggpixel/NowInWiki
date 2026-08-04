@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.repository
-
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
+package com.google.samples.apps.nowinandroid.core.model.data
 
 /**
- * Data layer interface for wiki suggestions.
+ * Wikipedia language editions supported by the app.
+ *
+ * [code] is the subdomain used by Wikipedia hosts, e.g. `zh` → `zh.wikipedia.org`.
  */
-interface WikiSuggestionRepository {
+enum class WikiLanguage(val code: String) {
+    ENGLISH("en"),
+    CHINESE("zh"),
+    JAPANESE("ja"),
+    SPANISH("es"),
+    ;
 
-    /**
-     * Returns wiki search suggestions matching the given [query] from [language].
-     */
-    suspend fun getSuggestions(
-        query: String,
-        language: WikiLanguage,
-    ): WikiSuggestionsResult
+    companion object {
+        fun fromCode(code: String): WikiLanguage =
+            entries.find { it.code == code } ?: ENGLISH
+    }
 }

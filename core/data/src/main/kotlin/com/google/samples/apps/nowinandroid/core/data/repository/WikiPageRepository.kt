@@ -17,18 +17,19 @@
 package com.google.samples.apps.nowinandroid.core.data.repository
 
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
+import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
 
 /**
- * Data layer interface for wiki suggestions.
+ * Data layer interface for Wikipedia page content.
  */
-interface WikiSuggestionRepository {
+interface WikiPageRepository {
 
     /**
-     * Returns wiki search suggestions matching the given [query] from [language].
+     * Returns a Wikipedia page (including rendered HTML) for the given [title]
+     * from the [language] edition.
      */
-    suspend fun getSuggestions(
-        query: String,
+    suspend fun getPage(
+        title: String,
         language: WikiLanguage,
-    ): WikiSuggestionsResult
+    ): WikiPage
 }

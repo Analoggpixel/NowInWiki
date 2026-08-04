@@ -16,26 +16,22 @@
 
 package com.google.samples.apps.nowinandroid.core.network
 
+import android.net.Uri
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiPageWithHtml
-import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiSuggestionsResponse
 
 /**
- * Interface representing network calls to the Wikipedia / MediaWiki REST API.
+ * Builds absolute Wikipedia REST / site URLs for a given [WikiLanguage].
+ *
+ * Used with Retrofit `@Url` so requests are not tied to a fixed `baseUrl` host.
  */
-interface WikipediaNetworkDataSource {
-    suspend fun searchSuggestions(
-        query: String,
-        language: WikiLanguage,
-    ): NetworkWikiSuggestionsResponse
+fun wikipediaRestBaseUrl(language: WikiLanguage): String =
+    "https://${language.code}.wikipedia.org/w/rest.php/v1/"
 
-    /**
-     * Fetches a page body with rendered HTML for [title] from the given [language] edition.
-     *
-     * Corresponds to `GET /page/{title}/with_html` on `{language}.wikipedia.org`.
-     */
-    suspend fun getPageWithHtml(
-        title: String,
-        language: WikiLanguage,
-    ): NetworkWikiPageWithHtml
-}
+fun wikipediaSiteBaseUrl(language: WikiLanguage): String =
+    "https://${language.code}.wikipedia.org/"
+
+fun wikipediaSearchPageUrl(language: WikiLanguage, query: String): String =
+    "${wikipediaRestBaseUrl(language)}search/page?q=${Uri.encode(query)}"
+
+fun wikipediaPageWithHtmlUrl(language: WikiLanguage, title: String): String =
+    "${wikipediaRestBaseUrl(language)}page/${Uri.encode(title)}/with_html"

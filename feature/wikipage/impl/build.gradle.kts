@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.repository
+plugins {
+    alias(libs.plugins.nowinandroid.android.feature.impl)
+    alias(libs.plugins.nowinandroid.android.library.compose)
+    alias(libs.plugins.nowinandroid.android.library.jacoco)
+}
 
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
+android {
+    namespace = "com.google.samples.apps.nowinandroid.feature.wikipage.impl"
+}
 
-/**
- * Data layer interface for wiki suggestions.
- */
-interface WikiSuggestionRepository {
+dependencies {
+    implementation(projects.core.domain)
+    implementation(projects.feature.wikipage.api)
 
-    /**
-     * Returns wiki search suggestions matching the given [query] from [language].
-     */
-    suspend fun getSuggestions(
-        query: String,
-        language: WikiLanguage,
-    ): WikiSuggestionsResult
+    testImplementation(projects.core.testing)
+
+    androidTestImplementation(libs.bundles.androidx.compose.ui.test)
+    androidTestImplementation(projects.core.testing)
 }

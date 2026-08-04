@@ -21,11 +21,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.nowinandroid.core.domain.GetWikiSuggestionsUseCase
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -46,22 +48,31 @@ class SearchSuggestionViewModel @Inject constructor(
         key = SEARCH_SUGGESTION_QUERY,
         initialValue = "",
     )
-
+    val selectedLanguage: StateFlow<WikiLanguage> = savedStateHandle.getStateFlow(
+        key = SELECTED_LANGUAGE,
+        initialValue = WikiLanguage.CHINESE,
+    )
     private val _uiState = MutableStateFlow<SearchSuggestionUiState>(SearchSuggestionUiState.Idle)
     val uiState: StateFlow<SearchSuggestionUiState> = _uiState.asStateFlow()
 
     init {
-        query
-            .map(String::trim)
+        combine(
+            query.map(String::trim),
+            selectedLanguage,
+        ) { trimmedQuery, language ->
+            trimmedQuery to language
+        }
             .distinctUntilChanged()
-            .onEach { trimmedQuery ->
+            .onEach { (trimmedQuery, _) ->
                 if (trimmedQuery.isEmpty()) {
                     _uiState.value = SearchSuggestionUiState.Idle
                 }
             }
-            .filter(String::isNotEmpty)
+            .filter { (trimmedQuery, _) -> trimmedQuery.isNotEmpty() }
             .debounce(SUGGESTION_DEBOUNCE_MILLIS)
-            .onEach(::loadSuggestions)
+            .onEach { (trimmedQuery, language) ->
+                loadSuggestions(query = trimmedQuery, language = language)
+            }
             .launchIn(viewModelScope)
     }
 
@@ -69,14 +80,24 @@ class SearchSuggestionViewModel @Inject constructor(
         savedStateHandle[SEARCH_SUGGESTION_QUERY] = newQuery
     }
 
-    private fun loadSuggestions(query: String) {
+    fun onLanguageSelected(selectedLanguage: WikiLanguage) {
+        savedStateHandle[SELECTED_LANGUAGE] = selectedLanguage
+    }
+
+    private fun loadSuggestions(query: String, language: WikiLanguage) {
         viewModelScope.launch {
             // Temporary connectivity debug log. Remove after suggestion chain is verified.
-            Log.d("WikiSuggestions", "loadSuggestions query=$query")
+            Log.d(
+                "WikiSuggestions",
+                "loadSuggestions language=${language.code} query=$query",
+            )
             _uiState.value = SearchSuggestionUiState.Loading
 
             runCatching {
-                getWikiSuggestionsUseCase(query)
+                getWikiSuggestionsUseCase(
+                    query = query,
+                    language = language,
+                )
             }.onSuccess {
                 // Temporary connectivity debug log. Remove after suggestion chain is verified.
                 Log.d("WikiSuggestions", "loadSuggestions success count=${it.items.size}")
@@ -102,4 +123,5 @@ class SearchSuggestionViewModel @Inject constructor(
 }
 
 private const val SEARCH_SUGGESTION_QUERY = "searchSuggestionQuery"
+private const val SELECTED_LANGUAGE = "selectedLanguage"
 private const val SUGGESTION_DEBOUNCE_MILLIS = 300L

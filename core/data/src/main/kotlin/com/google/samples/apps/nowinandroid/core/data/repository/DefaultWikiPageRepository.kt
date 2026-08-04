@@ -16,19 +16,21 @@
 
 package com.google.samples.apps.nowinandroid.core.data.repository
 
+import com.google.samples.apps.nowinandroid.core.data.model.asExternalModel
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
+import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
+import com.google.samples.apps.nowinandroid.core.network.WikipediaNetworkDataSource
+import javax.inject.Inject
 
-/**
- * Data layer interface for wiki suggestions.
- */
-interface WikiSuggestionRepository {
+internal class DefaultWikiPageRepository @Inject constructor(
+    private val wikipediaNetworkDataSource: WikipediaNetworkDataSource,
+) : WikiPageRepository {
 
-    /**
-     * Returns wiki search suggestions matching the given [query] from [language].
-     */
-    suspend fun getSuggestions(
-        query: String,
+    override suspend fun getPage(
+        title: String,
         language: WikiLanguage,
-    ): WikiSuggestionsResult
+    ): WikiPage =
+        wikipediaNetworkDataSource
+            .getPageWithHtml(title = title, language = language)
+            .asExternalModel()
 }
