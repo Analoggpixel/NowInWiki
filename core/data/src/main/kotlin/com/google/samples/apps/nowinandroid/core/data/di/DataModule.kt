@@ -18,6 +18,7 @@ package com.google.samples.apps.nowinandroid.core.data.di
 
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultRecentSearchRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultSearchContentsRepository
+import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiFeedRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiPageRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiSuggestionRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.NewsRepository
@@ -28,6 +29,7 @@ import com.google.samples.apps.nowinandroid.core.data.repository.RecentSearchRep
 import com.google.samples.apps.nowinandroid.core.data.repository.SearchContentsRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.TopicsRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.UserDataRepository
+import com.google.samples.apps.nowinandroid.core.data.repository.WikiFeedRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.WikiPageRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.WikiSuggestionRepository
 import com.google.samples.apps.nowinandroid.core.data.util.ConnectivityManagerNetworkMonitor
@@ -72,6 +74,11 @@ abstract class DataModule {
     internal abstract fun bindsWikiSuggestionRepository(
         wikiSuggestionRepository: DefaultWikiSuggestionRepository,
     ): WikiSuggestionRepository
+
+    @Binds
+    internal abstract fun bindsWikiFeedRepository(
+        wikiFeedRepository: DefaultWikiFeedRepository,
+    ): WikiFeedRepository
 
     @Binds
     internal abstract fun bindsWikiPageRepository(

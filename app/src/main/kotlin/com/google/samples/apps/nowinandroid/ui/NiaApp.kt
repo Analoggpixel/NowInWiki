@@ -263,6 +263,7 @@ internal fun NiaApp(
                         interestsEntry(navigator)
                         topicEntry(navigator)
                         searchEntry(navigator)
+                        wikiPageEntry(navigator)
                     }
 
                     NavDisplay(

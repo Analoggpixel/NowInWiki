@@ -56,6 +56,8 @@ val backendUrl = providers.fileContents(
     properties["BACKEND_URL"]
 }.orElse("http://example.com")
 
+// Retrofit 必须有非空 baseUrl。真正的 Wikipedia 请求使用按 WikiLanguage 拼好的绝对 @Url
+//（见 WikipediaUrls），因此这里的 host 只是占位，不会用来解析 search/page 的实际请求地址。
 val wikipediaBaseUrl = providers.provider {
     "https://en.wikipedia.org/w/rest.php/v1/"
 }

@@ -16,10 +16,13 @@
 
 package com.google.samples.apps.nowinandroid.feature.search.impl
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -28,6 +31,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -39,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -68,9 +73,15 @@ internal fun SearchToolbar(
 ) {
     Row(
         horizontalArrangement = Arrangement.Start,
-        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp),
     ) {
-        IconButton(onClick = onBackClick) {
+        IconButton(
+            onClick = onBackClick,
+            modifier = Modifier.size(36.dp),
+        ) {
             Icon(
                 imageVector = NiaIcons.ArrowBack,
                 contentDescription = stringResource(
@@ -182,42 +193,48 @@ internal fun SearchLanguageDropDownMenu(
     onLanguageSelected: (WikiLanguage) -> Unit,
 ){
     var expanded by remember { mutableStateOf(false) }
-    TextButton(onClick = {expanded = true}) {
-        Text(selectedLanguage.code)
-    }
-    DropdownMenu(
+    Box{
+        OutlinedButton(
+            onClick = {expanded = true},
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+        ) {
+            Text(selectedLanguage.toDisplayName())
+        }
+        DropdownMenu(
 //        modifier = Modi,
-        expanded = expanded,
-        shape = RoundedCornerShape(16.dp),
-        onDismissRequest = { expanded = false },
-    ) {
-        DropdownMenuItem(
-            text = { Text("中文") },
-            onClick = {
-                onLanguageSelected(WikiLanguage.CHINESE)
-                expanded = false
-            },
-        )
-        DropdownMenuItem(
-            text = { Text("English") },
-            onClick = {
-                onLanguageSelected(WikiLanguage.ENGLISH)
-                expanded = false
-            },
-        )
-        DropdownMenuItem(
-            text = { Text("Japanese") },
-            onClick = {
-                onLanguageSelected(WikiLanguage.JAPANESE)
-                expanded = false
-            },
-        )
-        DropdownMenuItem(
-            text = { Text("Spanish") },
-            onClick = {
-                onLanguageSelected(WikiLanguage.SPANISH)
-                expanded = false
-            },
-        )
+            expanded = expanded,
+            shape = RoundedCornerShape(16.dp),
+            onDismissRequest = { expanded = false },
+        ) {
+            DropdownMenuItem(
+                text = { Text("中文") },
+                onClick = {
+                    onLanguageSelected(WikiLanguage.CHINESE)
+                    expanded = false
+                },
+            )
+            DropdownMenuItem(
+                text = { Text("English") },
+                onClick = {
+                    onLanguageSelected(WikiLanguage.ENGLISH)
+                    expanded = false
+                },
+            )
+            DropdownMenuItem(
+                text = { Text("Japanese") },
+                onClick = {
+                    onLanguageSelected(WikiLanguage.JAPANESE)
+                    expanded = false
+                },
+            )
+            DropdownMenuItem(
+                text = { Text("Spanish") },
+                onClick = {
+                    onLanguageSelected(WikiLanguage.SPANISH)
+                    expanded = false
+                },
+            )
+        }
     }
 }

@@ -24,7 +24,6 @@ import com.google.samples.apps.nowinandroid.feature.search.api.navigation.Search
 import com.google.samples.apps.nowinandroid.feature.search.api.navigation.navigateToSearchResults
 import com.google.samples.apps.nowinandroid.feature.search.impl.SearchResultsScreen
 import com.google.samples.apps.nowinandroid.feature.search.impl.SearchScreen
-import com.google.samples.apps.nowinandroid.feature.wikipage.api.navigation.WikiPageNavKey
 import com.google.samples.apps.nowinandroid.feature.wikipage.api.navigation.navigateToWikiPage
 
 // TODO: 后续可能把 SearchResultsNavKey 的 entry 拆成独立 searchResultsEntry，
@@ -39,7 +38,7 @@ fun EntryProviderScope<NavKey>.searchEntry(navigator: Navigator) {
                 }
             },
             onSuggestionClick = { item ->
-                navigator.navigateToWikiPage(item.title)
+                navigator.navigateToWikiPage(item.title, item.itemLanguage)
             },
         )
     }
@@ -49,7 +48,7 @@ fun EntryProviderScope<NavKey>.searchEntry(navigator: Navigator) {
             selectedLanguage = key.selectedLanguage,
             onBackClick = { navigator.goBack() },
             onSuggestionClick = { item ->
-                navigator.navigateToWikiPage(item.title)
+                navigator.navigateToWikiPage(item.title, item.itemLanguage)
             },
         )
     }

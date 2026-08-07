@@ -87,7 +87,7 @@ internal fun SearchScreen(
         )
         SearchSuggestionsScreen(
             uiState = searchSuggestionUiState,
-            onSuggestionClick = onSuggestionClick,
+            onSuggestionClick = { item -> onSuggestionClick(item) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),

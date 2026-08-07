@@ -32,4 +32,12 @@ enum class WikiLanguage(val code: String) {
         fun fromCode(code: String): WikiLanguage =
             entries.find { it.code == code } ?: ENGLISH
     }
+
+    fun toDisplayName(): String =
+        when (this) {
+            ENGLISH -> "English"
+            CHINESE -> "中文"
+            JAPANESE -> "日本語"
+            SPANISH -> "español"
+        }
 }

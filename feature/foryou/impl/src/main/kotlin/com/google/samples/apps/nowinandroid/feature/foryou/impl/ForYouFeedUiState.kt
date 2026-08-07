@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.model.data
+package com.google.samples.apps.nowinandroid.feature.foryou.impl
+
+import com.google.samples.apps.nowinandroid.core.model.data.WikiFeedItem
 
 /**
- * Internal app representation of a single wiki search suggestion item.
- *
- * This model is intentionally flatter than the network DTO so upper layers do not need to know
- * about source-specific response nesting such as the `thumbnail` object.
+ * UI state for the For You wiki feed.
  */
-data class WikiSuggestionItem(
-    val id: Long,
-    val key: String,
-    val title: String,
-    val description: String? = null,
-    val excerpt: String? = null,
-    val thumbnailUrl: String? = null,
-    val itemLanguage: WikiLanguage,
-)
+sealed interface ForYouFeedUiState {
+    data object Loading : ForYouFeedUiState
+    data object Empty : ForYouFeedUiState
+    data object Error : ForYouFeedUiState
+    data class Success(val items: List<WikiFeedItem>) : ForYouFeedUiState
+}

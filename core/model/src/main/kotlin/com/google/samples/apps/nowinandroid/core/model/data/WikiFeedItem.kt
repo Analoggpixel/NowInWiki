@@ -17,17 +17,30 @@
 package com.google.samples.apps.nowinandroid.core.model.data
 
 /**
- * Internal app representation of a single wiki search suggestion item.
+ * For You / 推荐流中的单条 Wiki 卡片。
  *
- * This model is intentionally flatter than the network DTO so upper layers do not need to know
- * about source-specific response nesting such as the `thumbnail` object.
+ * 与 [WikiSuggestionItem] 分开建模：搜索联想保持精简；Feed 后续可扩展推荐分、
+ * 兴趣标签、语言等，而不污染搜索 domain。
+ *
+ * 缩略图保留 API 的像素宽高，布局用 [thumbnailAspectRatio]（width / height）。
  */
-data class WikiSuggestionItem(
+data class WikiFeedItem(
     val id: Long,
     val key: String,
     val title: String,
     val description: String? = null,
     val excerpt: String? = null,
     val thumbnailUrl: String? = null,
+    val thumbnailWidth: Int? = null,
+    val thumbnailHeight: Int? = null,
     val itemLanguage: WikiLanguage,
-)
+) {
+    /** Compose [androidx.compose.foundation.layout.aspectRatio] 用的宽高比；未知时为 null。 */
+    val thumbnailAspectRatio: Float?
+        get() {
+            val width = thumbnailWidth ?: return null
+            val height = thumbnailHeight ?: return null
+            if (height <= 0) return null
+            return width.toFloat() / height.toFloat()
+        }
+}

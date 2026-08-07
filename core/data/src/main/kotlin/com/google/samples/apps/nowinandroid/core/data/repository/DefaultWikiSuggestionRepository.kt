@@ -35,7 +35,7 @@ internal class DefaultWikiSuggestionRepository @Inject constructor(
         Log.d("WikiSuggestions", "repository getSuggestions language=${language.code} query=$query")
         val result = wikipediaNetworkDataSource
             .searchSuggestions(query = query, language = language)
-            .asExternalModel()
+            .asExternalModel(language)
         // Temporary connectivity debug log. Remove after suggestion chain is verified.
         Log.d("WikiSuggestions", "repository mapped suggestions count=${result.items.size}")
         return result

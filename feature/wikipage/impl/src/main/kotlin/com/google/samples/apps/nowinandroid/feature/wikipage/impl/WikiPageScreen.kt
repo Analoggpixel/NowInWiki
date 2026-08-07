@@ -17,6 +17,7 @@
 package com.google.samples.apps.nowinandroid.feature.wikipage.impl
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Box
@@ -58,7 +59,7 @@ internal fun WikiPageScreen(
     title: String,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    language: WikiLanguage = WikiLanguage.ENGLISH,
+    language: WikiLanguage,
     viewModel: WikiPageViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -71,7 +72,7 @@ internal fun WikiPageScreen(
         title = title,
         uiState = uiState,
         onBackClick = onBackClick,
-        siteBaseUrl = "https://${language.code}.wikipedia.org/",
+        siteBaseUrl = "https://${language.code}.wikipedia.org/wiki/${Uri.encode(title)}",
         modifier = modifier,
     )
 }
@@ -82,7 +83,7 @@ internal fun WikiPageScreen(
     uiState: WikiPageUiState,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    siteBaseUrl: String = "https://en.wikipedia.org/",
+    siteBaseUrl: String,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
@@ -176,6 +177,10 @@ private fun WikiPageHtmlContent(
             WebView(context).apply {
                 webViewClient = WebViewClient()
                 settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                settings.loadsImagesAutomatically = true
+                settings.blockNetworkLoads = false
+                settings.loadWithOverviewMode = true
             }
         },
         update = { webView ->
@@ -210,6 +215,8 @@ private fun WikiPageScreenPreview() {
                 ),
             ),
             onBackClick = {},
+            modifier = Modifier,
+            siteBaseUrl = "https://en.wikipedia.org/wiki/",
         )
     }
 }

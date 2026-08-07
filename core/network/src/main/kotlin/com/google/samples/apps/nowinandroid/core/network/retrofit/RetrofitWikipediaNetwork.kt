@@ -48,8 +48,11 @@ private interface RetrofitWikipediaApi {
 }
 
 /**
- * Placeholder base URL required by Retrofit. Real requests use absolute `@Url` values
- * built from [WikiLanguage], so this host is not used for Wikipedia calls.
+ * Retrofit 要求的占位 baseUrl（[BuildConfig.WIKIPEDIA_BASE_URL]）。
+ *
+ * 真正的 Wikipedia 请求会传入由 [wikipediaSearchPageUrl] / [wikipediaPageWithHtmlUrl]
+ * 按 [WikiLanguage] 拼好的绝对 `@Url`，因此该 host 不参与解析这些接口的实际地址，
+ * 仅用于满足 Retrofit.Builder.baseUrl。
  */
 private const val WIKIPEDIA_BASE_URL = BuildConfig.WIKIPEDIA_BASE_URL
 

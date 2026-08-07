@@ -65,6 +65,7 @@ import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig.LIGH
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand.ANDROID
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand.DEFAULT
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.ui.TrackScreenViewEvent
 import com.google.samples.apps.nowinandroid.feature.settings.impl.R.string
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsUiState.Loading
@@ -82,6 +83,7 @@ fun SettingsDialog(
         onChangeThemeBrand = viewModel::updateThemeBrand,
         onChangeDynamicColorPreference = viewModel::updateDynamicColorPreference,
         onChangeDarkThemeConfig = viewModel::updateDarkThemeConfig,
+        onChangePreferredWikiLanguage = viewModel::updatePreferredWikiLanguage,
     )
 }
 
@@ -93,6 +95,7 @@ fun SettingsDialog(
     onChangeThemeBrand: (themeBrand: ThemeBrand) -> Unit,
     onChangeDynamicColorPreference: (useDynamicColor: Boolean) -> Unit,
     onChangeDarkThemeConfig: (darkThemeConfig: DarkThemeConfig) -> Unit,
+    onChangePreferredWikiLanguage: (preferredWikiLanguage: WikiLanguage) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
 
@@ -131,6 +134,7 @@ fun SettingsDialog(
                             onChangeThemeBrand = onChangeThemeBrand,
                             onChangeDynamicColorPreference = onChangeDynamicColorPreference,
                             onChangeDarkThemeConfig = onChangeDarkThemeConfig,
+                            onChangePreferredWikiLanguage = onChangePreferredWikiLanguage,
                         )
                     }
                 }
@@ -162,6 +166,7 @@ private fun ColumnScope.SettingsPanel(
     onChangeThemeBrand: (themeBrand: ThemeBrand) -> Unit,
     onChangeDynamicColorPreference: (useDynamicColor: Boolean) -> Unit,
     onChangeDarkThemeConfig: (darkThemeConfig: DarkThemeConfig) -> Unit,
+    onChangePreferredWikiLanguage: (preferredWikiLanguage: WikiLanguage) -> Unit,
 ) {
     SettingsDialogSectionTitle(text = stringResource(string.feature_settings_impl_theme))
     Column(Modifier.selectableGroup()) {
@@ -209,6 +214,29 @@ private fun ColumnScope.SettingsPanel(
             text = stringResource(string.feature_settings_impl_dark_mode_config_dark),
             selected = settings.darkThemeConfig == DARK,
             onClick = { onChangeDarkThemeConfig(DARK) },
+        )
+    }
+    SettingsDialogSectionTitle(text = "Default content language")
+    Column(Modifier.selectableGroup()) {
+        SettingsDialogThemeChooserRow(
+            text = WikiLanguage.CHINESE.toDisplayName(),
+            selected = settings.preferredWikiLanguage == WikiLanguage.CHINESE,
+            onClick = { onChangePreferredWikiLanguage(WikiLanguage.CHINESE) },
+        )
+        SettingsDialogThemeChooserRow(
+            text = WikiLanguage.ENGLISH.toDisplayName(),
+            selected = settings.preferredWikiLanguage == WikiLanguage.ENGLISH,
+            onClick = { onChangePreferredWikiLanguage(WikiLanguage.ENGLISH) },
+        )
+        SettingsDialogThemeChooserRow(
+            text = WikiLanguage.JAPANESE.toDisplayName(),
+            selected = settings.preferredWikiLanguage == WikiLanguage.JAPANESE,
+            onClick = { onChangePreferredWikiLanguage(WikiLanguage.JAPANESE) },
+        )
+        SettingsDialogThemeChooserRow(
+            text = WikiLanguage.SPANISH.toDisplayName(),
+            selected = settings.preferredWikiLanguage == WikiLanguage.SPANISH,
+            onClick = { onChangePreferredWikiLanguage(WikiLanguage.SPANISH) },
         )
     }
 }
@@ -296,11 +324,13 @@ private fun PreviewSettingsDialog() {
                     brand = DEFAULT,
                     darkThemeConfig = FOLLOW_SYSTEM,
                     useDynamicColor = false,
+                    preferredWikiLanguage = WikiLanguage.CHINESE,
                 ),
             ),
             onChangeThemeBrand = {},
             onChangeDynamicColorPreference = {},
             onChangeDarkThemeConfig = {},
+            onChangePreferredWikiLanguage = {},
         )
     }
 }
@@ -315,6 +345,7 @@ private fun PreviewSettingsDialogLoading() {
             onChangeThemeBrand = {},
             onChangeDynamicColorPreference = {},
             onChangeDarkThemeConfig = {},
+            onChangePreferredWikiLanguage = {},
         )
     }
 }

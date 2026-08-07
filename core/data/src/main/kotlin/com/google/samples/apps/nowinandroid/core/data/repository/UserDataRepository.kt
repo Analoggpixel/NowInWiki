@@ -19,6 +19,7 @@ package com.google.samples.apps.nowinandroid.core.data.repository
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import kotlinx.coroutines.flow.Flow
 
 interface UserDataRepository {
@@ -62,6 +63,11 @@ interface UserDataRepository {
      * Sets the preferred dynamic color config.
      */
     suspend fun setDynamicColorPreference(useDynamicColor: Boolean)
+
+    /**
+     * Sets the preferred default wiki language.
+     */
+    suspend fun setPreferredWikiLanguage(preferredWikiLanguage: WikiLanguage)
 
     /**
      * Sets whether the user has completed the onboarding process.

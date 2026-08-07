@@ -49,5 +49,7 @@ message UserPreferences {
 
     bool use_dynamic_color = 19;
 
-    // NEXT AVAILABLE ID: 21
+    string preferred_wiki_language = 21;
+
+    // NEXT AVAILABLE ID: 22
 }

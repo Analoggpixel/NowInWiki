@@ -21,6 +21,7 @@ import androidx.datastore.core.DataStore
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.io.IOException
@@ -55,6 +56,10 @@ class NiaPreferencesDataSource @Inject constructor(
                     DarkThemeConfigProto.DARK_THEME_CONFIG_DARK -> DarkThemeConfig.DARK
                 },
                 useDynamicColor = it.useDynamicColor,
+                preferredWikiLanguage = WikiLanguage.fromCode(
+                    if (it.preferredWikiLanguage.isBlank()) WikiLanguage.CHINESE.code
+                    else it.preferredWikiLanguage,
+                ),
                 shouldHideOnboarding = it.shouldHideOnboarding,
             )
         }
@@ -104,6 +109,12 @@ class NiaPreferencesDataSource @Inject constructor(
     suspend fun setDynamicColorPreference(useDynamicColor: Boolean) {
         userPreferences.updateData {
             it.copy { this.useDynamicColor = useDynamicColor }
+        }
+    }
+
+    suspend fun setPreferredWikiLanguage(preferredWikiLanguage: WikiLanguage) {
+        userPreferences.updateData {
+            it.copy { this.preferredWikiLanguage = preferredWikiLanguage.code }
         }
     }
 

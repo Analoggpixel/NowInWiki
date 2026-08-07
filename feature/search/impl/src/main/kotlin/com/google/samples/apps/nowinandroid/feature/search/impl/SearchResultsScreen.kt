@@ -121,6 +121,7 @@ internal fun SearchResultsScreen(
             )
             is SearchResultsUiState.Success -> SearchResultsList(
                 items = uiState.items,
+                selectedLanguage = selectedLanguage,
                 onSuggestionClick = onSuggestionClick,
                 modifier = Modifier
                     .fillMaxSize()
@@ -135,6 +136,7 @@ internal fun SearchResultsScreen(
 @Composable
 private fun SearchResultsList(
     items: List<WikiSuggestionItem>,
+    selectedLanguage: WikiLanguage,
     onSuggestionClick: (WikiSuggestionItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -155,7 +157,7 @@ private fun SearchResultsList(
             items = items,
             key = { item -> item.id },
         ) { item ->
-            SearchSuggestionItem(
+            SearchResultItem(
                 item = item,
                 onClick = { onSuggestionClick(item) },
             )
@@ -247,12 +249,13 @@ private fun SearchResultsScreenPreview() {
                         title = "Kotlin",
                         description = "General-purpose programming language",
                         thumbnailUrl = null,
+                        itemLanguage = WikiLanguage.ENGLISH,
                     ),
                 ),
             ),
             onBackClick = {},
             onSuggestionClick = {},
-            onSearch = {_, _ ->},
+            onSearch = { _, _ -> },
         )
     }
 }

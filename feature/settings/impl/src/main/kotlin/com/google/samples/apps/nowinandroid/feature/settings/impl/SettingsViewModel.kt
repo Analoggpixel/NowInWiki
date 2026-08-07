@@ -21,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.nowinandroid.core.data.repository.UserDataRepository
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsUiState.Loading
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsUiState.Success
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,6 +45,7 @@ class SettingsViewModel @Inject constructor(
                         brand = userData.themeBrand,
                         useDynamicColor = userData.useDynamicColor,
                         darkThemeConfig = userData.darkThemeConfig,
+                        preferredWikiLanguage = userData.preferredWikiLanguage,
                     ),
                 )
             }
@@ -70,6 +72,12 @@ class SettingsViewModel @Inject constructor(
             userDataRepository.setDynamicColorPreference(useDynamicColor)
         }
     }
+
+    fun updatePreferredWikiLanguage(preferredWikiLanguage: WikiLanguage) {
+        viewModelScope.launch {
+            userDataRepository.setPreferredWikiLanguage(preferredWikiLanguage)
+        }
+    }
 }
 
 /**
@@ -79,6 +87,7 @@ data class UserEditableSettings(
     val brand: ThemeBrand,
     val useDynamicColor: Boolean,
     val darkThemeConfig: DarkThemeConfig,
+    val preferredWikiLanguage: WikiLanguage,
 )
 
 sealed interface SettingsUiState {

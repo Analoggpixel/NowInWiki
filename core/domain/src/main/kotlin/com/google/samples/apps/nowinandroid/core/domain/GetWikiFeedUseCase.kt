@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.feature.wikipage.api.navigation
+package com.google.samples.apps.nowinandroid.core.domain
 
-import androidx.navigation3.runtime.NavKey
+import com.google.samples.apps.nowinandroid.core.data.repository.WikiFeedRepository
+import com.google.samples.apps.nowinandroid.core.model.data.WikiFeedItem
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.navigation.Navigator
-import kotlinx.serialization.Serializable
+import javax.inject.Inject
 
-@Serializable
-data class WikiPageNavKey(
-    val title: String,
-    val languageCode: String = WikiLanguage.ENGLISH.code,
-) : NavKey
-
-fun Navigator.navigateToWikiPage(
-    title: String,
-    language: WikiLanguage,
+/**
+ * A use case which returns For You wiki feed items for the given language.
+ */
+class GetWikiFeedUseCase @Inject constructor(
+    private val wikiFeedRepository: WikiFeedRepository,
 ) {
-    navigate(WikiPageNavKey(title = title, languageCode = language.code))
+    suspend operator fun invoke(
+        language: WikiLanguage,
+    ): List<WikiFeedItem> =
+        wikiFeedRepository.getFeed(language = language)
 }
