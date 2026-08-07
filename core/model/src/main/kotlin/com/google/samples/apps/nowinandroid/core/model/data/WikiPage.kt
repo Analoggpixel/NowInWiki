@@ -19,8 +19,11 @@ package com.google.samples.apps.nowinandroid.core.model.data
 /**
  * Internal app representation of a Wikipedia page suitable for rendering.
  *
- * This model is intentionally flatter than the network `with_html` DTO so upper layers do not need
- * to know about nested fields such as `latest` and `license`.
+ * This model is intentionally flatter than network DTOs so upper layers do not need to know about
+ * nested fields such as `latest` and `license`.
+ *
+ * [resourceUrls] holds PCS `mobile-html-offline-resources` CSS/JS URLs (https). Empty when the
+ * page was loaded from a source that does not provide that list.
  */
 data class WikiPage(
     val id: Long,
@@ -32,4 +35,5 @@ data class WikiPage(
     val latestTimestamp: String,
     val licenseUrl: String,
     val licenseTitle: String,
+    val resourceUrls: List<String> = emptyList(),
 )

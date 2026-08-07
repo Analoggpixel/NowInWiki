@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.nowinandroid.feature.wikipage.impl
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.nowinandroid.core.domain.GetWikiPageUseCase
@@ -26,6 +27,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private const val WIKI_PAGE_NAV_TAG = "WikiPageNav"
 
 @HiltViewModel
 class WikiPageViewModel @Inject constructor(
@@ -40,7 +43,13 @@ class WikiPageViewModel @Inject constructor(
         language: WikiLanguage = WikiLanguage.ENGLISH,
     ) {
         val trimmed = title.trim()
+        Log.d(
+            WIKI_PAGE_NAV_TAG,
+            "loadPage request title='$trimmed' language=${language.code} " +
+                "currentState=${_uiState.value::class.simpleName}",
+        )
         if (trimmed.isEmpty()) {
+            Log.d(WIKI_PAGE_NAV_TAG, "loadPage skip: empty title")
             _uiState.value = WikiPageUiState.Idle
             return
         }
@@ -53,8 +62,18 @@ class WikiPageViewModel @Inject constructor(
                     language = language,
                 )
             }.onSuccess { page ->
+                Log.d(
+                    WIKI_PAGE_NAV_TAG,
+                    "loadPage ok title='${page.title}' htmlLen=${page.html.length} " +
+                        "resources=${page.resourceUrls.size}",
+                )
                 _uiState.value = WikiPageUiState.Success(page)
-            }.onFailure {
+            }.onFailure { error ->
+                Log.e(
+                    WIKI_PAGE_NAV_TAG,
+                    "loadPage fail title='$trimmed' language=${language.code}",
+                    error,
+                )
                 _uiState.value = WikiPageUiState.Error
             }
         }

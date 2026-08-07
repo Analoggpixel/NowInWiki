@@ -16,10 +16,12 @@
 
 package com.google.samples.apps.nowinandroid.core.data.repository
 
-import com.google.samples.apps.nowinandroid.core.data.model.asExternalModel
+import com.google.samples.apps.nowinandroid.core.data.model.pcsMobileHtmlAsExternalModel
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
 import com.google.samples.apps.nowinandroid.core.network.WikipediaNetworkDataSource
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
 internal class DefaultWikiPageRepository @Inject constructor(
@@ -29,8 +31,20 @@ internal class DefaultWikiPageRepository @Inject constructor(
     override suspend fun getPage(
         title: String,
         language: WikiLanguage,
-    ): WikiPage =
-        wikipediaNetworkDataSource
-            .getPageWithHtml(title = title, language = language)
-            .asExternalModel()
+    ): WikiPage = coroutineScope {
+        val htmlDeferred = async {
+            wikipediaNetworkDataSource.getMobileHtml(title = title, language = language)
+        }
+        val resourcesDeferred = async {
+            wikipediaNetworkDataSource.getMobileHtmlOfflineResources(
+                title = title,
+                language = language,
+            )
+        }
+        pcsMobileHtmlAsExternalModel(
+            title = title,
+            html = htmlDeferred.await(),
+            resourceUrls = resourcesDeferred.await(),
+        )
+    }
 }

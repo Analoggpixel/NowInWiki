@@ -17,11 +17,10 @@
 package com.google.samples.apps.nowinandroid.core.network
 
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiPageWithHtml
 import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiSuggestionsResponse
 
 /**
- * Interface representing network calls to the Wikipedia / MediaWiki REST API.
+ * Interface representing network calls to the Wikipedia / MediaWiki REST API and PCS.
  */
 interface WikipediaNetworkDataSource {
     suspend fun searchSuggestions(
@@ -30,12 +29,22 @@ interface WikipediaNetworkDataSource {
     ): NetworkWikiSuggestionsResponse
 
     /**
-     * Fetches a page body with rendered HTML for [title] from the given [language] edition.
+     * PCS mobile-html document for [title] (`GET /api/rest_v1/page/mobile-html/{title}`).
      *
-     * Corresponds to `GET /page/{title}/with_html` on `{language}.wikipedia.org`.
+     * Returns raw HTML (not JSON).
      */
-    suspend fun getPageWithHtml(
+    suspend fun getMobileHtml(
         title: String,
         language: WikiLanguage,
-    ): NetworkWikiPageWithHtml
+    ): String
+
+    /**
+     * Schemeless CSS/JS URLs for rendering [getMobileHtml] offline / in a WebView.
+     *
+     * `GET /api/rest_v1/page/mobile-html-offline-resources/{title}`
+     */
+    suspend fun getMobileHtmlOfflineResources(
+        title: String,
+        language: WikiLanguage,
+    ): List<String>
 }

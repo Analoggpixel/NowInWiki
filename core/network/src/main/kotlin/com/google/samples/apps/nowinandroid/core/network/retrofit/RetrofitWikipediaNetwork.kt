@@ -21,13 +21,14 @@ import androidx.tracing.trace
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.network.BuildConfig
 import com.google.samples.apps.nowinandroid.core.network.WikipediaNetworkDataSource
-import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiPageWithHtml
 import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiSuggestionsResponse
-import com.google.samples.apps.nowinandroid.core.network.wikipediaPageWithHtmlUrl
+import com.google.samples.apps.nowinandroid.core.network.wikipediaMobileHtmlOfflineResourcesUrl
+import com.google.samples.apps.nowinandroid.core.network.wikipediaMobileHtmlUrl
 import com.google.samples.apps.nowinandroid.core.network.wikipediaSearchPageUrl
 import kotlinx.serialization.json.Json
 import okhttp3.Call
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.GET
@@ -41,16 +42,17 @@ private interface RetrofitWikipediaApi {
         @Url url: String,
     ): NetworkWikiSuggestionsResponse
 
+    /** Raw body for non-JSON or hand-parsed JSON responses (PCS HTML / resource lists). */
     @GET
-    suspend fun getPageWithHtml(
+    suspend fun getRawBody(
         @Url url: String,
-    ): NetworkWikiPageWithHtml
+    ): ResponseBody
 }
 
 /**
  * Retrofit 要求的占位 baseUrl（[BuildConfig.WIKIPEDIA_BASE_URL]）。
  *
- * 真正的 Wikipedia 请求会传入由 [wikipediaSearchPageUrl] / [wikipediaPageWithHtmlUrl]
+ * 真正的 Wikipedia 请求会传入由 [wikipediaSearchPageUrl] / [wikipediaMobileHtmlUrl] 等
  * 按 [WikiLanguage] 拼好的绝对 `@Url`，因此该 host 不参与解析这些接口的实际地址，
  * 仅用于满足 Retrofit.Builder.baseUrl。
  */
@@ -61,7 +63,7 @@ private const val WIKIPEDIA_BASE_URL = BuildConfig.WIKIPEDIA_BASE_URL
  */
 @Singleton
 internal class RetrofitWikipediaNetwork @Inject constructor(
-    networkJson: Json,
+    private val networkJson: Json,
     okhttpCallFactory: dagger.Lazy<Call.Factory>,
 ) : WikipediaNetworkDataSource {
 
@@ -91,11 +93,21 @@ internal class RetrofitWikipediaNetwork @Inject constructor(
         }
     }
 
-    override suspend fun getPageWithHtml(
+    override suspend fun getMobileHtml(
         title: String,
         language: WikiLanguage,
-    ): NetworkWikiPageWithHtml =
-        wikipediaApi.getPageWithHtml(
-            url = wikipediaPageWithHtmlUrl(language = language, title = title),
-        )
+    ): String =
+        wikipediaApi.getRawBody(
+            url = wikipediaMobileHtmlUrl(language = language, title = title),
+        ).use { it.string() }
+
+    override suspend fun getMobileHtmlOfflineResources(
+        title: String,
+        language: WikiLanguage,
+    ): List<String> {
+        val body = wikipediaApi.getRawBody(
+            url = wikipediaMobileHtmlOfflineResourcesUrl(language = language, title = title),
+        ).use { it.string() }
+        return networkJson.decodeFromString<List<String>>(body)
+    }
 }

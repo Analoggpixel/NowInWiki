@@ -18,6 +18,8 @@ package com.google.samples.apps.nowinandroid.feature.wikipage.impl
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.util.Log
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Box
@@ -38,6 +40,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -71,8 +75,11 @@ internal fun WikiPageScreen(
     WikiPageScreen(
         title = title,
         uiState = uiState,
+        language = language,
         onBackClick = onBackClick,
-        siteBaseUrl = "https://${language.code}.wikipedia.org/wiki/${Uri.encode(title)}",
+        onInternalWikiLink = { linkedTitle ->
+            viewModel.loadPage(title = linkedTitle, language = language)
+        },
         modifier = modifier,
     )
 }
@@ -81,9 +88,10 @@ internal fun WikiPageScreen(
 internal fun WikiPageScreen(
     title: String,
     uiState: WikiPageUiState,
+    language: WikiLanguage,
     onBackClick: () -> Unit,
+    onInternalWikiLink: (String) -> Unit,
     modifier: Modifier = Modifier,
-    siteBaseUrl: String,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
@@ -120,9 +128,23 @@ internal fun WikiPageScreen(
                 }
             }
             is WikiPageUiState.Success -> {
+                val pageTitle = uiState.page.title
+                val siteBaseUrl =
+                    "https://${language.code}.wikipedia.org/wiki/${Uri.encode(pageTitle)}"
+                val preparedHtml = remember(
+                    uiState.page.html,
+                    uiState.page.resourceUrls,
+                ) {
+                    prepareMobileHtmlForWebView(
+                        html = uiState.page.html,
+                        resourceUrls = uiState.page.resourceUrls,
+                    )
+                }
                 WikiPageHtmlContent(
-                    html = uiState.page.html,
+                    html = preparedHtml,
                     siteBaseUrl = siteBaseUrl,
+                    language = language,
+                    onInternalWikiLink = onInternalWikiLink,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth(),
@@ -169,13 +191,99 @@ private fun WikiPageTopBar(
 private fun WikiPageHtmlContent(
     html: String,
     siteBaseUrl: String,
+    language: WikiLanguage,
+    onInternalWikiLink: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val latestOnInternalWikiLink by rememberUpdatedState(onInternalWikiLink)
+    val latestLanguage by rememberUpdatedState(language)
+
     AndroidView(
         modifier = modifier,
         factory = { context ->
             WebView(context).apply {
-                webViewClient = WebViewClient()
+                // PCS JS 会拦截 <a> 点击并通过 window.pcsClient 回调，而不是触发
+                // shouldOverrideUrlLoading；必须在 loadData 之前注册同名 bridge。
+                addJavascriptInterface(
+                    PcsClientBridge { href ->
+                        post {
+                            val articleTitle = parseArticleTitleFromHref(
+                                href = href,
+                                language = latestLanguage,
+                            )
+                            Log.d(
+                                "WikiPageNav",
+                                "pcs link href=$href → title=$articleTitle " +
+                                    "language=${latestLanguage.code}",
+                            )
+                            if (articleTitle != null) {
+                                latestOnInternalWikiLink(articleTitle)
+                            }
+                        }
+                    },
+                    "pcsClient",
+                )
+                webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                    ): Boolean {
+                        val uri = request?.url
+                        Log.d(
+                            "WikiPageNav",
+                            "click(api21+) uri=$uri isForMainFrame=${request?.isForMainFrame} " +
+                                "hasGesture=${request?.hasGesture()} language=${latestLanguage.code}",
+                        )
+                        if (uri == null) {
+                            Log.d("WikiPageNav", "click(api21+): url null → allow WebView")
+                            return false
+                        }
+                        val articleTitle = parseInternalWikiArticleTitle(
+                            uri = uri,
+                            language = latestLanguage,
+                        )
+                        if (articleTitle != null) {
+                            Log.d(
+                                "WikiPageNav",
+                                "click(api21+): intercept → loadPage title=$articleTitle",
+                            )
+                            latestOnInternalWikiLink(articleTitle)
+                            return true
+                        }
+                        Log.d("WikiPageNav", "click(api21+): not internal → allow WebView")
+                        return false
+                    }
+
+                    @Deprecated("Deprecated in Java")
+                    override fun shouldOverrideUrlLoading(
+                        view: WebView?,
+                        url: String?,
+                    ): Boolean {
+                        Log.d(
+                            "WikiPageNav",
+                            "click(legacy) url=$url language=${latestLanguage.code}",
+                        )
+                        val uri = url?.let(Uri::parse)
+                        if (uri == null) {
+                            Log.d("WikiPageNav", "click(legacy): url null → allow WebView")
+                            return false
+                        }
+                        val articleTitle = parseInternalWikiArticleTitle(
+                            uri = uri,
+                            language = latestLanguage,
+                        )
+                        if (articleTitle != null) {
+                            Log.d(
+                                "WikiPageNav",
+                                "click(legacy): intercept → loadPage title=$articleTitle",
+                            )
+                            latestOnInternalWikiLink(articleTitle)
+                            return true
+                        }
+                        Log.d("WikiPageNav", "click(legacy): not internal → allow WebView")
+                        return false
+                    }
+                }
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
                 settings.loadsImagesAutomatically = true
@@ -184,13 +292,17 @@ private fun WikiPageHtmlContent(
             }
         },
         update = { webView ->
-            webView.loadDataWithBaseURL(
-                siteBaseUrl,
-                html,
-                "text/html",
-                Charsets.UTF_8.name(),
-                null,
-            )
+            val loadKey = "$siteBaseUrl|${html.hashCode()}"
+            if (webView.tag != loadKey) {
+                webView.tag = loadKey
+                webView.loadDataWithBaseURL(
+                    siteBaseUrl,
+                    html,
+                    "text/html",
+                    Charsets.UTF_8.name(),
+                    null,
+                )
+            }
         },
     )
 }
@@ -214,9 +326,10 @@ private fun WikiPageScreenPreview() {
                     licenseTitle = "CC BY-SA 4.0",
                 ),
             ),
+            language = WikiLanguage.ENGLISH,
             onBackClick = {},
+            onInternalWikiLink = {},
             modifier = Modifier,
-            siteBaseUrl = "https://en.wikipedia.org/wiki/",
         )
     }
 }

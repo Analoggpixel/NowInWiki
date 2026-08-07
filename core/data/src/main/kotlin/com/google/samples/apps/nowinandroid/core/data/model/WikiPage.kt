@@ -17,17 +17,36 @@
 package com.google.samples.apps.nowinandroid.core.data.model
 
 import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
-import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiPageWithHtml
 
-fun NetworkWikiPageWithHtml.asExternalModel(): WikiPage =
-    WikiPage(
-        id = id,
-        key = key,
-        title = title,
+/**
+ * Builds a [WikiPage] from PCS `mobile-html` + `mobile-html-offline-resources`.
+ *
+ * PCS returns a bare HTML document (and a separate URL list), not Core REST page JSON,
+ * so revision / license metadata is left empty until a dedicated summary fetch is added.
+ */
+fun pcsMobileHtmlAsExternalModel(
+    title: String,
+    html: String,
+    resourceUrls: List<String>,
+): WikiPage {
+    val displayTitle = title.replace('_', ' ').trim()
+    return WikiPage(
+        id = 0L,
+        key = displayTitle.replace(' ', '_'),
+        title = displayTitle,
         html = html,
-        contentModel = contentModel,
-        latestRevisionId = latest.id,
-        latestTimestamp = latest.timestamp,
-        licenseUrl = license.url,
-        licenseTitle = license.title,
+        contentModel = "",
+        latestRevisionId = 0L,
+        latestTimestamp = "",
+        licenseUrl = "",
+        licenseTitle = "",
+        resourceUrls = resourceUrls.map(::toAbsoluteHttpsUrl),
     )
+}
+
+private fun toAbsoluteHttpsUrl(url: String): String =
+    when {
+        url.startsWith("//") -> "https:$url"
+        url.startsWith("http://") || url.startsWith("https://") -> url
+        else -> url
+    }

@@ -27,11 +27,38 @@ import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 fun wikipediaRestBaseUrl(language: WikiLanguage): String =
     "https://${language.code}.wikipedia.org/w/rest.php/v1/"
 
+/**
+ * Page Content Service (PCS) base under `/api/rest_v1/`.
+ *
+ * Distinct from [wikipediaRestBaseUrl] (`/w/rest.php/v1/`).
+ */
+fun wikipediaPcsBaseUrl(language: WikiLanguage): String =
+    "https://${language.code}.wikipedia.org/api/rest_v1/"
+
 fun wikipediaSiteBaseUrl(language: WikiLanguage): String =
     "https://${language.code}.wikipedia.org/"
 
 fun wikipediaSearchPageUrl(language: WikiLanguage, query: String): String =
     "${wikipediaRestBaseUrl(language)}search/page?q=${Uri.encode(query)}"
 
-fun wikipediaPageWithHtmlUrl(language: WikiLanguage, title: String): String =
-    "${wikipediaRestBaseUrl(language)}page/${Uri.encode(title)}/with_html"
+/**
+ * PCS mobile-optimized HTML for native reading clients.
+ *
+ * `GET /api/rest_v1/page/mobile-html/{title}` — title uses underscores + percent-encoding.
+ */
+fun wikipediaMobileHtmlUrl(language: WikiLanguage, title: String): String =
+    "${wikipediaPcsBaseUrl(language)}page/mobile-html/${encodePcsPageTitle(title)}"
+
+/**
+ * CSS/JS URL list that accompanies [wikipediaMobileHtmlUrl] for offline / WebView styling.
+ *
+ * `GET /api/rest_v1/page/mobile-html-offline-resources/{title}`
+ */
+fun wikipediaMobileHtmlOfflineResourcesUrl(language: WikiLanguage, title: String): String =
+    "${wikipediaPcsBaseUrl(language)}page/mobile-html-offline-resources/${encodePcsPageTitle(title)}"
+
+/**
+ * PCS path titles: spaces → underscores, then percent-encode (e.g. `Main_Page`).
+ */
+private fun encodePcsPageTitle(title: String): String =
+    Uri.encode(title.trim().replace(' ', '_'))
