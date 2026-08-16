@@ -20,12 +20,18 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.nowinandroid.core.domain.GetWikiSuggestionsUseCase
+import com.google.samples.apps.nowinandroid.core.domain.ObserveWikiBookmarkFoldersUseCase
+import com.google.samples.apps.nowinandroid.core.domain.ToggleWikiBookmarkUseCase
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionItem
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,6 +39,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchResultsViewModel @Inject constructor(
     private val getWikiSuggestionsUseCase: GetWikiSuggestionsUseCase,
+    private val toggleWikiBookmarkUseCase: ToggleWikiBookmarkUseCase,
+    observeWikiBookmarkFoldersUseCase: ObserveWikiBookmarkFoldersUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -48,6 +56,24 @@ class SearchResultsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<SearchResultsUiState>(SearchResultsUiState.Idle)
     val uiState: StateFlow<SearchResultsUiState> = _uiState.asStateFlow()
 
+    /**
+     * 所有已收藏条目的 [bookmarkKey]（title + language）。
+     * 列表用这一份 Set 判断勾选状态，避免每一行单独 observe。
+     */
+    val bookmarkedKeys: StateFlow<Set<String>> =
+        observeWikiBookmarkFoldersUseCase()
+            .map { folders ->
+                folders.asSequence()
+                    .flatMap { folder -> folder.bookmarks }
+                    .map { bookmark -> bookmarkKey(bookmark.title, bookmark.language) }
+                    .toSet()
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptySet(),
+            )
+
     fun onSearch(query: String, selectedLanguage: WikiLanguage) {
         val trimmed = query.trim()
         savedStateHandle[SEARCH_RESULTS_QUERY] = trimmed
@@ -62,7 +88,6 @@ class SearchResultsViewModel @Inject constructor(
             _uiState.value = SearchResultsUiState.Loading
 
             runCatching {
-                // Language picker UI is not wired yet; default to English.
                 getWikiSuggestionsUseCase(
                     query = trimmed,
                     language = selectedLanguage,
@@ -92,7 +117,24 @@ class SearchResultsViewModel @Inject constructor(
     fun onLanguageSelected(selectedLanguage: WikiLanguage) {
         savedStateHandle[SELECTED_LANGUAGE] = selectedLanguage
     }
+
+    fun toggleBookmark(item: WikiSuggestionItem) {
+        viewModelScope.launch {
+            toggleWikiBookmarkUseCase(
+                title = item.title,
+                language = item.itemLanguage,
+                description = item.description ?: item.excerpt,
+                thumbnailUrl = item.thumbnailUrl,
+            )
+        }
+    }
+
+    fun isBookmarked(item: WikiSuggestionItem, bookmarkedKeys: Set<String>): Boolean =
+        bookmarkKey(item.title, item.itemLanguage) in bookmarkedKeys
 }
+
+internal fun bookmarkKey(title: String, language: WikiLanguage): String =
+    "${language.code}\t${title.trim()}"
 
 private const val SEARCH_RESULTS_QUERY = "searchResultsQuery"
 private const val SELECTED_LANGUAGE = "selectedLanguage"

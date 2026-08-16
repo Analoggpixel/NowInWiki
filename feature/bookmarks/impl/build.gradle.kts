@@ -24,9 +24,9 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.data)
+    implementation(projects.core.domain)
     implementation(projects.feature.bookmarks.api)
-    implementation(projects.feature.topic.api)
+    implementation(projects.feature.wikipage.api)
 
     testImplementation(projects.core.testing)
 

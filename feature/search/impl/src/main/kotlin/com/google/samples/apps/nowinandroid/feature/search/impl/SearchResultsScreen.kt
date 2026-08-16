@@ -16,7 +16,6 @@
 
 package com.google.samples.apps.nowinandroid.feature.search.impl
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -52,6 +51,7 @@ import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionItem
 import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
+import com.google.samples.apps.nowinandroid.core.ui.WikiBookmarkToggleButton
 
 @Composable
 internal fun SearchResultsScreen(
@@ -65,6 +65,7 @@ internal fun SearchResultsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
+    val bookmarkedKeys by viewModel.bookmarkedKeys.collectAsStateWithLifecycle()
 
     LaunchedEffect(navQuery) {
         viewModel.onSearch(navQuery, selectedLanguage)
@@ -74,8 +75,10 @@ internal fun SearchResultsScreen(
         searchQuery = searchQuery,
         selectedLanguage = selectedLanguage,
         uiState = uiState,
+        bookmarkedKeys = bookmarkedKeys,
         onBackClick = onBackClick,
         onSuggestionClick = onSuggestionClick,
+        onToggleBookmark = viewModel::toggleBookmark,
         onSearch = viewModel::onSearch,
         onSearchQueryChanged = viewModel::onQueryChanged,
         onLanguageSelected = viewModel::onLanguageSelected,
@@ -91,6 +94,8 @@ internal fun SearchResultsScreen(
     onBackClick: () -> Unit,
     onSuggestionClick: (WikiSuggestionItem) -> Unit,
     onSearch: (String, WikiLanguage) -> Unit,
+    bookmarkedKeys: Set<String> = emptySet(),
+    onToggleBookmark: (WikiSuggestionItem) -> Unit = {},
     onSearchQueryChanged: (String) -> Unit = {},
     onLanguageSelected: (WikiLanguage) -> Unit = {},
     modifier: Modifier = Modifier,
@@ -121,8 +126,9 @@ internal fun SearchResultsScreen(
             )
             is SearchResultsUiState.Success -> SearchResultsList(
                 items = uiState.items,
-                selectedLanguage = selectedLanguage,
+                bookmarkedKeys = bookmarkedKeys,
                 onSuggestionClick = onSuggestionClick,
+                onToggleBookmark = onToggleBookmark,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
@@ -136,8 +142,9 @@ internal fun SearchResultsScreen(
 @Composable
 private fun SearchResultsList(
     items: List<WikiSuggestionItem>,
-    selectedLanguage: WikiLanguage,
+    bookmarkedKeys: Set<String>,
     onSuggestionClick: (WikiSuggestionItem) -> Unit,
+    onToggleBookmark: (WikiSuggestionItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -159,7 +166,9 @@ private fun SearchResultsList(
         ) { item ->
             SearchResultItem(
                 item = item,
+                isBookmarked = bookmarkKey(item.title, item.itemLanguage) in bookmarkedKeys,
                 onClick = { onSuggestionClick(item) },
+                onToggleBookmark = { onToggleBookmark(item) },
             )
         }
     }
@@ -168,11 +177,12 @@ private fun SearchResultsList(
 @Composable
 private fun SearchResultItem(
     item: WikiSuggestionItem,
+    isBookmarked: Boolean,
     onClick: () -> Unit,
+    onToggleBookmark: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val thumbnailUrl = item.thumbnailUrl
-    val description = item.description
     val excerpt = item.excerpt
 
     Surface(
@@ -190,7 +200,6 @@ private fun SearchResultItem(
             verticalAlignment = Alignment.Top,
         ) {
             if (thumbnailUrl != null) {
-                Log.d("WikiSuggestions", "thumbnailUrl=$thumbnailUrl")
                 DynamicAsyncImage(
                     imageUrl = thumbnailUrl,
                     contentDescription = item.title,
@@ -219,17 +228,12 @@ private fun SearchResultItem(
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-
-//                if (!excerpt.isNullOrBlank()) {
-//                    Text(
-//                        text = excerpt,
-//                        style = MaterialTheme.typography.bodySmall,
-//                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-//                        maxLines = 3,
-//                        overflow = TextOverflow.Ellipsis,
-//                    )
-//                }
             }
+
+            WikiBookmarkToggleButton(
+                isBookmarked = isBookmarked,
+                onToggle = onToggleBookmark,
+            )
         }
     }
 }
@@ -253,8 +257,10 @@ private fun SearchResultsScreenPreview() {
                     ),
                 ),
             ),
+            bookmarkedKeys = setOf(bookmarkKey("Kotlin", WikiLanguage.ENGLISH)),
             onBackClick = {},
             onSuggestionClick = {},
+            onToggleBookmark = {},
             onSearch = { _, _ -> },
         )
     }

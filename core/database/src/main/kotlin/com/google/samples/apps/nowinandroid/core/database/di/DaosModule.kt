@@ -22,6 +22,8 @@ import com.google.samples.apps.nowinandroid.core.database.dao.NewsResourceFtsDao
 import com.google.samples.apps.nowinandroid.core.database.dao.RecentSearchQueryDao
 import com.google.samples.apps.nowinandroid.core.database.dao.TopicDao
 import com.google.samples.apps.nowinandroid.core.database.dao.TopicFtsDao
+import com.google.samples.apps.nowinandroid.core.database.dao.WikiBookmarkDao
+import com.google.samples.apps.nowinandroid.core.database.dao.WikiBookmarkFolderDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -54,4 +56,14 @@ internal object DaosModule {
     fun providesRecentSearchQueryDao(
         database: NiaDatabase,
     ): RecentSearchQueryDao = database.recentSearchQueryDao()
+
+    @Provides
+    fun providesWikiBookmarkFolderDao(
+        database: NiaDatabase,
+    ): WikiBookmarkFolderDao = database.wikiBookmarkFolderDao()
+
+    @Provides
+    fun providesWikiBookmarkDao(
+        database: NiaDatabase,
+    ): WikiBookmarkDao = database.wikiBookmarkDao()
 }

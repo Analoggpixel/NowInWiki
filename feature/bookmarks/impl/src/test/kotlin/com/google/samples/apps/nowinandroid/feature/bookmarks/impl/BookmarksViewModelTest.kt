@@ -16,15 +16,19 @@
 
 package com.google.samples.apps.nowinandroid.feature.bookmarks.impl
 
-import com.google.samples.apps.nowinandroid.core.data.repository.CompositeUserNewsResourceRepository
-import com.google.samples.apps.nowinandroid.core.testing.data.newsResourcesTestData
-import com.google.samples.apps.nowinandroid.core.testing.repository.TestNewsRepository
-import com.google.samples.apps.nowinandroid.core.testing.repository.TestUserDataRepository
+import com.google.samples.apps.nowinandroid.core.data.repository.WikiBookmarkRepository
+import com.google.samples.apps.nowinandroid.core.domain.CreateWikiBookmarkFolderUseCase
+import com.google.samples.apps.nowinandroid.core.domain.ObserveWikiBookmarkFoldersUseCase
+import com.google.samples.apps.nowinandroid.core.domain.RenameWikiBookmarkFolderUseCase
+import com.google.samples.apps.nowinandroid.core.domain.ToggleWikiBookmarkUseCase
+import com.google.samples.apps.nowinandroid.core.model.data.WikiBookmark
+import com.google.samples.apps.nowinandroid.core.model.data.WikiBookmarkFolder
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.testing.util.MainDispatcherRule
-import com.google.samples.apps.nowinandroid.core.ui.NewsFeedUiState.Loading
-import com.google.samples.apps.nowinandroid.core.ui.NewsFeedUiState.Success
-import com.google.samples.apps.nowinandroid.feature.bookmarks.impl.BookmarksViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -32,106 +36,149 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
+import kotlin.test.assertNull
 
-/**
- * To learn more about how this test handles Flows created with stateIn, see
- * https://developer.android.com/kotlin/flow/test#statein
- */
 class BookmarksViewModelTest {
     @get:Rule
     val dispatcherRule = MainDispatcherRule()
 
-    private val userDataRepository = TestUserDataRepository()
-    private val newsRepository = TestNewsRepository()
-    private val userNewsResourceRepository = CompositeUserNewsResourceRepository(
-        newsRepository = newsRepository,
-        userDataRepository = userDataRepository,
-    )
+    private val foldersFlow = MutableStateFlow<List<WikiBookmarkFolder>>(emptyList())
+    private var nextFolderId = 100L
+    private val fakeRepository = object : WikiBookmarkRepository {
+        override fun observeFolders(): Flow<List<WikiBookmarkFolder>> = foldersFlow
+        override fun observeFolder(folderId: Long) = MutableStateFlow(null)
+        override fun observeIsBookmarked(title: String, language: WikiLanguage) =
+            MutableStateFlow(false)
+        override fun observeIsBookmarkedInFolder(
+            folderId: Long,
+            title: String,
+            language: WikiLanguage,
+        ) = MutableStateFlow(false)
+        override suspend fun createFolder(name: String, description: String?, sortOrder: Int?): Long {
+            val id = nextFolderId++
+            foldersFlow.update { current ->
+                current + WikiBookmarkFolder(id = id, name = name, bookmarks = emptyList())
+            }
+            return id
+        }
+        override suspend fun updateFolder(
+            folderId: Long,
+            name: String,
+            description: String?,
+            sortOrder: Int?,
+        ) = Unit
+        override suspend fun deleteFolder(folderId: Long) = Unit
+        override suspend fun upsertBookmark(folderId: Long, bookmark: WikiBookmark) = Unit
+        override suspend fun removeBookmark(
+            folderId: Long,
+            title: String,
+            language: WikiLanguage,
+        ) = Unit
+        override suspend fun removeBookmarkById(bookmarkId: Long) = Unit
+        override suspend fun moveBookmark(bookmarkId: Long, toFolderId: Long) = Unit
+        override suspend fun getOrCreateDefaultFolder() = 1L
+        override suspend fun removeBookmarkEverywhere(title: String, language: WikiLanguage) = Unit
+        override suspend fun toggleBookmark(
+            title: String,
+            language: WikiLanguage,
+            folderId: Long?,
+            description: String?,
+            thumbnailUrl: String?,
+        ) = Unit
+    }
+
     private lateinit var viewModel: BookmarksViewModel
 
     @Before
     fun setup() {
         viewModel = BookmarksViewModel(
-            userDataRepository = userDataRepository,
-            userNewsResourceRepository = userNewsResourceRepository,
+            observeWikiBookmarkFoldersUseCase = ObserveWikiBookmarkFoldersUseCase(fakeRepository),
+            toggleWikiBookmarkUseCase = ToggleWikiBookmarkUseCase(fakeRepository),
+            createWikiBookmarkFolderUseCase = CreateWikiBookmarkFolderUseCase(fakeRepository),
+            renameWikiBookmarkFolderUseCase = RenameWikiBookmarkFolderUseCase(fakeRepository),
         )
     }
 
     @Test
     fun stateIsInitiallyLoading() = runTest {
-        assertEquals(Loading, viewModel.feedUiState.value)
+        assertEquals(WikiBookmarksUiState.Loading, viewModel.uiState.value)
     }
 
     @Test
-    fun oneBookmark_showsInFeed() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.feedUiState.collect() }
+    fun emptyFolders_emitsEmpty() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
 
-        newsRepository.sendNewsResources(newsResourcesTestData)
-        userDataRepository.setNewsResourceBookmarked(newsResourcesTestData[0].id, true)
-        val item = viewModel.feedUiState.value
-        assertIs<Success>(item)
-        assertEquals(item.feed.size, 1)
+        foldersFlow.value = emptyList()
+        assertEquals(WikiBookmarksUiState.Empty, viewModel.uiState.value)
     }
 
     @Test
-    fun oneBookmark_whenRemoving_removesFromFeed() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.feedUiState.collect() }
-        // Set the news resources to be used by this test
-        newsRepository.sendNewsResources(newsResourcesTestData)
-        // Start with the resource saved
-        userDataRepository.setNewsResourceBookmarked(newsResourcesTestData[0].id, true)
-        // Use viewModel to remove saved resource
-        viewModel.removeFromSavedResources(newsResourcesTestData[0].id)
-        // Verify list of saved resources is now empty
-        val item = viewModel.feedUiState.value
-        assertIs<Success>(item)
-        assertEquals(item.feed.size, 0)
-        assertTrue(viewModel.shouldDisplayUndoBookmark)
+    fun foldersWithBookmarks_emitsSuccess() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
+
+        foldersFlow.update {
+            listOf(
+                WikiBookmarkFolder(
+                    id = 1,
+                    name = "默认收藏",
+                    bookmarks = listOf(
+                        WikiBookmark(
+                            id = 11,
+                            folderId = 1,
+                            title = "Kotlin",
+                            language = WikiLanguage.ENGLISH,
+                            bookmarkedAt = 1L,
+                        ),
+                    ),
+                ),
+            )
+        }
+
+        val state = viewModel.uiState.value
+        assertIs<WikiBookmarksUiState.Success>(state)
+        assertEquals(1, state.folders.size)
+        assertEquals("Kotlin", state.folders.first().bookmarks.first().title)
     }
 
     @Test
-    fun feedUiState_resourceIsViewed_setResourcesViewed() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.feedUiState.collect() }
+    fun startRename_setsRenameState() = runTest {
+        viewModel.startRenameFolder(folderId = 1L, currentName = "默认收藏")
+        assertEquals(
+            FolderRenameUiState(folderId = 1L, draftName = "默认收藏"),
+            viewModel.renameState.value,
+        )
 
-        // Given
-        newsRepository.sendNewsResources(newsResourcesTestData)
-        userDataRepository.setNewsResourceBookmarked(newsResourcesTestData[0].id, true)
-        val itemBeforeViewed = viewModel.feedUiState.value
-        assertIs<Success>(itemBeforeViewed)
-        assertFalse(itemBeforeViewed.feed.first().hasBeenViewed)
+        viewModel.onRenameDraftChanged("旅行")
+        assertEquals("旅行", viewModel.renameState.value?.draftName)
 
-        // When
-        viewModel.setNewsResourceViewed(newsResourcesTestData[0].id, true)
-
-        // Then
-        val item = viewModel.feedUiState.value
-        assertIs<Success>(item)
-        assertTrue(item.feed.first().hasBeenViewed)
+        viewModel.confirmRenameFolder()
+        assertNull(viewModel.renameState.value)
     }
 
     @Test
-    fun feedUiState_undoneBookmarkRemoval_bookmarkIsRestored() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.feedUiState.collect() }
+    fun cancelRename_clearsRenameState() = runTest {
+        viewModel.startRenameFolder(folderId = 1L, currentName = "默认收藏")
+        viewModel.cancelRenameFolder()
+        assertNull(viewModel.renameState.value)
+    }
 
-        // Given
-        newsRepository.sendNewsResources(newsResourcesTestData)
-        userDataRepository.setNewsResourceBookmarked(newsResourcesTestData[0].id, true)
-        viewModel.removeFromSavedResources(newsResourcesTestData[0].id)
-        assertTrue(viewModel.shouldDisplayUndoBookmark)
-        val itemBeforeUndo = viewModel.feedUiState.value
-        assertIs<Success>(itemBeforeUndo)
-        assertEquals(0, itemBeforeUndo.feed.size)
+    @Test
+    fun createBookmarkFolder_usesFolderCountPlusOneAsDefaultName() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
 
-        // When
-        viewModel.undoBookmarkRemoval()
+        foldersFlow.value = listOf(
+            WikiBookmarkFolder(id = 1, name = "默认收藏", bookmarks = emptyList()),
+            WikiBookmarkFolder(id = 2, name = "旅行", bookmarks = emptyList()),
+        )
 
-        // Then
-        assertFalse(viewModel.shouldDisplayUndoBookmark)
-        val item = viewModel.feedUiState.value
-        assertIs<Success>(item)
-        assertEquals(1, item.feed.size)
+        viewModel.createBookmarkFolder()
+
+        // 已有 2 个夹 → 默认名「收藏夹3」
+        assertEquals(
+            FolderRenameUiState(folderId = 100L, draftName = "收藏夹3"),
+            viewModel.renameState.value,
+        )
+        assertEquals("收藏夹3", foldersFlow.value.last().name)
     }
 }

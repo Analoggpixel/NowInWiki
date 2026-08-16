@@ -57,6 +57,7 @@ import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
 import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
 import com.google.samples.apps.nowinandroid.core.ui.R as UiR
+import com.google.samples.apps.nowinandroid.core.ui.WikiBookmarkToggleButton
 
 @Composable
 internal fun WikiPageScreen(
@@ -67,6 +68,7 @@ internal fun WikiPageScreen(
     viewModel: WikiPageViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isBookmarked by viewModel.isBookmarked.collectAsStateWithLifecycle()
 
     LaunchedEffect(title, language) {
         viewModel.loadPage(title = title, language = language)
@@ -76,7 +78,9 @@ internal fun WikiPageScreen(
         title = title,
         uiState = uiState,
         language = language,
+        isBookmarked = isBookmarked,
         onBackClick = onBackClick,
+        onToggleBookmark = viewModel::toggleBookmark,
         onInternalWikiLink = { linkedTitle ->
             viewModel.loadPage(title = linkedTitle, language = language)
         },
@@ -89,7 +93,9 @@ internal fun WikiPageScreen(
     title: String,
     uiState: WikiPageUiState,
     language: WikiLanguage,
+    isBookmarked: Boolean,
     onBackClick: () -> Unit,
+    onToggleBookmark: () -> Unit,
     onInternalWikiLink: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -100,7 +106,10 @@ internal fun WikiPageScreen(
                 is WikiPageUiState.Success -> uiState.page.title
                 else -> title
             },
+            isBookmarked = isBookmarked,
+            showBookmarkToggle = uiState is WikiPageUiState.Success,
             onBackClick = onBackClick,
+            onToggleBookmark = onToggleBookmark,
         )
 
         when (uiState) {
@@ -159,7 +168,10 @@ internal fun WikiPageScreen(
 @Composable
 private fun WikiPageTopBar(
     title: String,
+    isBookmarked: Boolean,
+    showBookmarkToggle: Boolean,
     onBackClick: () -> Unit,
+    onToggleBookmark: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -181,8 +193,15 @@ private fun WikiPageTopBar(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 16.dp),
+                .padding(end = 8.dp),
         )
+        if (showBookmarkToggle) {
+            WikiBookmarkToggleButton(
+                isBookmarked = isBookmarked,
+                onToggle = onToggleBookmark,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
     }
 }
 
@@ -327,7 +346,9 @@ private fun WikiPageScreenPreview() {
                 ),
             ),
             language = WikiLanguage.ENGLISH,
+            isBookmarked = true,
             onBackClick = {},
+            onToggleBookmark = {},
             onInternalWikiLink = {},
             modifier = Modifier,
         )

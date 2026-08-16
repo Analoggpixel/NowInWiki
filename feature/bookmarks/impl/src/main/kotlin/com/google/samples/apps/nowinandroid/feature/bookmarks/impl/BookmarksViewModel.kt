@@ -16,69 +16,123 @@
 
 package com.google.samples.apps.nowinandroid.feature.bookmarks.impl
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.samples.apps.nowinandroid.core.data.repository.UserDataRepository
-import com.google.samples.apps.nowinandroid.core.data.repository.UserNewsResourceRepository
-import com.google.samples.apps.nowinandroid.core.model.data.UserNewsResource
-import com.google.samples.apps.nowinandroid.core.ui.NewsFeedUiState
-import com.google.samples.apps.nowinandroid.core.ui.NewsFeedUiState.Loading
+import com.google.samples.apps.nowinandroid.core.domain.CreateWikiBookmarkFolderUseCase
+import com.google.samples.apps.nowinandroid.core.domain.ObserveWikiBookmarkFoldersUseCase
+import com.google.samples.apps.nowinandroid.core.domain.RenameWikiBookmarkFolderUseCase
+import com.google.samples.apps.nowinandroid.core.domain.ToggleWikiBookmarkUseCase
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class FolderRenameUiState(
+    val folderId: Long,
+    val draftName: String,
+)
+
 @HiltViewModel
 class BookmarksViewModel @Inject constructor(
-    private val userDataRepository: UserDataRepository,
-    userNewsResourceRepository: UserNewsResourceRepository,
+    observeWikiBookmarkFoldersUseCase: ObserveWikiBookmarkFoldersUseCase,
+    private val toggleWikiBookmarkUseCase: ToggleWikiBookmarkUseCase,
+    private val createWikiBookmarkFolderUseCase: CreateWikiBookmarkFolderUseCase,
+    private val renameWikiBookmarkFolderUseCase: RenameWikiBookmarkFolderUseCase,
 ) : ViewModel() {
 
-    var shouldDisplayUndoBookmark by mutableStateOf(false)
-    private var lastRemovedBookmarkId: String? = null
-
-    val feedUiState: StateFlow<NewsFeedUiState> =
-        userNewsResourceRepository.observeAllBookmarked()
-            .map<List<UserNewsResource>, NewsFeedUiState>(NewsFeedUiState::Success)
-            .onStart { emit(Loading) }
+    val uiState: StateFlow<WikiBookmarksUiState> =
+        observeWikiBookmarkFoldersUseCase()
+            .map { folders ->
+                when {
+                    folders.isEmpty() -> WikiBookmarksUiState.Empty
+                    else -> WikiBookmarksUiState.Success(folders = folders)
+                }
+            }
+            .onStart { emit(WikiBookmarksUiState.Loading) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = Loading,
+                initialValue = WikiBookmarksUiState.Loading,
             )
 
-    fun removeFromSavedResources(newsResourceId: String) {
+    private val _renameState = MutableStateFlow<FolderRenameUiState?>(null)
+    val renameState: StateFlow<FolderRenameUiState?> = _renameState.asStateFlow()
+
+    fun toggleBookmark(
+        title: String,
+        language: WikiLanguage,
+        description: String? = null,
+        thumbnailUrl: String? = null,
+    ) {
         viewModelScope.launch {
-            shouldDisplayUndoBookmark = true
-            lastRemovedBookmarkId = newsResourceId
-            userDataRepository.setNewsResourceBookmarked(newsResourceId, false)
+            toggleWikiBookmarkUseCase(
+                title = title,
+                language = language,
+                description = description,
+                thumbnailUrl = thumbnailUrl,
+            )
         }
     }
 
-    fun setNewsResourceViewed(newsResourceId: String, viewed: Boolean) {
+    fun createBookmarkFolder() {
         viewModelScope.launch {
-            userDataRepository.setNewsResourceViewed(newsResourceId, viewed)
+            // 若正在改名，先落库，避免被新夹的改名会话覆盖
+            val pendingRename = _renameState.value
+            if (pendingRename != null) {
+                renameWikiBookmarkFolderUseCase(
+                    folderId = pendingRename.folderId,
+                    name = pendingRename.draftName,
+                )
+                _renameState.value = null
+            }
+
+            val folderCount = when (val state = uiState.value) {
+                is WikiBookmarksUiState.Success -> state.folders.size
+                WikiBookmarksUiState.Empty -> 0
+                WikiBookmarksUiState.Loading -> return@launch
+            }
+
+            val name = "收藏夹${folderCount + 1}"
+            val folderId = createWikiBookmarkFolderUseCase(name = name) ?: return@launch
+            startRenameFolder(folderId = folderId, currentName = name)
         }
     }
 
-    fun undoBookmarkRemoval() {
+    fun startRenameFolder(folderId: Long, currentName: String) {
+        _renameState.value = FolderRenameUiState(
+            folderId = folderId,
+            draftName = currentName,
+        )
+    }
+
+    fun onRenameDraftChanged(draftName: String) {
+        _renameState.update { current ->
+            current?.copy(draftName = draftName)
+        }
+    }
+
+    fun confirmRenameFolder() {
+        val state = _renameState.value ?: return
         viewModelScope.launch {
-            lastRemovedBookmarkId?.let {
-                userDataRepository.setNewsResourceBookmarked(it, true)
+            val renamed = renameWikiBookmarkFolderUseCase(
+                folderId = state.folderId,
+                name = state.draftName,
+            )
+            if (renamed) {
+                _renameState.value = null
             }
         }
-        clearUndoState()
     }
 
-    fun clearUndoState() {
-        shouldDisplayUndoBookmark = false
-        lastRemovedBookmarkId = null
+    fun cancelRenameFolder() {
+        _renameState.value = null
     }
 }

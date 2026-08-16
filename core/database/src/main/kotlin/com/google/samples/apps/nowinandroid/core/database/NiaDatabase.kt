@@ -25,12 +25,16 @@ import com.google.samples.apps.nowinandroid.core.database.dao.NewsResourceFtsDao
 import com.google.samples.apps.nowinandroid.core.database.dao.RecentSearchQueryDao
 import com.google.samples.apps.nowinandroid.core.database.dao.TopicDao
 import com.google.samples.apps.nowinandroid.core.database.dao.TopicFtsDao
+import com.google.samples.apps.nowinandroid.core.database.dao.WikiBookmarkDao
+import com.google.samples.apps.nowinandroid.core.database.dao.WikiBookmarkFolderDao
 import com.google.samples.apps.nowinandroid.core.database.model.NewsResourceEntity
 import com.google.samples.apps.nowinandroid.core.database.model.NewsResourceFtsEntity
 import com.google.samples.apps.nowinandroid.core.database.model.NewsResourceTopicCrossRef
 import com.google.samples.apps.nowinandroid.core.database.model.RecentSearchQueryEntity
 import com.google.samples.apps.nowinandroid.core.database.model.TopicEntity
 import com.google.samples.apps.nowinandroid.core.database.model.TopicFtsEntity
+import com.google.samples.apps.nowinandroid.core.database.model.WikiBookmarkEntity
+import com.google.samples.apps.nowinandroid.core.database.model.WikiBookmarkFolderEntity
 import com.google.samples.apps.nowinandroid.core.database.util.InstantConverter
 
 @Database(
@@ -41,8 +45,10 @@ import com.google.samples.apps.nowinandroid.core.database.util.InstantConverter
         TopicEntity::class,
         TopicFtsEntity::class,
         RecentSearchQueryEntity::class,
+        WikiBookmarkFolderEntity::class,
+        WikiBookmarkEntity::class,
     ],
-    version = 14,
+    version = 15,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3, spec = DatabaseMigrations.Schema2to3::class),
@@ -57,6 +63,7 @@ import com.google.samples.apps.nowinandroid.core.database.util.InstantConverter
         AutoMigration(from = 11, to = 12, spec = DatabaseMigrations.Schema11to12::class),
         AutoMigration(from = 12, to = 13),
         AutoMigration(from = 13, to = 14),
+        AutoMigration(from = 14, to = 15),
     ],
     exportSchema = true,
 )
@@ -69,4 +76,6 @@ internal abstract class NiaDatabase : RoomDatabase() {
     abstract fun topicFtsDao(): TopicFtsDao
     abstract fun newsResourceFtsDao(): NewsResourceFtsDao
     abstract fun recentSearchQueryDao(): RecentSearchQueryDao
+    abstract fun wikiBookmarkFolderDao(): WikiBookmarkFolderDao
+    abstract fun wikiBookmarkDao(): WikiBookmarkDao
 }

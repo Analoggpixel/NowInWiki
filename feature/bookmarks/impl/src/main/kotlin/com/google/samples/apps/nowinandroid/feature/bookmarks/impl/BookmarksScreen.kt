@@ -17,272 +17,458 @@
 package com.google.samples.apps.nowinandroid.feature.bookmarks.impl
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.samples.apps.nowinandroid.core.designsystem.component.DynamicAsyncImage
 import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaLoadingWheel
-import com.google.samples.apps.nowinandroid.core.designsystem.component.scrollbar.DraggableScrollbar
-import com.google.samples.apps.nowinandroid.core.designsystem.component.scrollbar.rememberDraggableScroller
-import com.google.samples.apps.nowinandroid.core.designsystem.component.scrollbar.scrollbarState
-import com.google.samples.apps.nowinandroid.core.designsystem.theme.LocalTintTheme
+import com.google.samples.apps.nowinandroid.core.designsystem.icon.NiaIcons
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
-import com.google.samples.apps.nowinandroid.core.model.data.UserNewsResource
-import com.google.samples.apps.nowinandroid.core.ui.NewsFeedUiState
-import com.google.samples.apps.nowinandroid.core.ui.NewsFeedUiState.Loading
-import com.google.samples.apps.nowinandroid.core.ui.NewsFeedUiState.Success
+import com.google.samples.apps.nowinandroid.core.model.data.WikiBookmark
+import com.google.samples.apps.nowinandroid.core.model.data.WikiBookmarkFolder
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
 import com.google.samples.apps.nowinandroid.core.ui.TrackScreenViewEvent
-import com.google.samples.apps.nowinandroid.core.ui.TrackScrollJank
-import com.google.samples.apps.nowinandroid.core.ui.UserNewsResourcePreviewParameterProvider
-import com.google.samples.apps.nowinandroid.core.ui.newsFeed
-import com.google.samples.apps.nowinandroid.feature.bookmarks.api.R
+
+private const val FOLDER_THUMBNAIL_PREVIEW_COUNT = 3
 
 @Composable
 internal fun BookmarksScreen(
-    onTopicClick: (String) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
+    onFolderClick: (folderId: Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BookmarksViewModel = hiltViewModel(),
 ) {
-    val feedState by viewModel.feedUiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val renameState by viewModel.renameState.collectAsStateWithLifecycle()
+
     BookmarksScreen(
-        feedState = feedState,
-        onShowSnackbar = onShowSnackbar,
-        removeFromBookmarks = viewModel::removeFromSavedResources,
-        onNewsResourceViewed = { viewModel.setNewsResourceViewed(it, true) },
-        onTopicClick = onTopicClick,
+        uiState = uiState,
+        renameState = renameState,
+        onFolderClick = onFolderClick,
+        onCreateFolderClick = viewModel::createBookmarkFolder,
+        onRenameFolderClick = viewModel::startRenameFolder,
+        onRenameDraftChanged = viewModel::onRenameDraftChanged,
+        onConfirmRename = viewModel::confirmRenameFolder,
+        onCancelRename = viewModel::cancelRenameFolder,
         modifier = modifier,
-        shouldDisplayUndoBookmark = viewModel.shouldDisplayUndoBookmark,
-        undoBookmarkRemoval = viewModel::undoBookmarkRemoval,
-        clearUndoState = viewModel::clearUndoState,
     )
 }
 
-/**
- * Displays the user's bookmarked articles. Includes support for loading and empty states.
- */
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 @Composable
 internal fun BookmarksScreen(
-    feedState: NewsFeedUiState,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    removeFromBookmarks: (String) -> Unit,
-    onNewsResourceViewed: (String) -> Unit,
-    onTopicClick: (String) -> Unit,
+    uiState: WikiBookmarksUiState,
+    onFolderClick: (folderId: Long) -> Unit,
+    onCreateFolderClick: () -> Unit = {},
+    renameState: FolderRenameUiState? = null,
+    onRenameFolderClick: (folderId: Long, currentName: String) -> Unit = { _, _ -> },
+    onRenameDraftChanged: (String) -> Unit = {},
+    onConfirmRename: () -> Unit = {},
+    onCancelRename: () -> Unit = {},
     modifier: Modifier = Modifier,
-    shouldDisplayUndoBookmark: Boolean = false,
-    undoBookmarkRemoval: () -> Unit = {},
-    clearUndoState: () -> Unit = {},
 ) {
-    val bookmarkRemovedMessage = stringResource(id = R.string.feature_bookmarks_api_removed)
-    val undoText = stringResource(id = R.string.feature_bookmarks_api_undo)
-
-    LaunchedEffect(shouldDisplayUndoBookmark) {
-        if (shouldDisplayUndoBookmark) {
-            val snackBarResult = onShowSnackbar(bookmarkRemovedMessage, undoText)
-            if (snackBarResult) {
-                undoBookmarkRemoval()
-            } else {
-                clearUndoState()
-            }
-        }
-    }
-
-    LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
-        clearUndoState()
-    }
-
-    when (feedState) {
-        Loading -> LoadingState(modifier)
-        is Success -> if (feedState.feed.isNotEmpty()) {
-            BookmarksGrid(
-                feedState,
-                removeFromBookmarks,
-                onNewsResourceViewed,
-                onTopicClick,
-                modifier,
-            )
-        } else {
-            EmptyState(modifier)
-        }
+    when (uiState) {
+        WikiBookmarksUiState.Loading -> LoadingState(modifier)
+        WikiBookmarksUiState.Empty -> WikiBookmarkFoldersList(
+            folders = emptyList(),
+            renameState = renameState,
+            onFolderClick = onFolderClick,
+            onCreateFolderClick = onCreateFolderClick,
+            onRenameFolderClick = onRenameFolderClick,
+            onRenameDraftChanged = onRenameDraftChanged,
+            onConfirmRename = onConfirmRename,
+            onCancelRename = onCancelRename,
+            modifier = modifier,
+        )
+        is WikiBookmarksUiState.Success -> WikiBookmarkFoldersList(
+            folders = uiState.folders,
+            renameState = renameState,
+            onFolderClick = onFolderClick,
+            onCreateFolderClick = onCreateFolderClick,
+            onRenameFolderClick = onRenameFolderClick,
+            onRenameDraftChanged = onRenameDraftChanged,
+            onConfirmRename = onConfirmRename,
+            onCancelRename = onCancelRename,
+            modifier = modifier,
+        )
     }
 
     TrackScreenViewEvent(screenName = "Saved")
 }
 
 @Composable
-private fun LoadingState(modifier: Modifier = Modifier) {
-    NiaLoadingWheel(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentSize()
-            .testTag("bookmarks:loading"),
-        contentDesc = stringResource(id = R.string.feature_bookmarks_api_loading),
-    )
-}
-
-@Composable
-private fun BookmarksGrid(
-    feedState: NewsFeedUiState,
-    removeFromBookmarks: (String) -> Unit,
-    onNewsResourceViewed: (String) -> Unit,
-    onTopicClick: (String) -> Unit,
+private fun WikiBookmarkFoldersList(
+    folders: List<WikiBookmarkFolder>,
+    renameState: FolderRenameUiState?,
+    onFolderClick: (folderId: Long) -> Unit,
+    onCreateFolderClick: () -> Unit,
+    onRenameFolderClick: (folderId: Long, currentName: String) -> Unit,
+    onRenameDraftChanged: (String) -> Unit,
+    onConfirmRename: () -> Unit,
+    onCancelRename: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val scrollableState = rememberLazyStaggeredGridState()
-    TrackScrollJank(scrollableState = scrollableState, stateName = "bookmarks:grid")
-    Box(
+    val focusManager = LocalFocusManager.current
+    Column(
         modifier = modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .imePadding()
+            .testTag("bookmarks:wiki-list"),
     ) {
-        LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Adaptive(300.dp),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalItemSpacing = 24.dp,
-            state = scrollableState,
+        CreateFolderRow(onClick = onCreateFolderClick)
+        LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .testTag("bookmarks:feed"),
+                .fillMaxWidth()
+                .weight(1f)
+                .pointerInput(Unit){
+                    detectTapGestures {
+                        onConfirmRename()
+                        focusManager.clearFocus()
+                    }
+                },
+            contentPadding = PaddingValues(vertical = 8.dp),
         ) {
-            newsFeed(
-                feedState = feedState,
-                onNewsResourcesCheckedChanged = { id, _ -> removeFromBookmarks(id) },
-                onNewsResourceViewed = onNewsResourceViewed,
-                onTopicClick = onTopicClick,
-            )
-            item(span = StaggeredGridItemSpan.FullLine) {
+            items(
+                items = folders,
+                key = { folder -> folder.id },
+            ) { folder ->
+                val isEditing = renameState?.folderId == folder.id
+                WikiBookmarkFolderRow(
+                    folder = folder,
+                    isEditing = isEditing,
+                    draftName = if (isEditing) renameState.draftName else folder.name,
+                    onClick = { onFolderClick(folder.id) },
+                    onRenameClick = { onRenameFolderClick(folder.id, folder.name) },
+                    onDraftNameChanged = onRenameDraftChanged,
+                    onConfirmRename = onConfirmRename,
+                    onCancelRename = onCancelRename,
+                )
+            }
+
+            item {
                 Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
             }
         }
-        val itemsAvailable = when (feedState) {
-            Loading -> 1
-            is Success -> feedState.feed.size
-        }
-        val scrollbarState = scrollableState.scrollbarState(
-            itemsAvailable = itemsAvailable,
-        )
-        scrollableState.DraggableScrollbar(
-            modifier = Modifier
-                .fillMaxHeight()
-                .windowInsetsPadding(WindowInsets.systemBars)
-                .padding(horizontal = 2.dp)
-                .align(Alignment.CenterEnd),
-            state = scrollbarState,
-            orientation = Orientation.Vertical,
-            onThumbMoved = scrollableState.rememberDraggableScroller(
-                itemsAvailable = itemsAvailable,
-            ),
-        )
     }
 }
 
 @Composable
-private fun EmptyState(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .padding(16.dp)
-            .fillMaxSize()
-            .testTag("bookmarks:empty"),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        val iconTint = LocalTintTheme.current.iconTint
-        Image(
-            modifier = Modifier.fillMaxWidth(),
-            painter = painterResource(id = R.drawable.feature_bookmarks_api_mg_empty_bookmarks),
-            colorFilter = if (iconTint != Color.Unspecified) ColorFilter.tint(iconTint) else null,
-            contentDescription = null,
-        )
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        Text(
-            text = stringResource(id = R.string.feature_bookmarks_api_empty_error),
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = stringResource(id = R.string.feature_bookmarks_api_empty_description),
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun LoadingStatePreview() {
-    NiaTheme {
-        LoadingState()
-    }
-}
-
-@Preview
-@Composable
-private fun BookmarksGridPreview(
-    @PreviewParameter(UserNewsResourcePreviewParameterProvider::class)
-    userNewsResources: List<UserNewsResource>,
+private fun CreateFolderRow(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    NiaTheme {
-        BookmarksGrid(
-            feedState = Success(userNewsResources),
-            removeFromBookmarks = {},
-            onNewsResourceViewed = {},
-            onTopicClick = {},
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .testTag("bookmarks:create-folder"),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = NiaIcons.Add,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+        Text(
+            text = "新建收藏夹",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary,
         )
     }
 }
 
-@Preview
 @Composable
-private fun EmptyStatePreview() {
+private fun WikiBookmarkFolderRow(
+    folder: WikiBookmarkFolder,
+    isEditing: Boolean,
+    draftName: String,
+    onClick: () -> Unit,
+    onRenameClick: () -> Unit,
+    onDraftNameChanged: (String) -> Unit,
+    onConfirmRename: () -> Unit,
+    onCancelRename: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val previewBookmarks = folder.bookmarks.take(FOLDER_THUMBNAIL_PREVIEW_COUNT)
+    val countLabel = when (val count = folder.bookmarks.size) {
+        1 -> "1 item"
+        else -> "$count items"
+    }
+    val focusRequester = remember { FocusRequester() }
+    var textFieldValue by remember(folder.id) {
+        mutableStateOf(TextFieldValue(text = folder.name))
+    }
+
+    LaunchedEffect(isEditing, folder.id) {
+        if (isEditing) {
+            textFieldValue = TextFieldValue(
+                text = draftName,
+                // selection 表示输入框里当前选中的文字范围（或光标位置）
+                selection = TextRange(0, draftName.length),
+            )
+            focusRequester.requestFocus()
+        }
+    }
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            // 假如可编辑就不可点击，不可编辑就可以点击
+            .then(
+                if (isEditing) {
+                    Modifier
+                } else {
+                    Modifier.clickable(onClick = onClick)
+                },
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .testTag("bookmarks:folder-${folder.id}"),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 12.dp),
+        ) {
+            if (isEditing) {
+                OutlinedTextField(
+                    value = textFieldValue,
+                    onValueChange = { value ->
+                        textFieldValue = value
+                        onDraftNameChanged(value.text)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                        .testTag("bookmarks:rename-field-${folder.id}")
+                        .onFocusChanged{ focusState ->
+                            if (!focusState.isFocused && isEditing) {
+
+                            }
+                        },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                    ),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = { onConfirmRename() },
+                    ),
+                )
+            } else {
+                Text(
+                    text = folder.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Spacer(modifier.height(4.dp))
+            Text(
+                text = folder.description?.takeIf { it.isNotBlank() } ?: countLabel,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (!folder.description.isNullOrBlank()) {
+                Spacer(modifier.height(2.dp))
+                Text(
+                    text = countLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        FolderThumbnailStack(bookmarks = previewBookmarks)
+        if (isEditing) {
+            IconButton(
+                onClick = onConfirmRename,
+                modifier = Modifier.testTag("bookmarks:confirm-rename-${folder.id}"),
+            ) {
+                Icon(
+                    imageVector = NiaIcons.Check,
+                    contentDescription = "Confirm rename",
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+        } else {
+            IconButton(
+                onClick = onRenameClick,
+                modifier = Modifier.testTag("bookmarks:rename-folder-${folder.id}"),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Edit,
+                    contentDescription = "Rename folder",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FolderThumbnailStack(
+    bookmarks: List<WikiBookmark>,
+    modifier: Modifier = Modifier,
+) {
+    if (bookmarks.isEmpty()) return
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy((-10).dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        bookmarks.forEachIndexed { index, bookmark ->
+            FolderThumbnail(
+                imageUrl = bookmark.thumbnailUrl,
+                modifier = Modifier.zIndex((bookmarks.size - index).toFloat()),
+            )
+        }
+    }
+}
+
+@Composable
+private fun FolderThumbnail(
+    imageUrl: String?,
+    modifier: Modifier = Modifier,
+) {
+    val shape = RoundedCornerShape(6.dp)
+    Box(
+        modifier = modifier
+            .size(44.dp)
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.surface,
+                shape = shape,
+            ),
+    ) {
+        if (!imageUrl.isNullOrBlank()) {
+            DynamicAsyncImage(
+                imageUrl = imageUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+    }
+}
+
+@Composable
+private fun LoadingState(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+            .testTag("bookmarks:loading"),
+    ) {
+        NiaLoadingWheel(
+            contentDesc = "Loading wiki bookmarks",
+        )
+    }
+}
+
+@DevicePreviews
+@Composable
+private fun WikiBookmarkFoldersListPreview() {
     NiaTheme {
-        EmptyState()
+        BookmarksScreen(
+            uiState = WikiBookmarksUiState.Success(
+                folders = listOf(
+                    WikiBookmarkFolder(
+                        id = 1,
+                        name = "默认收藏",
+                        bookmarks = listOf(
+                            WikiBookmark(
+                                id = 1,
+                                folderId = 1,
+                                title = "Kotlin",
+                                language = WikiLanguage.ENGLISH,
+                                bookmarkedAt = 0L,
+                                thumbnailUrl = null,
+                            ),
+                            WikiBookmark(
+                                id = 2,
+                                folderId = 1,
+                                title = "Compose",
+                                language = WikiLanguage.ENGLISH,
+                                bookmarkedAt = 0L,
+                                thumbnailUrl = null,
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            onFolderClick = {},
+        )
     }
 }
