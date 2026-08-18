@@ -19,6 +19,7 @@ package com.google.samples.apps.nowinandroid.core.database.di
 import android.content.Context
 import androidx.room.Room
 import com.google.samples.apps.nowinandroid.core.database.NiaDatabase
+import com.google.samples.apps.nowinandroid.core.database.MIGRATION_15_16
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -37,5 +38,6 @@ internal object DatabaseModule {
         context,
         NiaDatabase::class.java,
         "nia-database",
-    ).build()
+    ).addMigrations(MIGRATION_15_16)
+        .build()
 }

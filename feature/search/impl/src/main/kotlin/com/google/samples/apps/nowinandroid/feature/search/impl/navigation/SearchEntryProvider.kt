@@ -45,7 +45,7 @@ fun EntryProviderScope<NavKey>.searchEntry(navigator: Navigator) {
     entry<SearchResultsNavKey> { key ->
         SearchResultsScreen(
             navQuery = key.query,
-            selectedLanguage = key.selectedLanguage,
+            navLanguage = key.selectedLanguage,
             onBackClick = { navigator.goBack() },
             onSuggestionClick = { item ->
                 navigator.navigateToWikiPage(item.title, item.itemLanguage)

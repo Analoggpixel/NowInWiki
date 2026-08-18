@@ -56,7 +56,7 @@ import com.google.samples.apps.nowinandroid.core.ui.WikiBookmarkToggleButton
 @Composable
 internal fun SearchResultsScreen(
     navQuery: String,
-    selectedLanguage: WikiLanguage,
+    navLanguage: WikiLanguage,
     onBackClick: () -> Unit,
     onSuggestionClick: (WikiSuggestionItem) -> Unit,
     modifier: Modifier = Modifier,
@@ -67,8 +67,9 @@ internal fun SearchResultsScreen(
     val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
     val bookmarkedKeys by viewModel.bookmarkedKeys.collectAsStateWithLifecycle()
 
+    // 把 navLanguage 同步给 selectedLanguage
     LaunchedEffect(navQuery) {
-        viewModel.onSearch(navQuery, selectedLanguage)
+        viewModel.onSearch(navQuery, navLanguage)
     }
 
     SearchResultsScreen(

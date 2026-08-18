@@ -16,7 +16,7 @@
 
 package com.google.samples.apps.nowinandroid.core.domain
 
-import com.google.samples.apps.nowinandroid.core.data.model.RecentSearchQuery
+import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
 import com.google.samples.apps.nowinandroid.core.data.repository.RecentSearchRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

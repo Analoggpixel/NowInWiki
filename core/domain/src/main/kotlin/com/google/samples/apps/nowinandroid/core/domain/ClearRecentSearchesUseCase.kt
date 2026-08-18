@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.feature.search.impl
+package com.google.samples.apps.nowinandroid.core.domain
 
-import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
+import com.google.samples.apps.nowinandroid.core.data.repository.RecentSearchRepository
+import javax.inject.Inject
 
-sealed interface RecentSearchQueriesUiState {
-    data object Loading : RecentSearchQueriesUiState
-
-    data class Success(
-        val recentQueries: List<RecentSearchQuery> = emptyList(),
-    ) : RecentSearchQueriesUiState
+/**
+ * Clears all recent search queries.
+ */
+class ClearRecentSearchesUseCase @Inject constructor(
+    private val recentSearchRepository: RecentSearchRepository,
+) {
+    suspend operator fun invoke() = recentSearchRepository.clearRecentSearches()
 }

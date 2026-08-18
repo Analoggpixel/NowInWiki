@@ -16,7 +16,8 @@
 
 package com.google.samples.apps.nowinandroid.core.data.repository
 
-import com.google.samples.apps.nowinandroid.core.data.model.RecentSearchQuery
+import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -30,9 +31,12 @@ interface RecentSearchRepository {
     fun getRecentSearchQueries(limit: Int): Flow<List<RecentSearchQuery>>
 
     /**
-     * Insert or replace the [searchQuery] as part of the recent searches.
+     * Insert or replace the [searchQuery] for [language] as part of the recent searches.
      */
-    suspend fun insertOrReplaceRecentSearch(searchQuery: String)
+    suspend fun insertOrReplaceRecentSearch(
+        searchQuery: String,
+        language: WikiLanguage,
+    )
 
     /**
      * Clear the recent searches.

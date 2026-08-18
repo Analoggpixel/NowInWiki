@@ -20,11 +20,15 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.samples.apps.nowinandroid.core.domain.ClearRecentSearchesUseCase
+import com.google.samples.apps.nowinandroid.core.domain.GetRecentSearchQueriesUseCase
 import com.google.samples.apps.nowinandroid.core.domain.GetWikiSuggestionsUseCase
+import com.google.samples.apps.nowinandroid.core.domain.SaveRecentSearchQueryUseCase
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -34,6 +38,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,6 +46,9 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchSuggestionViewModel @Inject constructor(
     private val getWikiSuggestionsUseCase: GetWikiSuggestionsUseCase,
+    getRecentSearchQueriesUseCase: GetRecentSearchQueriesUseCase,
+    private val saveRecentSearchQueryUseCase: SaveRecentSearchQueryUseCase,
+    private val clearRecentSearchesUseCase: ClearRecentSearchesUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -54,6 +62,15 @@ class SearchSuggestionViewModel @Inject constructor(
     )
     private val _uiState = MutableStateFlow<SearchSuggestionUiState>(SearchSuggestionUiState.Idle)
     val uiState: StateFlow<SearchSuggestionUiState> = _uiState.asStateFlow()
+
+    val recentSearchQueriesUiState: StateFlow<RecentSearchQueriesUiState> =
+        getRecentSearchQueriesUseCase()
+            .map(RecentSearchQueriesUiState::Success)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = RecentSearchQueriesUiState.Loading,
+            )
 
     init {
         combine(
@@ -82,6 +99,23 @@ class SearchSuggestionViewModel @Inject constructor(
 
     fun onLanguageSelected(selectedLanguage: WikiLanguage) {
         savedStateHandle[SELECTED_LANGUAGE] = selectedLanguage
+    }
+
+    /**
+     * Persists an explicit search (IME search / enter). Blank queries are ignored.
+     */
+    fun saveRecentSearch(query: String, language: WikiLanguage) {
+        val trimmed = query.trim()
+        if (trimmed.isEmpty()) return
+        viewModelScope.launch {
+            saveRecentSearchQueryUseCase(query = trimmed, language = language)
+        }
+    }
+
+    fun clearRecentSearches() {
+        viewModelScope.launch {
+            clearRecentSearchesUseCase()
+        }
     }
 
     private fun loadSuggestions(query: String, language: WikiLanguage) {

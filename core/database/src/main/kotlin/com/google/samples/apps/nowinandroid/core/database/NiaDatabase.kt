@@ -48,7 +48,7 @@ import com.google.samples.apps.nowinandroid.core.database.util.InstantConverter
         WikiBookmarkFolderEntity::class,
         WikiBookmarkEntity::class,
     ],
-    version = 15,
+    version = 16,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3, spec = DatabaseMigrations.Schema2to3::class),

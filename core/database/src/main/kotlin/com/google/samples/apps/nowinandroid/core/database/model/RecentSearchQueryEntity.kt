@@ -18,18 +18,21 @@ package com.google.samples.apps.nowinandroid.core.database.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import kotlinx.datetime.Instant
 
 /**
- * Defines an database entity that stored recent search queries.
+ * Defines a database entity that stores recent search queries.
+ *
+ * [language] stores [com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage.code].
  */
 @Entity(
     tableName = "recentSearchQueries",
+    primaryKeys = ["query", "language"],
 )
 data class RecentSearchQueryEntity(
-    @PrimaryKey
     val query: String,
+    /** Wikipedia language code, e.g. `zh`, `en`. */
+    val language: String,
     @ColumnInfo
     val queriedDate: Instant,
 )

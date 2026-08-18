@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.nowinandroid.core.domain.GetWikiSuggestionsUseCase
 import com.google.samples.apps.nowinandroid.core.domain.ObserveWikiBookmarkFoldersUseCase
+import com.google.samples.apps.nowinandroid.core.domain.SaveRecentSearchQueryUseCase
 import com.google.samples.apps.nowinandroid.core.domain.ToggleWikiBookmarkUseCase
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionItem
@@ -41,6 +42,7 @@ class SearchResultsViewModel @Inject constructor(
     private val getWikiSuggestionsUseCase: GetWikiSuggestionsUseCase,
     private val toggleWikiBookmarkUseCase: ToggleWikiBookmarkUseCase,
     observeWikiBookmarkFoldersUseCase: ObserveWikiBookmarkFoldersUseCase,
+    private val saveRecentSearchQueryUseCase: SaveRecentSearchQueryUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -86,6 +88,11 @@ class SearchResultsViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.value = SearchResultsUiState.Loading
+
+            saveRecentSearchQueryUseCase(
+                query = trimmed,
+                language = selectedLanguage,
+            )
 
             runCatching {
                 getWikiSuggestionsUseCase(

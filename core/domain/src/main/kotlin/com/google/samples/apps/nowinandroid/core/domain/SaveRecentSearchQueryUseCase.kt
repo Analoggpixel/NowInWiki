@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.test.repository
+package com.google.samples.apps.nowinandroid.core.domain
 
-import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
 import com.google.samples.apps.nowinandroid.core.data.repository.RecentSearchRepository
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 /**
- * Fake implementation of the [RecentSearchRepository]
+ * Saves a search query into recent searches for the given [language].
  */
-internal class FakeRecentSearchRepository @Inject constructor() : RecentSearchRepository {
-    override suspend fun insertOrReplaceRecentSearch(
-        searchQuery: String,
+class SaveRecentSearchQueryUseCase @Inject constructor(
+    private val recentSearchRepository: RecentSearchRepository,
+) {
+    suspend operator fun invoke(
+        query: String,
         language: WikiLanguage,
-    ) = Unit
-
-    override fun getRecentSearchQueries(limit: Int): Flow<List<RecentSearchQuery>> =
-        flowOf(emptyList())
-
-    override suspend fun clearRecentSearches() = Unit
+    ) {
+        recentSearchRepository.insertOrReplaceRecentSearch(
+            searchQuery = query,
+            language = language,
+        )
+    }
 }

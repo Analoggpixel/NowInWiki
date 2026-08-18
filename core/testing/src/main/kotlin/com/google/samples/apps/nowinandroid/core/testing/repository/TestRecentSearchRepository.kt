@@ -16,10 +16,12 @@
 
 package com.google.samples.apps.nowinandroid.core.testing.repository
 
-import com.google.samples.apps.nowinandroid.core.data.model.RecentSearchQuery
+import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
 import com.google.samples.apps.nowinandroid.core.data.repository.RecentSearchRepository
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.datetime.Clock
 
 class TestRecentSearchRepository : RecentSearchRepository {
 
@@ -28,8 +30,20 @@ class TestRecentSearchRepository : RecentSearchRepository {
     override fun getRecentSearchQueries(limit: Int): Flow<List<RecentSearchQuery>> =
         flowOf(cachedRecentSearches.sortedByDescending { it.queriedDate }.take(limit))
 
-    override suspend fun insertOrReplaceRecentSearch(searchQuery: String) {
-        cachedRecentSearches.add(RecentSearchQuery(searchQuery))
+    override suspend fun insertOrReplaceRecentSearch(
+        searchQuery: String,
+        language: WikiLanguage,
+    ) {
+        cachedRecentSearches.removeAll {
+            it.query == searchQuery && it.language == language
+        }
+        cachedRecentSearches.add(
+            RecentSearchQuery(
+                query = searchQuery,
+                language = language,
+                queriedDate = Clock.System.now(),
+            ),
+        )
     }
 
     override suspend fun clearRecentSearches() = cachedRecentSearches.clear()

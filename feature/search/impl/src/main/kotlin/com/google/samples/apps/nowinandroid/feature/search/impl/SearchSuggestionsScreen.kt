@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.samples.apps.nowinandroid.core.designsystem.component.DynamicAsyncImage
 import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaLoadingWheel
+import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionItem
 
 @Composable
@@ -49,9 +50,21 @@ internal fun SearchSuggestionsScreen(
     uiState: SearchSuggestionUiState,
     onSuggestionClick: (WikiSuggestionItem) -> Unit,
     modifier: Modifier = Modifier,
+    recentSearchQueriesUiState: RecentSearchQueriesUiState = RecentSearchQueriesUiState.Loading,
+    onRecentSearchClick: (RecentSearchQuery) -> Unit = {},
+    onClearRecentSearches: () -> Unit = {},
 ) {
     when (uiState) {
-        SearchSuggestionUiState.Idle -> Unit
+        SearchSuggestionUiState.Idle -> {
+            if (recentSearchQueriesUiState is RecentSearchQueriesUiState.Success) {
+                RecentSearchesScreen(
+                    recentQueries = recentSearchQueriesUiState.recentQueries,
+                    onRecentSearchClick = onRecentSearchClick,
+                    onClearRecentSearches = onClearRecentSearches,
+                    modifier = modifier,
+                )
+            }
+        }
         SearchSuggestionUiState.Loading -> {
             SuggestionsLoading(modifier = modifier)
         }
@@ -107,7 +120,6 @@ internal fun SearchSuggestionItem(
 ) {
     val thumbnailUrl = item.thumbnailUrl
     val description = item.description
-    val excerpt = item.excerpt
 
     Surface(
         modifier = modifier
@@ -153,16 +165,6 @@ internal fun SearchSuggestionItem(
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-
-//                if (!excerpt.isNullOrBlank()) {
-//                    Text(
-//                        text = excerpt,
-//                        style = MaterialTheme.typography.bodySmall,
-//                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-//                        maxLines = 3,
-//                        overflow = TextOverflow.Ellipsis,
-//                    )
-//                }
             }
         }
     }

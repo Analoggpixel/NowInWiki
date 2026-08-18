@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionItem
 
@@ -44,15 +45,18 @@ internal fun SearchScreen(
     val searchQuery by searchSuggestionViewModel.query.collectAsStateWithLifecycle()
     val selectedLanguage by searchSuggestionViewModel.selectedLanguage.collectAsStateWithLifecycle()
     val suggestionUiState by searchSuggestionViewModel.uiState.collectAsStateWithLifecycle()
+    val recentSearchQueriesUiState by
+        searchSuggestionViewModel.recentSearchQueriesUiState.collectAsStateWithLifecycle()
     SearchScreen(
         modifier = modifier,
         searchQuery = searchQuery,
         selectedLanguage = selectedLanguage,
         searchSuggestionUiState = suggestionUiState,
+        recentSearchQueriesUiState = recentSearchQueriesUiState,
         onSearchQueryChanged = searchSuggestionViewModel::onQueryChanged,
-        onSearchTriggered = { query, selectedLanguage ->
-            onSearchTriggered(query, selectedLanguage)
-            searchSuggestionViewModel.onQueryChanged("")
+        onSearchTriggered = { query, language ->
+            searchSuggestionViewModel.saveRecentSearch(query = query, language = language)
+            onSearchTriggered(query, language)
         },
         onBackClick = onBackClick,
         onSuggestionClick = { item ->
@@ -60,6 +64,15 @@ internal fun SearchScreen(
             searchSuggestionViewModel.onQueryChanged("")
         },
         onLanguageSelected = searchSuggestionViewModel::onLanguageSelected,
+        onRecentSearchClick = { item ->
+            searchSuggestionViewModel.onLanguageSelected(item.language)
+            searchSuggestionViewModel.saveRecentSearch(
+                query = item.query,
+                language = item.language,
+            )
+            onSearchTriggered(item.query, item.language)
+        },
+        onClearRecentSearches = searchSuggestionViewModel::clearRecentSearches,
     )
 }
 
@@ -69,11 +82,14 @@ internal fun SearchScreen(
     searchQuery: String = "",
     selectedLanguage: WikiLanguage = WikiLanguage.CHINESE,
     searchSuggestionUiState: SearchSuggestionUiState = SearchSuggestionUiState.Idle,
+    recentSearchQueriesUiState: RecentSearchQueriesUiState = RecentSearchQueriesUiState.Loading,
     onSearchQueryChanged: (String) -> Unit = {},
-    onSearchTriggered: (String, WikiLanguage) -> Unit = {_, _ -> },
+    onSearchTriggered: (String, WikiLanguage) -> Unit = { _, _ -> },
     onBackClick: () -> Unit = {},
     onSuggestionClick: (WikiSuggestionItem) -> Unit = {},
     onLanguageSelected: (WikiLanguage) -> Unit = {},
+    onRecentSearchClick: (RecentSearchQuery) -> Unit = {},
+    onClearRecentSearches: () -> Unit = {},
 ) {
     Column(modifier = modifier) {
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
@@ -87,7 +103,10 @@ internal fun SearchScreen(
         )
         SearchSuggestionsScreen(
             uiState = searchSuggestionUiState,
+            recentSearchQueriesUiState = recentSearchQueriesUiState,
             onSuggestionClick = { item -> onSuggestionClick(item) },
+            onRecentSearchClick = onRecentSearchClick,
+            onClearRecentSearches = onClearRecentSearches,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),

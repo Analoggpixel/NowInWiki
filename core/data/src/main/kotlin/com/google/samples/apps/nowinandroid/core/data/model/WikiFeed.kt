@@ -36,7 +36,7 @@ fun NetworkWikiSuggestionItem.asExternalFeedModel(itemLanguage: WikiLanguage): W
         key = key,
         title = title,
         description = description,
-        excerpt = excerpt,
+        excerpt = excerpt?.stripWikiHtml()?.takeIf { it.isNotEmpty() },
         thumbnailUrl = thumbnail?.url?.toAbsoluteWikiUrl()?.toHighResolution(),
         thumbnailWidth = thumbnail?.width,
         thumbnailHeight = thumbnail?.height,

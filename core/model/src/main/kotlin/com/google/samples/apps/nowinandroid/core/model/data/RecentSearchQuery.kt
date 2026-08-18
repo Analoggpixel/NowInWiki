@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.feature.search.impl
+package com.google.samples.apps.nowinandroid.core.model.data
 
-import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
-sealed interface RecentSearchQueriesUiState {
-    data object Loading : RecentSearchQueriesUiState
-
-    data class Success(
-        val recentQueries: List<RecentSearchQuery> = emptyList(),
-    ) : RecentSearchQueriesUiState
-}
+/**
+ * A recent search query, uniquely identified by [query] + [language].
+ */
+data class RecentSearchQuery(
+    val query: String,
+    val language: WikiLanguage = WikiLanguage.ENGLISH,
+    val queriedDate: Instant = Clock.System.now(),
+)

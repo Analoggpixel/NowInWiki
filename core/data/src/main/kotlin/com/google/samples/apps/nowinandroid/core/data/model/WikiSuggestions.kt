@@ -28,7 +28,7 @@ fun NetworkWikiSuggestionItem.asExternalModel(itemLanguage: WikiLanguage): WikiS
         key = key,
         title = title,
         description = description,
-        excerpt = excerpt,
+        excerpt = excerpt?.stripWikiHtml()?.takeIf { it.isNotEmpty() },
         thumbnailUrl = thumbnail?.url?.toAbsoluteWikiUrl()?.toHighResolution(),
         itemLanguage = itemLanguage,
     )
