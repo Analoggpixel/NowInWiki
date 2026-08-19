@@ -21,9 +21,11 @@ import androidx.tracing.trace
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.network.BuildConfig
 import com.google.samples.apps.nowinandroid.core.network.WikipediaNetworkDataSource
+import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiRandomTitleResponse
 import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiSuggestionsResponse
 import com.google.samples.apps.nowinandroid.core.network.wikipediaMobileHtmlOfflineResourcesUrl
 import com.google.samples.apps.nowinandroid.core.network.wikipediaMobileHtmlUrl
+import com.google.samples.apps.nowinandroid.core.network.wikipediaRandomTitleUrl
 import com.google.samples.apps.nowinandroid.core.network.wikipediaSearchPageUrl
 import kotlinx.serialization.json.Json
 import okhttp3.Call
@@ -41,6 +43,11 @@ private interface RetrofitWikipediaApi {
     suspend fun searchSuggestions(
         @Url url: String,
     ): NetworkWikiSuggestionsResponse
+
+    @GET
+    suspend fun getRandomTitle(
+        @Url url: String,
+    ): NetworkWikiRandomTitleResponse
 
     /** Raw body for non-JSON or hand-parsed JSON responses (PCS HTML / resource lists). */
     @GET
@@ -109,5 +116,16 @@ internal class RetrofitWikipediaNetwork @Inject constructor(
             url = wikipediaMobileHtmlOfflineResourcesUrl(language = language, title = title),
         ).use { it.string() }
         return networkJson.decodeFromString<List<String>>(body)
+    }
+
+    override suspend fun getRandomPageTitle(language: WikiLanguage): String {
+        val response = wikipediaApi.getRandomTitle(
+            url = wikipediaRandomTitleUrl(language),
+        )
+        val title = response.items.firstOrNull()?.title?.replace('_', ' ')?.trim().orEmpty()
+        if (title.isEmpty()) {
+            error("PCS random/title returned no title")
+        }
+        return title
     }
 }

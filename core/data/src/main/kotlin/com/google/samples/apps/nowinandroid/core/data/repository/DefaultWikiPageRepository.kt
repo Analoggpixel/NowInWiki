@@ -47,4 +47,7 @@ internal class DefaultWikiPageRepository @Inject constructor(
             resourceUrls = resourcesDeferred.await(),
         )
     }
+
+    override suspend fun getRandomTitle(language: WikiLanguage): String =
+        wikipediaNetworkDataSource.getRandomPageTitle(language)
 }

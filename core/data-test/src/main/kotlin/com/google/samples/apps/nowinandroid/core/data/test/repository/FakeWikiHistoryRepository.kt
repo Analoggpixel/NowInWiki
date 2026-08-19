@@ -14,29 +14,24 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.repository
+package com.google.samples.apps.nowinandroid.core.data.test.repository
 
+import com.google.samples.apps.nowinandroid.core.data.repository.WikiHistoryRepository
+import com.google.samples.apps.nowinandroid.core.model.data.WikiHistoryEntry
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import javax.inject.Inject
 
-/**
- * Data layer interface for Wikipedia page content.
- */
-interface WikiPageRepository {
+internal class FakeWikiHistoryRepository @Inject constructor() : WikiHistoryRepository {
+    override fun getWikiHistory(limit: Int): Flow<List<WikiHistoryEntry>> = flowOf(emptyList())
 
-    /**
-     * Returns a Wikipedia page (including rendered HTML) for the given [title]
-     * from the [language] edition.
-     */
-    suspend fun getPage(
+    override suspend fun insertOrReplaceWikiHistory(
         title: String,
         language: WikiLanguage,
-    ): WikiPage
+        description: String?,
+        thumbnailUrl: String?,
+    ) = Unit
 
-    /**
-     * Returns the title of a random article from the [language] edition.
-     */
-    suspend fun getRandomTitle(
-        language: WikiLanguage,
-    ): String
+    override suspend fun clearWikiHistory() = Unit
 }

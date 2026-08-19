@@ -24,6 +24,7 @@ import com.google.samples.apps.nowinandroid.core.database.dao.TopicDao
 import com.google.samples.apps.nowinandroid.core.database.dao.TopicFtsDao
 import com.google.samples.apps.nowinandroid.core.database.dao.WikiBookmarkDao
 import com.google.samples.apps.nowinandroid.core.database.dao.WikiBookmarkFolderDao
+import com.google.samples.apps.nowinandroid.core.database.dao.WikiHistoryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -66,4 +67,9 @@ internal object DaosModule {
     fun providesWikiBookmarkDao(
         database: NiaDatabase,
     ): WikiBookmarkDao = database.wikiBookmarkDao()
+
+    @Provides
+    fun providesWikiHistoryDao(
+        database: NiaDatabase,
+    ): WikiHistoryDao = database.wikiHistoryDao()
 }

@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.nowinandroid.core.domain.GetWikiPageUseCase
 import com.google.samples.apps.nowinandroid.core.domain.ObserveWikiBookmarkStatusUseCase
+import com.google.samples.apps.nowinandroid.core.domain.SaveWikiHistoryUseCase
 import com.google.samples.apps.nowinandroid.core.domain.ToggleWikiBookmarkUseCase
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +40,7 @@ class WikiPageViewModel @Inject constructor(
     private val observeWikiBookmarkStatusUseCase: ObserveWikiBookmarkStatusUseCase,
     private val toggleWikiBookmarkUseCase: ToggleWikiBookmarkUseCase,
     private val getWikiPageUseCase: GetWikiPageUseCase,
+    private val saveWikiHistoryUseCase: SaveWikiHistoryUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<WikiPageUiState>(WikiPageUiState.Idle)
@@ -86,6 +88,10 @@ class WikiPageViewModel @Inject constructor(
             }.onSuccess { page ->
                 bookmarkTarget.value = BookmarkTarget(title = page.title, language = language)
                 _uiState.value = WikiPageUiState.Success(page)
+                saveWikiHistoryUseCase(
+                    title = page.title,
+                    language = language,
+                )
             }.onFailure {
                 _uiState.value = WikiPageUiState.Error
             }

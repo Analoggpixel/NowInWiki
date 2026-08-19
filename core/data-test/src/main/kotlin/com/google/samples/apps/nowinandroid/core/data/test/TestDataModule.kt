@@ -22,11 +22,13 @@ import com.google.samples.apps.nowinandroid.core.data.repository.RecentSearchRep
 import com.google.samples.apps.nowinandroid.core.data.repository.SearchContentsRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.TopicsRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.UserDataRepository
+import com.google.samples.apps.nowinandroid.core.data.repository.WikiHistoryRepository
 import com.google.samples.apps.nowinandroid.core.data.test.repository.FakeNewsRepository
 import com.google.samples.apps.nowinandroid.core.data.test.repository.FakeRecentSearchRepository
 import com.google.samples.apps.nowinandroid.core.data.test.repository.FakeSearchContentsRepository
 import com.google.samples.apps.nowinandroid.core.data.test.repository.FakeTopicsRepository
 import com.google.samples.apps.nowinandroid.core.data.test.repository.FakeUserDataRepository
+import com.google.samples.apps.nowinandroid.core.data.test.repository.FakeWikiHistoryRepository
 import com.google.samples.apps.nowinandroid.core.data.util.NetworkMonitor
 import com.google.samples.apps.nowinandroid.core.data.util.TimeZoneMonitor
 import dagger.Binds
@@ -64,6 +66,11 @@ internal interface TestDataModule {
     fun bindsSearchContentsRepository(
         searchContentsRepository: FakeSearchContentsRepository,
     ): SearchContentsRepository
+
+    @Binds
+    fun bindsWikiHistoryRepository(
+        wikiHistoryRepository: FakeWikiHistoryRepository,
+    ): WikiHistoryRepository
 
     @Binds
     fun bindsNetworkMonitor(

@@ -47,4 +47,13 @@ interface WikipediaNetworkDataSource {
         title: String,
         language: WikiLanguage,
     ): List<String>
+
+    /**
+     * Title of a random article from the [language] edition.
+     *
+     * `GET /api/rest_v1/page/random/title`
+     */
+    suspend fun getRandomPageTitle(
+        language: WikiLanguage,
+    ): String
 }

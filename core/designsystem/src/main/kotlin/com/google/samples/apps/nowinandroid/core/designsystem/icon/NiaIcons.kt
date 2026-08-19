@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ShortText
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Bookmarks
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Upcoming
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Bookmark
@@ -51,6 +52,7 @@ object NiaIcons {
     val Grid3x3 = Icons.Rounded.Grid3x3
     val MoreVert = Icons.Default.MoreVert
     val Person = Icons.Rounded.Person
+    val PersonBorder = Icons.Outlined.Person
     val Search = Icons.Rounded.Search
     val Settings = Icons.Rounded.Settings
     val ShortText = Icons.AutoMirrored.Rounded.ShortText

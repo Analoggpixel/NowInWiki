@@ -78,11 +78,11 @@ import com.google.samples.apps.nowinandroid.feature.bookmarks.impl.navigation.Lo
 import com.google.samples.apps.nowinandroid.feature.bookmarks.impl.navigation.bookmarksEntry
 import com.google.samples.apps.nowinandroid.feature.foryou.api.navigation.ForYouNavKey
 import com.google.samples.apps.nowinandroid.feature.foryou.impl.navigation.forYouEntry
-import com.google.samples.apps.nowinandroid.feature.interests.impl.navigation.interestsEntry
 import com.google.samples.apps.nowinandroid.feature.search.api.navigation.SearchNavKey
 import com.google.samples.apps.nowinandroid.feature.search.impl.navigation.searchEntry
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsDialog
-import com.google.samples.apps.nowinandroid.feature.topic.impl.navigation.topicEntry
+import com.google.samples.apps.nowinandroid.feature.settings.impl.navigation.ProfileNavKey
+import com.google.samples.apps.nowinandroid.feature.settings.impl.navigation.profileEntry
 import com.google.samples.apps.nowinandroid.feature.wikipage.impl.navigation.wikiPageEntry
 import com.google.samples.apps.nowinandroid.navigation.TOP_LEVEL_NAV_ITEMS
 import com.google.samples.apps.nowinandroid.feature.settings.impl.R as settingsR
@@ -218,10 +218,12 @@ internal fun NiaApp(
                         ),
                     ),
             ) {
-                // Only show the top app bar on top level destinations.
+                val currentKey = appState.navigationState.currentKey
                 var shouldShowTopAppBar = false
 
-                if (appState.navigationState.currentKey in appState.navigationState.topLevelKeys) {
+                if (currentKey in appState.navigationState.topLevelKeys &&
+                    currentKey != ProfileNavKey
+                ) {
                     shouldShowTopAppBar = true
 
                     val destination = TOP_LEVEL_NAV_ITEMS[appState.navigationState.currentTopLevelKey]
@@ -260,10 +262,9 @@ internal fun NiaApp(
                     val entryProvider = entryProvider {
                         forYouEntry(navigator)
                         bookmarksEntry(navigator)
-                        interestsEntry(navigator)
-                        topicEntry(navigator)
                         searchEntry(navigator)
                         wikiPageEntry(navigator)
+                        profileEntry(navigator)
                     }
 
                     NavDisplay(

@@ -20,6 +20,7 @@ import com.google.samples.apps.nowinandroid.core.data.repository.DefaultRecentSe
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultSearchContentsRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiBookmarkRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiFeedRepository
+import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiHistoryRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiPageRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiSuggestionRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.NewsRepository
@@ -32,6 +33,7 @@ import com.google.samples.apps.nowinandroid.core.data.repository.TopicsRepositor
 import com.google.samples.apps.nowinandroid.core.data.repository.UserDataRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.WikiBookmarkRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.WikiFeedRepository
+import com.google.samples.apps.nowinandroid.core.data.repository.WikiHistoryRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.WikiPageRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.WikiSuggestionRepository
 import com.google.samples.apps.nowinandroid.core.data.util.ConnectivityManagerNetworkMonitor
@@ -91,6 +93,11 @@ abstract class DataModule {
     internal abstract fun bindsWikiBookmarkRepository(
         wikiBookmarkRepository: DefaultWikiBookmarkRepository,
     ): WikiBookmarkRepository
+
+    @Binds
+    internal abstract fun bindsWikiHistoryRepository(
+        wikiHistoryRepository: DefaultWikiHistoryRepository,
+    ): WikiHistoryRepository
 
     @Binds
     internal abstract fun bindsNetworkMonitor(

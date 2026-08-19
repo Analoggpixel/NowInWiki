@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_settings_impl_profile_tab">我的</string>
+    <string name="feature_settings_impl_profile_title_name">维基百科</string>
+    <string name="feature_settings_impl_profile_subtitle">本地使用，无需登录</string>
+    <string name="feature_settings_impl_profile_language_title">阅读语言</string>
+    <string name="feature_settings_impl_profile_language_current">当前：%1$s</string>
+    <string name="feature_settings_impl_profile_language_change">去设置</string>
+    <string name="feature_settings_impl_profile_bookmarks">收藏</string>
+    <string name="feature_settings_impl_profile_history">最近浏览</string>
+    <string name="feature_settings_impl_profile_random">随机条目</string>
+    <string name="feature_settings_impl_profile_about">关于</string>
+    <string name="feature_settings_impl_profile_about_body">这是一个基于 Now in Android 的维基百科只读客户端。当前版本不提供登录与会员。</string>
+    <string name="feature_settings_impl_profile_random_error">无法打开随机条目</string>
+    <string name="feature_settings_impl_title">设置</string>
+    <string name="feature_settings_impl_history_back">返回</string>
+    <string name="feature_settings_impl_history_empty_title">暂无浏览记录</string>
+    <string name="feature_settings_impl_history_empty_message">打开过的条目会显示在这里。</string>
+    <string name="feature_settings_impl_history_clear">清空记录</string>
+    <string name="feature_settings_impl_history_clear_title">清空最近浏览？</string>
+    <string name="feature_settings_impl_history_clear_body">将删除本机上的全部浏览记录。</string>
+    <string name="feature_settings_impl_history_clear_confirm">清空</string>
+    <string name="feature_settings_impl_history_clear_dismiss">取消</string>
+</resources>

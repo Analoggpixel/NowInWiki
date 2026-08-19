@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.repository
+package com.google.samples.apps.nowinandroid.core.domain
 
+import com.google.samples.apps.nowinandroid.core.data.repository.WikiHistoryRepository
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
+import javax.inject.Inject
 
-/**
- * Data layer interface for Wikipedia page content.
- */
-interface WikiPageRepository {
-
-    /**
-     * Returns a Wikipedia page (including rendered HTML) for the given [title]
-     * from the [language] edition.
-     */
-    suspend fun getPage(
+class SaveWikiHistoryUseCase @Inject constructor(
+    private val wikiHistoryRepository: WikiHistoryRepository,
+) {
+    suspend operator fun invoke(
         title: String,
         language: WikiLanguage,
-    ): WikiPage
-
-    /**
-     * Returns the title of a random article from the [language] edition.
-     */
-    suspend fun getRandomTitle(
-        language: WikiLanguage,
-    ): String
+        description: String? = null,
+        thumbnailUrl: String? = null,
+    ) {
+        wikiHistoryRepository.insertOrReplaceWikiHistory(
+            title = title,
+            language = language,
+            description = description,
+            thumbnailUrl = thumbnailUrl,
+        )
+    }
 }

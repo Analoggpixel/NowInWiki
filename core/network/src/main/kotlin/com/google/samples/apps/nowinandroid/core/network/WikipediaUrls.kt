@@ -58,6 +58,14 @@ fun wikipediaMobileHtmlOfflineResourcesUrl(language: WikiLanguage, title: String
     "${wikipediaPcsBaseUrl(language)}page/mobile-html-offline-resources/${encodePcsPageTitle(title)}"
 
 /**
+ * PCS random article title.
+ *
+ * `GET /api/rest_v1/page/random/title` — 302 到一条随机条目的 title JSON。
+ */
+fun wikipediaRandomTitleUrl(language: WikiLanguage): String =
+    "${wikipediaPcsBaseUrl(language)}page/random/title"
+
+/**
  * PCS path titles: spaces → underscores, then percent-encode (e.g. `Main_Page`).
  */
 private fun encodePcsPageTitle(title: String): String =

@@ -16,27 +16,26 @@
 
 package com.google.samples.apps.nowinandroid.core.data.repository
 
+import com.google.samples.apps.nowinandroid.core.model.data.WikiHistoryEntry
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
+import kotlinx.coroutines.flow.Flow
 
 /**
- * Data layer interface for Wikipedia page content.
+ * Data layer for recently viewed Wiki articles.
  */
-interface WikiPageRepository {
+interface WikiHistoryRepository {
+
+    fun getWikiHistory(limit: Int): Flow<List<WikiHistoryEntry>>
 
     /**
-     * Returns a Wikipedia page (including rendered HTML) for the given [title]
-     * from the [language] edition.
+     * Inserts or replaces a viewed article. Same [title] + [language] updates [viewedAt].
      */
-    suspend fun getPage(
+    suspend fun insertOrReplaceWikiHistory(
         title: String,
         language: WikiLanguage,
-    ): WikiPage
+        description: String? = null,
+        thumbnailUrl: String? = null,
+    )
 
-    /**
-     * Returns the title of a random article from the [language] edition.
-     */
-    suspend fun getRandomTitle(
-        language: WikiLanguage,
-    ): String
+    suspend fun clearWikiHistory()
 }

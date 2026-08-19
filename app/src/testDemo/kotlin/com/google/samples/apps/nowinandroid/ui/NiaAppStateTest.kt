@@ -28,7 +28,7 @@ import com.google.samples.apps.nowinandroid.core.testing.util.TestNetworkMonitor
 import com.google.samples.apps.nowinandroid.core.testing.util.TestTimeZoneMonitor
 import com.google.samples.apps.nowinandroid.feature.bookmarks.api.navigation.BookmarksNavKey
 import com.google.samples.apps.nowinandroid.feature.foryou.api.navigation.ForYouNavKey
-import com.google.samples.apps.nowinandroid.feature.interests.api.navigation.InterestsNavKey
+import com.google.samples.apps.nowinandroid.feature.settings.impl.navigation.ProfileNavKey
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import kotlinx.coroutines.flow.collect
@@ -117,7 +117,7 @@ class NiaAppStateTest {
 
         assertEquals(3, navigationState.topLevelKeys.size)
         assertEquals(
-            setOf(ForYouNavKey, BookmarksNavKey, InterestsNavKey(null)),
+            setOf(ForYouNavKey, BookmarksNavKey, ProfileNavKey),
             navigationState.topLevelKeys,
         )
     }

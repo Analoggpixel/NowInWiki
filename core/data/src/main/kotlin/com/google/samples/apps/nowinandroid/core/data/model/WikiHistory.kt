@@ -14,29 +14,24 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.data.repository
+package com.google.samples.apps.nowinandroid.core.data.model
 
+import com.google.samples.apps.nowinandroid.core.database.model.WikiHistoryEntity
+import com.google.samples.apps.nowinandroid.core.model.data.WikiHistoryEntry
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
-import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
 
-/**
- * Data layer interface for Wikipedia page content.
- */
-interface WikiPageRepository {
+fun WikiHistoryEntity.asExternalModel() = WikiHistoryEntry(
+    title = title,
+    language = WikiLanguage.fromCode(language),
+    viewedAt = viewedAt,
+    description = description,
+    thumbnailUrl = thumbnailUrl,
+)
 
-    /**
-     * Returns a Wikipedia page (including rendered HTML) for the given [title]
-     * from the [language] edition.
-     */
-    suspend fun getPage(
-        title: String,
-        language: WikiLanguage,
-    ): WikiPage
-
-    /**
-     * Returns the title of a random article from the [language] edition.
-     */
-    suspend fun getRandomTitle(
-        language: WikiLanguage,
-    ): String
-}
+fun WikiHistoryEntry.asEntity() = WikiHistoryEntity(
+    title = title,
+    language = language.code,
+    viewedAt = viewedAt,
+    description = description,
+    thumbnailUrl = thumbnailUrl,
+)

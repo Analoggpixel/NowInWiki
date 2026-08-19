@@ -18,6 +18,7 @@ plugins {
     alias(libs.plugins.nowinandroid.android.feature.impl)
     alias(libs.plugins.nowinandroid.android.library.compose)
     alias(libs.plugins.nowinandroid.android.library.jacoco)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -28,6 +29,11 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.google.oss.licenses)
     implementation(projects.core.data)
+    implementation(projects.core.domain)
+    implementation(projects.core.navigation)
+    implementation(projects.feature.bookmarks.api)
+    implementation(projects.feature.wikipage.api)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(projects.core.testing)
 
