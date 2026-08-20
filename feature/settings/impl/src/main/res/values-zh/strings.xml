@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feature_settings_impl_profile_tab">我的</string>
-    <string name="feature_settings_impl_profile_title_name">维基百科</string>
+    <string name="feature_settings_impl_profile_title_name">NowInWiki</string>
     <string name="feature_settings_impl_profile_subtitle">本地使用，无需登录</string>
     <string name="feature_settings_impl_profile_language_title">阅读语言</string>
     <string name="feature_settings_impl_profile_language_current">当前：%1$s</string>
@@ -11,7 +11,7 @@
     <string name="feature_settings_impl_profile_random">随机条目</string>
     <string name="feature_settings_impl_profile_about">关于</string>
     <string name="feature_settings_impl_profile_about_body">这是一个基于 Now in Android 的维基百科只读客户端。当前版本不提供登录与会员。</string>
-    <string name="feature_settings_impl_about_app_name">维基百科阅读器</string>
+    <string name="feature_settings_impl_about_app_name">NowInWiki</string>
     <string name="feature_settings_impl_about_unofficial">本应用是非官方的维基百科只读客户端，与 Wikimedia Foundation、维基百科无隶属、背书或赞助关系。</string>
     <string name="feature_settings_impl_about_content_license">内容许可</string>
     <string name="feature_settings_impl_about_content_license_summary">CC BY-SA</string>

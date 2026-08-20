@@ -16,7 +16,7 @@ Thanks for submitting a pull request. To accept your pull request we need you do
 
 We need to know what you've done and why you've done it. Include a summary of what your pull request contains, and why you have made these changes. Include links to any relevant issues which it fixes.
 
-[Here's an example](https://github.com/android/nowinandroid/pull/1257).
+[Here's an example](https://github.com/android/nowinandroid/pull/1257) from the upstream Now in Android project.
 
 **NOW DELETE THIS LINE AND EVERYTHING ABOVE IT**
 

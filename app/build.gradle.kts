@@ -30,7 +30,7 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId = "com.google.samples.apps.nowinandroid"
+        applicationId = "com.analoggpixel.nowinwiki"
         versionCode = 1
         versionName = "0.1.0" // X.Y.Z; X = Major, Y = minor, Z = Patch level
 

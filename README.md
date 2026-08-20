@@ -1,6 +1,8 @@
-# Wikipedia Reader（基于 Now in Android）
+# NowInWiki（基于 Now in Android）
 
 非官方、只读的 Wikipedia / MediaWiki 客户端，版本 **0.1.0**。
+
+本仓库：https://github.com/Analoggpixel/NowInWiki  
 
 本仓库由 [Now in Android](https://github.com/android/nowinandroid) 改造而来，用于学习 Android 架构，并验证「搜索 → 阅读 → 收藏 → 历史」最小闭环。**与 Wikimedia Foundation、维基百科无任何隶属、背书或赞助关系。**
 
