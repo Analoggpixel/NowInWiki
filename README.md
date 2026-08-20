@@ -1,207 +1,117 @@
-![Now in Android](docs/images/nia-splash.jpg "Now in Android")
+# Wikipedia Reader（基于 Now in Android）
 
-<a href="https://play.google.com/store/apps/details?id=com.google.samples.apps.nowinandroid"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="70"></a>
+非官方、只读的 Wikipedia / MediaWiki 客户端，版本 **0.1.0**。
 
-Now in Android App
-==================
+本仓库由 [Now in Android](https://github.com/android/nowinandroid) 改造而来，用于学习 Android 架构，并验证「搜索 → 阅读 → 收藏 → 历史」最小闭环。**与 Wikimedia Foundation、维基百科无任何隶属、背书或赞助关系。**
 
-**Learn how this app was designed and built in the [design case study](https://goo.gle/nia-figma), [architecture learning journey](docs/ArchitectureLearningJourney.md) and [modularization learning journey](docs/ModularizationLearningJourney.md).**
+> English: An unofficial, read-only Wikipedia client forked/adapted from Now in Android. Not affiliated with Wikimedia.
 
-This is the repository for the [Now in Android](https://developer.android.com/series/now-in-android)
-app. It is a **work in progress** 🚧.
+---
 
-**Now in Android** is a fully functional Android app built entirely with Kotlin and Jetpack Compose. It
-follows Android design and development best practices and is intended to be a useful reference
-for developers. As a running app, it's intended to help developers keep up-to-date with the world
-of Android development by providing regular news updates.
+## 功能（v0.1.0）
 
-The app is currently in development. The `prodRelease` variant is [available on the Play Store](https://play.google.com/store/apps/details?id=com.google.samples.apps.nowinandroid).
+- 按关键词搜索 Wikipedia 条目（多语言偏好）
+- 打开并阅读词条正文（WebView）
+- 收藏与文件夹
+- 最近浏览记录
+- 设置：主题、动态色、正文字号、默认语言
+- 关于页：非官方声明、内容许可、隐私说明、开源说明
 
-# Features
+## 不是什么
 
-**Now in Android** displays content from the
-[Now in Android](https://developer.android.com/series/now-in-android) series. Users can browse for
-links to recent videos, articles and other content. Users can also follow topics they are interested
-in, and be notified when new content is published which matches interests they are following.
+- 不是 Wikipedia / Wikimedia 官方应用
+- 不是可编辑、讨论、登录的社区客户端
+- 不是完整的 Now in Android 新闻示例（Topics / News / Sync 等已移除）
 
-## Screenshots
+---
 
-![Screenshot showing For You screen, Interests screen and Topic detail screen](docs/images/screenshots.png "Screenshot showing For You screen, Interests screen and Topic detail screen")
+## 环境与运行
 
-# Development Environment
+- Android Studio（建议最新稳定版）
+- JDK 17+
+- 可访问 Wikipedia / Wikimedia API 的网络环境
 
-**Now in Android** uses the Gradle build system and can be imported directly into Android Studio (make sure you are using the latest stable version available [here](https://developer.android.com/studio)). 
+导入本仓库后，选择模块 `app`，推荐运行变体：
 
-Change the run configuration to `app`.
-
-![image](https://user-images.githubusercontent.com/873212/210559920-ef4a40c5-c8e0-478b-bb00-4879a8cf184a.png)
-
-The `demoDebug` and `demoRelease` build variants can be built and run (the `prod` variants use a backend server which is not currently publicly available).
-
-![image](https://user-images.githubusercontent.com/873212/210560507-44045dc5-b6d5-41ca-9746-f0f7acf22f8e.png)
-
-Once you're up and running, you can refer to the learning journeys below to get a better
-understanding of which libraries and tools are being used, the reasoning behind the approaches to
-UI, testing, architecture and more, and how all of these different pieces of the project fit
-together to create a complete app.
-
-# Architecture
-
-The **Now in Android** app follows the
-[official architecture guidance](https://developer.android.com/topic/architecture) 
-and is described in detail in the
-[architecture learning journey](docs/ArchitectureLearningJourney.md).
-
-# Modularization
-
-The **Now in Android** app has been fully modularized and you can find the detailed guidance and
-description of the modularization strategy used in
-[modularization learning journey](docs/ModularizationLearningJourney.md).
-
-# Build
-
-The app contains the usual `debug` and `release` build variants. 
-
-In addition, the `benchmark` variant of `app` is used to test startup performance and generate a
-baseline profile (see below for more information).
-
-`app-nia-catalog` is a standalone app that displays the list of components that are stylized for
-**Now in Android**.
-
-The app also uses
-[product flavors](https://developer.android.com/studio/build/build-variants#product-flavors) to
-control where content for the app should be loaded from.
-
-The `demo` flavor uses static local data to allow immediate building and exploring of the UI.
-
-The `prod` flavor makes real network calls to a backend server, providing up-to-date content. At 
-this time, there is not a public backend available.
-
-For normal development use the `demoDebug` variant. For UI performance testing use the
-`demoRelease` variant. 
-
-# Testing
-
-To facilitate testing of components, **Now in Android** uses dependency injection with
-[Hilt](https://developer.android.com/training/dependency-injection/hilt-android).
-
-Most data layer components are defined as interfaces.
-Then, concrete implementations (with various dependencies) are bound to provide those interfaces to
-other components in the app.
-In tests, **Now in Android** notably does _not_ use any mocking libraries.
-Instead, the production implementations can be replaced with test doubles using Hilt's testing APIs
-(or via manual constructor injection for `ViewModel` tests).
-
-These test doubles implement the same interface as the production implementations and generally
-provide a simplified (but still realistic) implementation with additional testing hooks.
-This results in less brittle tests that may exercise more production code, instead of just verifying
-specific calls against mocks.
-
-Examples:
-- In instrumentation tests, a temporary folder is used to store the user's preferences, which is
-  wiped after each test.
-  This allows using the real `DataStore` and exercising all related code, instead of mocking the 
-  flow of data updates.
-
-- There are `Test` implementations of each repository, which implement the normal, full repository
-  interface and also provide test-only hooks.
-  `ViewModel` tests use these `Test` repositories, and thus can use the test-only hooks to
-  manipulate the state of the `Test` repository and verify the resulting behavior, instead of
-  checking that specific repository methods were called.
-
-To run the tests execute the following gradle tasks: 
-
-- `testDemoDebug` run all local tests against the `demoDebug` variant. Screenshot tests will fail
-(see below for explanation). To avoid this, run `recordRoborazziDemoDebug` prior to running unit tests.
-- `connectedDemoDebugAndroidTest` run all instrumented tests against the `demoDebug` variant. 
-
-> [!NOTE]
-> You should not run `./gradlew test` or `./gradlew connectedAndroidTest` as this will execute 
-tests against _all_ build variants which is both unnecessary and will result in failures as only the
-`demoDebug` variant is supported. No other variants have any tests (although this might change in future). 
-
-## Screenshot tests
-A screenshot test takes a screenshot of a screen or a UI component within the app, and compares it 
-with a previously recorded screenshot which is known to be rendered correctly. 
-
-For example, Now in Android has [screenshot tests](https://github.com/android/nowinandroid/blob/main/app/src/testDemo/kotlin/com/google/samples/apps/nowinandroid/ui/NiaAppScreenSizesScreenshotTests.kt)
-to verify that the navigation is displayed correctly on different screen sizes 
-([known correct screenshots](https://github.com/android/nowinandroid/tree/main/app/src/testDemo/screenshots)). 
-
-Now In Android uses [Roborazzi](https://github.com/takahirom/roborazzi) to run screenshot tests
-of certain screens and UI components. When working with screenshot tests the following gradle tasks are useful:
-
-- `verifyRoborazziDemoDebug` run all screenshot tests, verifying the screenshots against the known
-correct screenshots.
-- `recordRoborazziDemoDebug` record new "known correct" screenshots. Use this command when you have
-made changes to the UI and manually verified that they are rendered correctly. Screenshots will be
-stored in `modulename/src/test/screenshots`.
-- `compareRoborazziDemoDebug` create comparison images between failed tests and the known correct
-images. These can also be found in `modulename/src/test/screenshots`. 
-
-> [!NOTE]
-> **Note on failing screenshot tests**   
-> The known correct screenshots stored in this repository are recorded on CI using Linux. Other
-platforms may (and probably will) generate slightly different images, making the screenshot tests fail. 
-When working on a non-Linux platform, a workaround to this is to run `recordRoborazziDemoDebug` on the
-`main` branch before starting work. After making changes, `verifyRoborazziDemoDebug` will identify only
-legitimate changes. 
-
-For more information about screenshot testing 
-[check out this talk](https://www.droidcon.com/2023/11/15/easy-screenshot-testing-with-compose/).
-
-# UI
-The app was designed using [Material 3 guidelines](https://m3.material.io/). Learn more about the design process and 
-obtain the design files in the [Now in Android Material 3 Case Study](https://goo.gle/nia-figma) (design assets [also available as a PDF](docs/Now-In-Android-Design-File.pdf)).
-
-The Screens and UI elements are built entirely using [Jetpack Compose](https://developer.android.com/jetpack/compose). 
-
-The app has two themes: 
-
-- Dynamic color - uses colors based on the [user's current color theme](https://material.io/blog/announcing-material-you) (if supported)
-- Default theme - uses predefined colors when dynamic color is not supported
-
-Each theme also supports dark mode. 
-
-The app uses adaptive layouts to
-[support different screen sizes](https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes).
-
-Find out more about the [UI architecture here](docs/ArchitectureLearningJourney.md#ui-layer).
-
-# Performance
-
-## Benchmarks
-
-Find all tests written using [`Macrobenchmark`](https://developer.android.com/topic/performance/benchmarking/macrobenchmark-overview)
-in the `benchmarks` module. This module also contains the test to generate the Baseline profile.
-
-## Baseline profiles
-
-The baseline profile for this app is located at [`app/src/main/baseline-prof.txt`](app/src/main/baseline-prof.txt).
-It contains rules that enable AOT compilation of the critical user path taken during app launch.
-For more information on baseline profiles, read [this document](https://developer.android.com/studio/profile/baselineprofiles).
-
-> [!NOTE]
-> The baseline profile needs to be re-generated for release builds that touch code which changes app startup.
-
-To generate the baseline profile, select the `benchmark` build variant and run the
-`BaselineProfileGenerator` benchmark test on an AOSP Android Emulator.
-Then copy the resulting baseline profile from the emulator to [`app/src/main/baseline-prof.txt`](app/src/main/baseline-prof.txt).
-
-## Compose compiler metrics
-
-Run the following command to get and analyze compose compiler metrics:
-
-```bash
-./gradlew assembleRelease -PenableComposeCompilerMetrics=true -PenableComposeCompilerReports=true
+```text
+demoDebug
 ```
 
-The reports files will be added to [build/compose-reports](build/compose-reports). The metrics files will also be 
-added to [build/compose-metrics](build/compose-metrics).
+命令行示例：
 
-For more information on Compose compiler metrics, see [this blog post](https://medium.com/androiddevelopers/jetpack-compose-stability-explained-79c10db270c8).
+```bash
+./gradlew :app:assembleDemoDebug
+```
 
-# License
+> 说明：项目仍保留 NiA 时期的 flavor / 模块结构；日常开发以 `demoDebug` 为准。部分旧截图测试、benchmark 可能仍带有 NiA 痕迹，不作为本客户端功能保证。
 
-**Now in Android** is distributed under the terms of the Apache License (Version 2.0). See the
-[license](LICENSE) for more information.
+---
+
+## 技术概要
+
+- Kotlin、Jetpack Compose、Material 3
+- Hilt、Navigation 3、Room、DataStore、Retrofit / OkHttp、Coil
+- 模块化结构继承自 Now in Android（详见上游文档）
+
+上游学习文档（架构参考，描述的是原 NiA，不完全等同于本客户端）：
+
+- [Architecture learning journey](docs/ArchitectureLearningJourney.md)
+- [Modularization learning journey](docs/ModularizationLearningJourney.md)
+
+产品向说明见：[Wiki App V1 需求文档](docs/Wiki-App-V1-需求文档.md)
+
+---
+
+## 数据与协议
+
+### 运行时内容（词条正文等）
+
+展示内容来自各语言维基百科 / MediaWiki，通常适用
+[CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/deed.zh)
+（以各页面标注为准）。使用本应用不改变内容本身的许可；请按许可要求署名。
+
+应用内「关于 → 内容许可」有对应说明。网络请求遵循 [Wikimedia User-Agent 政策](https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_User-Agent_Policy)：使用可识别的应用名 + **公开联系 URL**（不要用个人邮箱）。
+
+默认联系 URL 在 `gradle.properties` 的 `wiki.contact.url`；也可在本机 `local.properties`（勿提交）设置：
+
+```properties
+WIKI_CONTACT_URL=https://github.com/<user>/<repo>/issues
+```
+
+仓库公开后请改成真实 Issues 地址。
+
+### 本仓库源代码
+
+源代码以 [Apache License 2.0](LICENSE) 分发。基于 Now in Android 的部分请保留其版权与许可声明。
+
+「Wikipedia」「Wikimedia」等为相关权利人商标。
+
+---
+
+## 已知限制（初版）
+
+- 搜索结果分页 / Action API 增强等尚未完善
+- 部分 UI 文案与模块命名仍带有 NiA 历史痕迹
+- `applicationId` 暂仍为上游包名，后续可能调整
+- README / 文档中的旧 NiA 截图不代表当前界面
+- 联系与反馈以 GitHub Issues 为准（仓库公开后）
+
+---
+
+## 致谢
+
+- [Now in Android](https://github.com/android/nowinandroid) — Android 官方示例应用（Apache-2.0）
+- [Wikipedia / MediaWiki](https://www.mediawiki.org/) — 公开内容与 API
+- 所有按开放许可贡献百科内容的作者与社区
+
+---
+
+## License
+
+```text
+Copyright 2022 The Android Open Source Project
+Additional changes for this Wikipedia reader adaptation.
+
+Licensed under the Apache License, Version 2.0.
+See LICENSE for the full text.
+```

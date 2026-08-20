@@ -20,6 +20,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.google.samples.apps.nowinandroid.core.navigation.Navigator
 import com.google.samples.apps.nowinandroid.feature.bookmarks.api.navigation.BookmarksNavKey
+import com.google.samples.apps.nowinandroid.feature.settings.impl.AboutScreen
 import com.google.samples.apps.nowinandroid.feature.settings.impl.ProfileScreen
 import com.google.samples.apps.nowinandroid.feature.settings.impl.WikiHistoryScreen
 import com.google.samples.apps.nowinandroid.feature.wikipage.api.navigation.navigateToWikiPage
@@ -29,6 +30,7 @@ fun EntryProviderScope<NavKey>.profileEntry(navigator: Navigator) {
         ProfileScreen(
             onBookmarksClick = { navigator.navigate(BookmarksNavKey) },
             onHistoryClick = { navigator.navigateToWikiHistory() },
+            onAboutClick = { navigator.navigateToAbout() },
             onRandomArticle = { title, language ->
                 navigator.navigateToWikiPage(title = title, language = language)
             },
@@ -40,6 +42,11 @@ fun EntryProviderScope<NavKey>.profileEntry(navigator: Navigator) {
             onWikiPageClick = { title, language ->
                 navigator.navigateToWikiPage(title = title, language = language)
             },
+        )
+    }
+    entry<AboutNavKey> {
+        AboutScreen(
+            onBackClick = { navigator.goBack() },
         )
     }
 }

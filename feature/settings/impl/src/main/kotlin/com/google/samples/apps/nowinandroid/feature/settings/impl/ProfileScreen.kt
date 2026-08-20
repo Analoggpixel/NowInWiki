@@ -43,14 +43,12 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Shuffle
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -78,6 +76,7 @@ import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsUiStat
 fun ProfileScreen(
     onBookmarksClick: () -> Unit,
     onHistoryClick: () -> Unit,
+    onAboutClick: () -> Unit,
     onRandomArticle: (title: String, language: WikiLanguage) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
@@ -107,6 +106,7 @@ fun ProfileScreen(
         languageName = languageName,
         onBookmarksClick = onBookmarksClick,
         onHistoryClick = onHistoryClick,
+        onAboutClick = onAboutClick,
         onSettingsClick = { showSettingsDialog = true },
         onRandomClick = { profileViewModel.onRandomArticleClick(preferredLanguage) },
         snackbarHostState = snackbarHostState,
@@ -126,13 +126,12 @@ internal fun ProfileScreen(
     languageName: String,
     onBookmarksClick: () -> Unit,
     onHistoryClick: () -> Unit,
+    onAboutClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onRandomClick: () -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
-    var showAboutDialog by rememberSaveable { mutableStateOf(false) }
-
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -167,7 +166,7 @@ internal fun ProfileScreen(
                 Spacer(Modifier.height(12.dp))
                 MenuCard(
                     onRandomClick = onRandomClick,
-                    onAboutClick = { showAboutDialog = true },
+                    onAboutClick = onAboutClick,
                 )
                 Spacer(Modifier.height(12.dp))
                 SettingsCard(onSettingsClick = onSettingsClick)
@@ -181,19 +180,6 @@ internal fun ProfileScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 16.dp),
-        )
-    }
-
-    if (showAboutDialog) {
-        AlertDialog(
-            onDismissRequest = { showAboutDialog = false },
-            title = { Text(stringResource(string.feature_settings_impl_profile_about)) },
-            text = { Text(stringResource(string.feature_settings_impl_profile_about_body)) },
-            confirmButton = {
-                TextButton(onClick = { showAboutDialog = false }) {
-                    Text(stringResource(string.feature_settings_impl_dismiss_dialog_button_text))
-                }
-            },
         )
     }
 }
@@ -440,6 +426,7 @@ private fun ProfileScreenPreview() {
             languageName = WikiLanguage.CHINESE.toDisplayName(),
             onBookmarksClick = {},
             onHistoryClick = {},
+            onAboutClick = {},
             onSettingsClick = {},
             onRandomClick = {},
         )

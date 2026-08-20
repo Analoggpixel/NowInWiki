@@ -155,24 +155,4 @@ class SettingsDialogTest {
         composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_dynamic_color_yes)).assertDoesNotExist()
         composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_dynamic_color_no)).assertDoesNotExist()
     }
-
-    @Test
-    fun whenStateIsSuccess_allLinksAreDisplayed() {
-        composeTestRule.setContent {
-            SettingsDialog(
-                settingsUiState = Success(defaultSettings()),
-                onDismiss = {},
-                onChangeDynamicColorPreference = {},
-                onChangeThemeBrand = {},
-                onChangeDarkThemeConfig = {},
-                onChangePreferredWikiLanguage = {},
-                onChangeWikiReaderTextScale = {},
-            )
-        }
-
-        composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_privacy_policy)).assertExists()
-        composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_licenses)).assertExists()
-        composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_brand_guidelines)).assertExists()
-        composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_feedback)).assertExists()
-    }
 }

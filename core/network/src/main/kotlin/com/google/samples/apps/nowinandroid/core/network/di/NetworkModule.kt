@@ -17,7 +17,6 @@
 package com.google.samples.apps.nowinandroid.core.network.di
 
 import android.content.Context
-import android.util.Log
 import androidx.tracing.trace
 import coil.ImageLoader
 import coil.decode.SvgDecoder
@@ -40,11 +39,12 @@ import javax.inject.Singleton
 internal object NetworkModule {
 
     /**
-     * Temporary explicit user agent for Wikimedia requests.
-     * Keep this header so external wiki APIs do not reject requests with HTTP 403.
+     * Descriptive User-Agent required by Wikimedia.
+     * Contact must be a public URL (e.g. GitHub Issues), not a personal email.
+     * @see <a href="https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_User-Agent_Policy">User-Agent Policy</a>
      */
-    private const val USER_AGENT =
-        "NowInAndroid-WikiClient/0.1 (2359414420xie@gmail.com) OkHttp/4.x Android"
+    private val wikiUserAgent: String =
+        "WikiReader/0.1.0 (${BuildConfig.WIKI_CONTACT_URL}) Android"
 
     @Provides
     @Singleton
@@ -59,10 +59,8 @@ internal object NetworkModule {
             .addInterceptor { chain ->
                 val request: Request = chain.request()
                     .newBuilder()
-                    .header("User-Agent", USER_AGENT)
+                    .header("User-Agent", wikiUserAgent)
                     .build()
-                // Temporary connectivity debug log. Remove after Wikimedia request validation.
-                Log.d("WikiSuggestions", "request user-agent=${request.header("User-Agent")}")
                 chain.proceed(request)
             }
             .addInterceptor(

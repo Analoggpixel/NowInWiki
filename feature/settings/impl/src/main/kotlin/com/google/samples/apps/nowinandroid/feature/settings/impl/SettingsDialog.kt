@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-@file:Suppress("ktlint:standard:max-line-length")
-
 package com.google.samples.apps.nowinandroid.feature.settings.impl
 
-import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,8 +39,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaTextButton
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.supportsDynamicTheming
@@ -142,8 +133,6 @@ fun SettingsDialog(
                         )
                     }
                 }
-                HorizontalDivider(Modifier.padding(top = 8.dp))
-                LinksPanel()
             }
             TrackScreenViewEvent(screenName = "Settings")
         },
@@ -304,43 +293,6 @@ fun SettingsDialogThemeChooserRow(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun LinksPanel() {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(
-            space = 16.dp,
-            alignment = Alignment.CenterHorizontally,
-        ),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        val uriHandler = LocalUriHandler.current
-        NiaTextButton(
-            onClick = { uriHandler.openUri(PRIVACY_POLICY_URL) },
-        ) {
-            Text(text = stringResource(string.feature_settings_impl_privacy_policy))
-        }
-        val context = LocalContext.current
-        NiaTextButton(
-            onClick = {
-                context.startActivity(Intent(context, OssLicensesMenuActivity::class.java))
-            },
-        ) {
-            Text(text = stringResource(string.feature_settings_impl_licenses))
-        }
-        NiaTextButton(
-            onClick = { uriHandler.openUri(BRAND_GUIDELINES_URL) },
-        ) {
-            Text(text = stringResource(string.feature_settings_impl_brand_guidelines))
-        }
-        NiaTextButton(
-            onClick = { uriHandler.openUri(FEEDBACK_URL) },
-        ) {
-            Text(text = stringResource(string.feature_settings_impl_feedback))
-        }
-    }
-}
-
 @Preview
 @Composable
 private fun PreviewSettingsDialog() {
@@ -380,7 +332,3 @@ private fun PreviewSettingsDialogLoading() {
         )
     }
 }
-
-private const val PRIVACY_POLICY_URL = "https://policies.google.com/privacy"
-private const val BRAND_GUIDELINES_URL = "https://developer.android.com/distribute/marketing-tools/brand-guidelines"
-private const val FEEDBACK_URL = "https://goo.gle/nia-app-feedback"

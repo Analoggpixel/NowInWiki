@@ -56,6 +56,23 @@ val backendUrl = providers.fileContents(
     properties["BACKEND_URL"]
 }.orElse("http://example.com")
 
+// Public contact for Wikimedia User-Agent (URL only — no personal email).
+// Prefer your GitHub Issues page after the repo is published.
+// Override (gitignored): local.properties → WIKI_CONTACT_URL=https://github.com/<user>/<repo>/issues
+// Or set wiki.contact.url in gradle.properties.
+val wikiContactUrlFromLocal = providers.fileContents(
+    isolated.rootProject.projectDirectory.file("local.properties")
+).asText.map { text ->
+    val properties = Properties()
+    properties.load(StringReader(text))
+    properties.getProperty("WIKI_CONTACT_URL").orEmpty()
+}.orElse("")
+
+val wikiContactUrl = wikiContactUrlFromLocal
+    .zip(providers.gradleProperty("wiki.contact.url").orElse("https://github.com/")) { local, fromGradle ->
+        local.ifBlank { fromGradle }
+    }
+
 // Retrofit 必须有非空 baseUrl。真正的 Wikipedia 请求使用按 WikiLanguage 拼好的绝对 @Url
 //（见 WikipediaUrls），因此这里的 host 只是占位，不会用来解析 search/page 的实际请求地址。
 val wikipediaBaseUrl = providers.provider {
@@ -68,6 +85,9 @@ androidComponents {
             BuildConfigField(type = "String", value = """"$value"""", comment = null)
         })
         it.buildConfigFields!!.put("WIKIPEDIA_BASE_URL", wikipediaBaseUrl.map { value ->
+            BuildConfigField(type = "String", value = """"$value"""", comment = null)
+        })
+        it.buildConfigFields!!.put("WIKI_CONTACT_URL", wikiContactUrl.map { value ->
             BuildConfigField(type = "String", value = """"$value"""", comment = null)
         })
     }

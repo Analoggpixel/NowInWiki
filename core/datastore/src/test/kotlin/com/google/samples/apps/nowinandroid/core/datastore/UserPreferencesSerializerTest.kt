@@ -39,8 +39,8 @@ class UserPreferencesSerializerTest {
     @Test
     fun writingAndReadingUserPreferences_outputsCorrectValue() = runTest {
         val expectedUserPreferences = userPreferences {
-            followedTopicIds.put("0", true)
-            followedTopicIds.put("1", true)
+            preferredWikiLanguage = "en"
+            useDynamicColor = true
         }
 
         val outputStream = ByteArrayOutputStream()
