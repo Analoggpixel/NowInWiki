@@ -54,8 +54,11 @@ class NiaPreferencesDataSource @Inject constructor(
                 },
                 useDynamicColor = it.useDynamicColor,
                 preferredWikiLanguage = WikiLanguage.fromCode(
-                    if (it.preferredWikiLanguage.isBlank()) WikiLanguage.CHINESE.code
-                    else it.preferredWikiLanguage,
+                    if (it.preferredWikiLanguage.isBlank()) {
+                        WikiLanguage.CHINESE.code
+                    } else {
+                        it.preferredWikiLanguage
+                    },
                 ),
                 wikiReaderTextScale = it.wikiReaderTextScale.toExternalModel(),
                 shouldHideOnboarding = it.shouldHideOnboarding,

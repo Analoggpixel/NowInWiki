@@ -16,10 +16,10 @@
 
 package com.google.samples.apps.nowinandroid.core.data.repository
 
-import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
 import com.google.samples.apps.nowinandroid.core.data.model.asEntity
 import com.google.samples.apps.nowinandroid.core.data.model.asExternalModel
 import com.google.samples.apps.nowinandroid.core.database.dao.RecentSearchQueryDao
+import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

@@ -57,8 +57,8 @@ import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
-import com.google.samples.apps.nowinandroid.core.ui.R as UiR
 import com.google.samples.apps.nowinandroid.core.ui.WikiBookmarkToggleButton
+import com.google.samples.apps.nowinandroid.core.ui.R as UiR
 
 @Composable
 internal fun WikiPageScreen(
@@ -204,7 +204,7 @@ private fun WikiPageTopBar(
             WikiBookmarkToggleButton(
                 isBookmarked = isBookmarked,
                 onToggle = onToggleBookmark,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
             )
         }
     }

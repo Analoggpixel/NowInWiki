@@ -173,7 +173,7 @@ private fun WikiBookmarkFoldersList(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .pointerInput(Unit){
+                .pointerInput(Unit) {
                     detectTapGestures {
                         onConfirmRename()
                         focusManager.clearFocus()
@@ -308,9 +308,8 @@ private fun WikiBookmarkFolderRow(
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
                         .testTag("bookmarks:rename-field-${folder.id}")
-                        .onFocusChanged{ focusState ->
+                        .onFocusChanged { focusState ->
                             if (!focusState.isFocused && isEditing) {
-
                             }
                         },
                     singleLine = true,

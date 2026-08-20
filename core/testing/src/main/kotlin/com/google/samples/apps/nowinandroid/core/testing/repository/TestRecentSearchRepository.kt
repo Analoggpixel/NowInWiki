@@ -16,8 +16,8 @@
 
 package com.google.samples.apps.nowinandroid.core.testing.repository
 
-import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
 import com.google.samples.apps.nowinandroid.core.data.repository.RecentSearchRepository
+import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
