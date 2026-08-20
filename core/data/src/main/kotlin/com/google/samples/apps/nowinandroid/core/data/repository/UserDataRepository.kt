@@ -20,6 +20,7 @@ import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import kotlinx.coroutines.flow.Flow
 
 interface UserDataRepository {
@@ -68,6 +69,11 @@ interface UserDataRepository {
      * Sets the preferred default wiki language.
      */
     suspend fun setPreferredWikiLanguage(preferredWikiLanguage: WikiLanguage)
+
+    /**
+     * Sets the preferred text scale for wiki article WebView content.
+     */
+    suspend fun setWikiReaderTextScale(wikiReaderTextScale: WikiReaderTextScale)
 
     /**
      * Sets whether the user has completed the onboarding process.

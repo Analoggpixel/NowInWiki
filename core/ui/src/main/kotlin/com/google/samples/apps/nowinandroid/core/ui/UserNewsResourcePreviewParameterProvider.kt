@@ -26,6 +26,7 @@ import com.google.samples.apps.nowinandroid.core.model.data.Topic
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
 import com.google.samples.apps.nowinandroid.core.model.data.UserNewsResource
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import com.google.samples.apps.nowinandroid.core.ui.PreviewParameterData.newsResources
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -52,6 +53,7 @@ object PreviewParameterData {
         shouldHideOnboarding = true,
         useDynamicColor = false,
         preferredWikiLanguage = WikiLanguage.CHINESE,
+        wikiReaderTextScale = WikiReaderTextScale.DEFAULT,
     )
 
     val topics = listOf(

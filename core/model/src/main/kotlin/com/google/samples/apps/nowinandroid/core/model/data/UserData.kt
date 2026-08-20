@@ -27,5 +27,6 @@ data class UserData(
     val darkThemeConfig: DarkThemeConfig,
     val useDynamicColor: Boolean,
     val preferredWikiLanguage: WikiLanguage,
+    val wikiReaderTextScale: WikiReaderTextScale,
     val shouldHideOnboarding: Boolean,
 )

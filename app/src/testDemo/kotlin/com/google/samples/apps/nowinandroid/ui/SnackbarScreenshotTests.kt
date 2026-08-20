@@ -33,8 +33,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import com.github.takahirom.roborazzi.captureRoboImage
-import com.google.samples.apps.nowinandroid.core.data.repository.TopicsRepository
-import com.google.samples.apps.nowinandroid.core.data.repository.UserNewsResourceRepository
 import com.google.samples.apps.nowinandroid.core.data.test.repository.FakeUserDataRepository
 import com.google.samples.apps.nowinandroid.core.data.util.NetworkMonitor
 import com.google.samples.apps.nowinandroid.core.data.util.TimeZoneMonitor
@@ -46,7 +44,6 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -93,23 +90,12 @@ class SnackbarScreenshotTests {
     @Inject
     lateinit var userDataRepository: FakeUserDataRepository
 
-    @Inject
-    lateinit var topicsRepository: TopicsRepository
-
-    @Inject
-    lateinit var userNewsResourceRepository: UserNewsResourceRepository
-
     @Before
     fun setup() {
         hiltRule.inject()
 
-        // Configure user data
         runBlocking {
             userDataRepository.setShouldHideOnboarding(true)
-
-            userDataRepository.setFollowedTopicIds(
-                setOf(topicsRepository.getTopics().first().first().id),
-            )
         }
     }
 
@@ -198,7 +184,6 @@ class SnackbarScreenshotTests {
                         NiaTheme {
                             val appState = rememberNiaAppState(
                                 networkMonitor = networkMonitor,
-                                userNewsResourceRepository = userNewsResourceRepository,
                                 timeZoneMonitor = timeZoneMonitor,
                             )
                             NiaApp(

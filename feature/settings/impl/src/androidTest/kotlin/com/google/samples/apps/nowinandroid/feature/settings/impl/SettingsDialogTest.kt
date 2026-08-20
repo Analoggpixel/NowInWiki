@@ -23,6 +23,8 @@ import androidx.compose.ui.test.onNodeWithText
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig.DARK
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand.ANDROID
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand.DEFAULT
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsUiState.Loading
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsUiState.Success
 import org.junit.Rule
@@ -35,6 +37,18 @@ class SettingsDialogTest {
 
     private fun getString(id: Int) = composeTestRule.activity.resources.getString(id)
 
+    private fun defaultSettings(
+        brand: com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand = ANDROID,
+        useDynamicColor: Boolean = false,
+        darkThemeConfig: com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig = DARK,
+    ) = UserEditableSettings(
+        brand = brand,
+        useDynamicColor = useDynamicColor,
+        darkThemeConfig = darkThemeConfig,
+        preferredWikiLanguage = WikiLanguage.CHINESE,
+        wikiReaderTextScale = WikiReaderTextScale.DEFAULT,
+    )
+
     @Test
     fun whenLoading_showsLoadingText() {
         composeTestRule.setContent {
@@ -44,6 +58,8 @@ class SettingsDialogTest {
                 onChangeDynamicColorPreference = {},
                 onChangeThemeBrand = {},
                 onChangeDarkThemeConfig = {},
+                onChangePreferredWikiLanguage = {},
+                onChangeWikiReaderTextScale = {},
             )
         }
 
@@ -56,21 +72,16 @@ class SettingsDialogTest {
     fun whenStateIsSuccess_allDefaultSettingsAreDisplayed() {
         composeTestRule.setContent {
             SettingsDialog(
-                settingsUiState = Success(
-                    UserEditableSettings(
-                        brand = ANDROID,
-                        useDynamicColor = false,
-                        darkThemeConfig = DARK,
-                    ),
-                ),
+                settingsUiState = Success(defaultSettings()),
                 onDismiss = { },
                 onChangeDynamicColorPreference = {},
                 onChangeThemeBrand = {},
                 onChangeDarkThemeConfig = {},
+                onChangePreferredWikiLanguage = {},
+                onChangeWikiReaderTextScale = {},
             )
         }
 
-        // Check that all the possible settings are displayed.
         composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_brand_default)).assertExists()
         composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_brand_android)).assertExists()
         composeTestRule.onNodeWithText(
@@ -79,7 +90,6 @@ class SettingsDialogTest {
         composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_dark_mode_config_light)).assertExists()
         composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_dark_mode_config_dark)).assertExists()
 
-        // Check that the correct settings are selected.
         composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_brand_android)).assertIsSelected()
         composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_dark_mode_config_dark)).assertIsSelected()
     }
@@ -88,18 +98,14 @@ class SettingsDialogTest {
     fun whenStateIsSuccess_supportsDynamicColor_usesDefaultBrand_DynamicColorOptionIsDisplayed() {
         composeTestRule.setContent {
             SettingsDialog(
-                settingsUiState = Success(
-                    UserEditableSettings(
-                        brand = DEFAULT,
-                        darkThemeConfig = DARK,
-                        useDynamicColor = false,
-                    ),
-                ),
+                settingsUiState = Success(defaultSettings(brand = DEFAULT)),
                 supportDynamicColor = true,
                 onDismiss = {},
                 onChangeDynamicColorPreference = {},
                 onChangeThemeBrand = {},
                 onChangeDarkThemeConfig = {},
+                onChangePreferredWikiLanguage = {},
+                onChangeWikiReaderTextScale = {},
             )
         }
 
@@ -107,7 +113,6 @@ class SettingsDialogTest {
         composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_dynamic_color_yes)).assertExists()
         composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_dynamic_color_no)).assertExists()
 
-        // Check that the correct default dynamic color setting is selected.
         composeTestRule.onNodeWithText(getString(R.string.feature_settings_impl_dynamic_color_no)).assertIsSelected()
     }
 
@@ -115,17 +120,13 @@ class SettingsDialogTest {
     fun whenStateIsSuccess_notSupportDynamicColor_DynamicColorOptionIsNotDisplayed() {
         composeTestRule.setContent {
             SettingsDialog(
-                settingsUiState = Success(
-                    UserEditableSettings(
-                        brand = ANDROID,
-                        darkThemeConfig = DARK,
-                        useDynamicColor = false,
-                    ),
-                ),
+                settingsUiState = Success(defaultSettings()),
                 onDismiss = {},
                 onChangeDynamicColorPreference = {},
                 onChangeThemeBrand = {},
                 onChangeDarkThemeConfig = {},
+                onChangePreferredWikiLanguage = {},
+                onChangeWikiReaderTextScale = {},
             )
         }
 
@@ -139,17 +140,13 @@ class SettingsDialogTest {
     fun whenStateIsSuccess_usesAndroidBrand_DynamicColorOptionIsNotDisplayed() {
         composeTestRule.setContent {
             SettingsDialog(
-                settingsUiState = Success(
-                    UserEditableSettings(
-                        brand = ANDROID,
-                        darkThemeConfig = DARK,
-                        useDynamicColor = false,
-                    ),
-                ),
+                settingsUiState = Success(defaultSettings()),
                 onDismiss = {},
                 onChangeDynamicColorPreference = {},
                 onChangeThemeBrand = {},
                 onChangeDarkThemeConfig = {},
+                onChangePreferredWikiLanguage = {},
+                onChangeWikiReaderTextScale = {},
             )
         }
 
@@ -163,17 +160,13 @@ class SettingsDialogTest {
     fun whenStateIsSuccess_allLinksAreDisplayed() {
         composeTestRule.setContent {
             SettingsDialog(
-                settingsUiState = Success(
-                    UserEditableSettings(
-                        brand = ANDROID,
-                        darkThemeConfig = DARK,
-                        useDynamicColor = false,
-                    ),
-                ),
+                settingsUiState = Success(defaultSettings()),
                 onDismiss = {},
                 onChangeDynamicColorPreference = {},
                 onChangeThemeBrand = {},
                 onChangeDarkThemeConfig = {},
+                onChangePreferredWikiLanguage = {},
+                onChangeWikiReaderTextScale = {},
             )
         }
 

@@ -13,6 +13,11 @@
     <string name="feature_settings_impl_profile_about_body">这是一个基于 Now in Android 的维基百科只读客户端。当前版本不提供登录与会员。</string>
     <string name="feature_settings_impl_profile_random_error">无法打开随机条目</string>
     <string name="feature_settings_impl_title">设置</string>
+    <string name="feature_settings_impl_reader_text_scale">正文字号</string>
+    <string name="feature_settings_impl_reader_text_scale_small">较小</string>
+    <string name="feature_settings_impl_reader_text_scale_default">标准</string>
+    <string name="feature_settings_impl_reader_text_scale_large">较大</string>
+    <string name="feature_settings_impl_reader_text_scale_extra_large">最大</string>
     <string name="feature_settings_impl_history_back">返回</string>
     <string name="feature_settings_impl_history_empty_title">暂无浏览记录</string>
     <string name="feature_settings_impl_history_empty_message">打开过的条目会显示在这里。</string>

@@ -22,6 +22,7 @@ import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.io.IOException
@@ -60,6 +61,7 @@ class NiaPreferencesDataSource @Inject constructor(
                     if (it.preferredWikiLanguage.isBlank()) WikiLanguage.CHINESE.code
                     else it.preferredWikiLanguage,
                 ),
+                wikiReaderTextScale = it.wikiReaderTextScale.toExternalModel(),
                 shouldHideOnboarding = it.shouldHideOnboarding,
             )
         }
@@ -115,6 +117,12 @@ class NiaPreferencesDataSource @Inject constructor(
     suspend fun setPreferredWikiLanguage(preferredWikiLanguage: WikiLanguage) {
         userPreferences.updateData {
             it.copy { this.preferredWikiLanguage = preferredWikiLanguage.code }
+        }
+    }
+
+    suspend fun setWikiReaderTextScale(wikiReaderTextScale: WikiReaderTextScale) {
+        userPreferences.updateData {
+            it.copy { this.wikiReaderTextScale = wikiReaderTextScale.toProto() }
         }
     }
 
@@ -209,3 +217,23 @@ private fun UserPreferencesKt.Dsl.updateShouldHideOnboardingIfNecessary() {
         shouldHideOnboarding = false
     }
 }
+
+private fun WikiReaderTextScaleProto?.toExternalModel(): WikiReaderTextScale =
+    when (this) {
+        null,
+        WikiReaderTextScaleProto.WIKI_READER_TEXT_SCALE_UNSPECIFIED,
+        WikiReaderTextScaleProto.UNRECOGNIZED,
+        WikiReaderTextScaleProto.WIKI_READER_TEXT_SCALE_DEFAULT,
+        -> WikiReaderTextScale.DEFAULT
+        WikiReaderTextScaleProto.WIKI_READER_TEXT_SCALE_SMALL -> WikiReaderTextScale.SMALL
+        WikiReaderTextScaleProto.WIKI_READER_TEXT_SCALE_LARGE -> WikiReaderTextScale.LARGE
+        WikiReaderTextScaleProto.WIKI_READER_TEXT_SCALE_EXTRA_LARGE -> WikiReaderTextScale.EXTRA_LARGE
+    }
+
+private fun WikiReaderTextScale.toProto(): WikiReaderTextScaleProto =
+    when (this) {
+        WikiReaderTextScale.SMALL -> WikiReaderTextScaleProto.WIKI_READER_TEXT_SCALE_SMALL
+        WikiReaderTextScale.DEFAULT -> WikiReaderTextScaleProto.WIKI_READER_TEXT_SCALE_DEFAULT
+        WikiReaderTextScale.LARGE -> WikiReaderTextScaleProto.WIKI_READER_TEXT_SCALE_LARGE
+        WikiReaderTextScale.EXTRA_LARGE -> WikiReaderTextScaleProto.WIKI_READER_TEXT_SCALE_EXTRA_LARGE
+    }

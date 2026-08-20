@@ -18,6 +18,8 @@ package com.google.samples.apps.nowinandroid.feature.settings.impl
 
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig.DARK
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand.ANDROID
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import com.google.samples.apps.nowinandroid.core.testing.repository.TestUserDataRepository
 import com.google.samples.apps.nowinandroid.core.testing.util.MainDispatcherRule
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsUiState.Loading
@@ -63,6 +65,8 @@ class SettingsViewModelTest {
                     brand = ANDROID,
                     darkThemeConfig = DARK,
                     useDynamicColor = false,
+                    preferredWikiLanguage = WikiLanguage.CHINESE,
+                    wikiReaderTextScale = WikiReaderTextScale.DEFAULT,
                 ),
             ),
             viewModel.settingsUiState.value,

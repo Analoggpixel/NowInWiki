@@ -20,9 +20,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.nowinandroid.core.domain.GetWikiPageUseCase
 import com.google.samples.apps.nowinandroid.core.domain.ObserveWikiBookmarkStatusUseCase
+import com.google.samples.apps.nowinandroid.core.domain.ObserveWikiReaderTextScaleUseCase
 import com.google.samples.apps.nowinandroid.core.domain.SaveWikiHistoryUseCase
 import com.google.samples.apps.nowinandroid.core.domain.ToggleWikiBookmarkUseCase
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,6 +40,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WikiPageViewModel @Inject constructor(
     private val observeWikiBookmarkStatusUseCase: ObserveWikiBookmarkStatusUseCase,
+    private val observeWikiReaderTextScaleUseCase: ObserveWikiReaderTextScaleUseCase,
     private val toggleWikiBookmarkUseCase: ToggleWikiBookmarkUseCase,
     private val getWikiPageUseCase: GetWikiPageUseCase,
     private val saveWikiHistoryUseCase: SaveWikiHistoryUseCase,
@@ -64,6 +67,14 @@ class WikiPageViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = false,
         )
+
+    val readerTextScale: StateFlow<WikiReaderTextScale> =
+        observeWikiReaderTextScaleUseCase()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = WikiReaderTextScale.DEFAULT,
+            )
 
     fun loadPage(
         title: String,

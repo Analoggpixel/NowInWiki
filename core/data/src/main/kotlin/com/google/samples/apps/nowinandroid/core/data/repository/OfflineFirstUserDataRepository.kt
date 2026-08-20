@@ -23,6 +23,7 @@ import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -71,6 +72,10 @@ internal class OfflineFirstUserDataRepository @Inject constructor(
 
     override suspend fun setPreferredWikiLanguage(preferredWikiLanguage: WikiLanguage) {
         niaPreferencesDataSource.setPreferredWikiLanguage(preferredWikiLanguage)
+    }
+
+    override suspend fun setWikiReaderTextScale(wikiReaderTextScale: WikiReaderTextScale) {
+        niaPreferencesDataSource.setWikiReaderTextScale(wikiReaderTextScale)
     }
 
     override suspend fun setShouldHideOnboarding(shouldHideOnboarding: Boolean) {

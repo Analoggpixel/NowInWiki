@@ -23,6 +23,8 @@ import com.google.samples.apps.nowinandroid.core.datastore.test.InMemoryDataStor
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.TestScope
@@ -65,6 +67,8 @@ class OfflineFirstUserDataRepositoryTest {
                     themeBrand = ThemeBrand.DEFAULT,
                     darkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
                     useDynamicColor = false,
+                    preferredWikiLanguage = WikiLanguage.CHINESE,
+                    wikiReaderTextScale = WikiReaderTextScale.DEFAULT,
                     shouldHideOnboarding = false,
                 ),
                 subject.userData.first(),

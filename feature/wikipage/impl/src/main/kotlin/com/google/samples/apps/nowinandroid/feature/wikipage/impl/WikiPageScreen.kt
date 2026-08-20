@@ -55,6 +55,7 @@ import com.google.samples.apps.nowinandroid.core.designsystem.icon.NiaIcons
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiPage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
 import com.google.samples.apps.nowinandroid.core.ui.R as UiR
 import com.google.samples.apps.nowinandroid.core.ui.WikiBookmarkToggleButton
@@ -69,6 +70,7 @@ internal fun WikiPageScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isBookmarked by viewModel.isBookmarked.collectAsStateWithLifecycle()
+    val readerTextScale by viewModel.readerTextScale.collectAsStateWithLifecycle()
 
     LaunchedEffect(title, language) {
         viewModel.loadPage(title = title, language = language)
@@ -78,6 +80,7 @@ internal fun WikiPageScreen(
         title = title,
         uiState = uiState,
         language = language,
+        readerTextScale = readerTextScale,
         isBookmarked = isBookmarked,
         onBackClick = onBackClick,
         onToggleBookmark = viewModel::toggleBookmark,
@@ -93,6 +96,7 @@ internal fun WikiPageScreen(
     title: String,
     uiState: WikiPageUiState,
     language: WikiLanguage,
+    readerTextScale: WikiReaderTextScale,
     isBookmarked: Boolean,
     onBackClick: () -> Unit,
     onToggleBookmark: () -> Unit,
@@ -153,6 +157,7 @@ internal fun WikiPageScreen(
                     html = preparedHtml,
                     siteBaseUrl = siteBaseUrl,
                     language = language,
+                    textZoomPercent = readerTextScale.textZoomPercent,
                     onInternalWikiLink = onInternalWikiLink,
                     modifier = Modifier
                         .weight(1f)
@@ -211,6 +216,7 @@ private fun WikiPageHtmlContent(
     html: String,
     siteBaseUrl: String,
     language: WikiLanguage,
+    textZoomPercent: Int,
     onInternalWikiLink: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -308,9 +314,13 @@ private fun WikiPageHtmlContent(
                 settings.loadsImagesAutomatically = true
                 settings.blockNetworkLoads = false
                 settings.loadWithOverviewMode = true
+                settings.textZoom = textZoomPercent
             }
         },
         update = { webView ->
+            if (webView.settings.textZoom != textZoomPercent) {
+                webView.settings.textZoom = textZoomPercent
+            }
             val loadKey = "$siteBaseUrl|${html.hashCode()}"
             if (webView.tag != loadKey) {
                 webView.tag = loadKey
@@ -346,6 +356,7 @@ private fun WikiPageScreenPreview() {
                 ),
             ),
             language = WikiLanguage.ENGLISH,
+            readerTextScale = WikiReaderTextScale.DEFAULT,
             isBookmarked = true,
             onBackClick = {},
             onToggleBookmark = {},

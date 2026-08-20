@@ -30,6 +30,11 @@
     <string name="feature_settings_impl_dark_mode_config_system_default">System default</string>
     <string name="feature_settings_impl_dark_mode_config_light">Light</string>
     <string name="feature_settings_impl_dark_mode_config_dark">Dark</string>
+    <string name="feature_settings_impl_reader_text_scale">Article text size</string>
+    <string name="feature_settings_impl_reader_text_scale_small">Small</string>
+    <string name="feature_settings_impl_reader_text_scale_default">Standard</string>
+    <string name="feature_settings_impl_reader_text_scale_large">Large</string>
+    <string name="feature_settings_impl_reader_text_scale_extra_large">Extra large</string>
     <string name="feature_settings_impl_dynamic_color_preference">Use Dynamic Color</string>
     <string name="feature_settings_impl_dynamic_color_yes">Yes</string>
     <string name="feature_settings_impl_dynamic_color_no">No</string>

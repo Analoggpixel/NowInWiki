@@ -23,6 +23,8 @@ import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand.DEFAULT
 import com.google.samples.apps.nowinandroid.core.model.data.Topic
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
 import com.google.samples.apps.nowinandroid.core.model.data.UserNewsResource
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import kotlinx.datetime.Clock
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -72,6 +74,8 @@ class UserNewsResourceTest {
             themeBrand = DEFAULT,
             darkThemeConfig = FOLLOW_SYSTEM,
             useDynamicColor = false,
+            preferredWikiLanguage = WikiLanguage.CHINESE,
+            wikiReaderTextScale = WikiReaderTextScale.DEFAULT,
             shouldHideOnboarding = true,
         )
 

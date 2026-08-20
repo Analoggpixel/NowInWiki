@@ -23,6 +23,8 @@ import com.google.samples.apps.nowinandroid.core.model.data.NewsResource
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
 import com.google.samples.apps.nowinandroid.core.model.data.UserNewsResource
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -36,6 +38,8 @@ val userNewsResourcesTestData: List<UserNewsResource> = UserData(
     darkThemeConfig = DarkThemeConfig.DARK,
     shouldHideOnboarding = true,
     useDynamicColor = false,
+    preferredWikiLanguage = WikiLanguage.CHINESE,
+    wikiReaderTextScale = WikiReaderTextScale.DEFAULT,
 ).let { userData ->
     listOf(
         UserNewsResource(

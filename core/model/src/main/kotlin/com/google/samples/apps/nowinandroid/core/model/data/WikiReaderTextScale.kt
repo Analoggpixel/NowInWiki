@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-plugins {
-    alias(libs.plugins.nowinandroid.android.feature.api)
-    alias(libs.plugins.nowinandroid.android.feature.impl)
-    alias(libs.plugins.nowinandroid.android.library.compose)
-}
+package com.google.samples.apps.nowinandroid.core.model.data
 
-android {
-    namespace = "com.google.samples.apps.nowinandroid.feature.topic.api"
+/**
+ * User preference for Wikipedia article body text size in [android.webkit.WebView].
+ *
+ * Values map to [android.webkit.WebSettings.setTextZoom].
+ */
+enum class WikiReaderTextScale(val textZoomPercent: Int) {
+    SMALL(85),
+    DEFAULT(100),
+    LARGE(115),
+    EXTRA_LARGE(130),
 }
