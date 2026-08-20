@@ -23,7 +23,6 @@ import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
@@ -34,9 +33,6 @@ class NiaPreferencesDataSource @Inject constructor(
     val userData = userPreferences.data
         .map {
             UserData(
-                bookmarkedNewsResources = it.bookmarkedNewsResourceIdsMap.keys,
-                viewedNewsResources = it.viewedNewsResourceIdsMap.keys,
-                followedTopics = it.followedTopicIdsMap.keys,
                 themeBrand = when (it.themeBrand) {
                     null,
                     ThemeBrandProto.THEME_BRAND_UNSPECIFIED,
@@ -65,37 +61,6 @@ class NiaPreferencesDataSource @Inject constructor(
                 shouldHideOnboarding = it.shouldHideOnboarding,
             )
         }
-
-    suspend fun setFollowedTopicIds(topicIds: Set<String>) {
-        try {
-            userPreferences.updateData {
-                it.copy {
-                    followedTopicIds.clear()
-                    followedTopicIds.putAll(topicIds.associateWith { true })
-                    updateShouldHideOnboardingIfNecessary()
-                }
-            }
-        } catch (ioException: IOException) {
-            Log.e("NiaPreferences", "Failed to update user preferences", ioException)
-        }
-    }
-
-    suspend fun setTopicIdFollowed(topicId: String, followed: Boolean) {
-        try {
-            userPreferences.updateData {
-                it.copy {
-                    if (followed) {
-                        followedTopicIds.put(topicId, true)
-                    } else {
-                        followedTopicIds.remove(topicId)
-                    }
-                    updateShouldHideOnboardingIfNecessary()
-                }
-            }
-        } catch (ioException: IOException) {
-            Log.e("NiaPreferences", "Failed to update user preferences", ioException)
-        }
-    }
 
     suspend fun setThemeBrand(themeBrand: ThemeBrand) {
         userPreferences.updateData {
@@ -139,82 +104,14 @@ class NiaPreferencesDataSource @Inject constructor(
         }
     }
 
-    suspend fun setNewsResourceBookmarked(newsResourceId: String, bookmarked: Boolean) {
+    suspend fun setShouldHideOnboarding(shouldHideOnboarding: Boolean) {
         try {
             userPreferences.updateData {
-                it.copy {
-                    if (bookmarked) {
-                        bookmarkedNewsResourceIds.put(newsResourceId, true)
-                    } else {
-                        bookmarkedNewsResourceIds.remove(newsResourceId)
-                    }
-                }
+                it.copy { this.shouldHideOnboarding = shouldHideOnboarding }
             }
         } catch (ioException: IOException) {
             Log.e("NiaPreferences", "Failed to update user preferences", ioException)
         }
-    }
-
-    suspend fun setNewsResourceViewed(newsResourceId: String, viewed: Boolean) {
-        setNewsResourcesViewed(listOf(newsResourceId), viewed)
-    }
-
-    suspend fun setNewsResourcesViewed(newsResourceIds: List<String>, viewed: Boolean) {
-        userPreferences.updateData { prefs ->
-            prefs.copy {
-                newsResourceIds.forEach { id ->
-                    if (viewed) {
-                        viewedNewsResourceIds.put(id, true)
-                    } else {
-                        viewedNewsResourceIds.remove(id)
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun getChangeListVersions() = userPreferences.data
-        .map {
-            ChangeListVersions(
-                topicVersion = it.topicChangeListVersion,
-                newsResourceVersion = it.newsResourceChangeListVersion,
-            )
-        }
-        .firstOrNull() ?: ChangeListVersions()
-
-    /**
-     * Update the [ChangeListVersions] using [update].
-     */
-    suspend fun updateChangeListVersion(update: ChangeListVersions.() -> ChangeListVersions) {
-        try {
-            userPreferences.updateData { currentPreferences ->
-                val updatedChangeListVersions = update(
-                    ChangeListVersions(
-                        topicVersion = currentPreferences.topicChangeListVersion,
-                        newsResourceVersion = currentPreferences.newsResourceChangeListVersion,
-                    ),
-                )
-
-                currentPreferences.copy {
-                    topicChangeListVersion = updatedChangeListVersions.topicVersion
-                    newsResourceChangeListVersion = updatedChangeListVersions.newsResourceVersion
-                }
-            }
-        } catch (ioException: IOException) {
-            Log.e("NiaPreferences", "Failed to update user preferences", ioException)
-        }
-    }
-
-    suspend fun setShouldHideOnboarding(shouldHideOnboarding: Boolean) {
-        userPreferences.updateData {
-            it.copy { this.shouldHideOnboarding = shouldHideOnboarding }
-        }
-    }
-}
-
-private fun UserPreferencesKt.Dsl.updateShouldHideOnboardingIfNecessary() {
-    if (followedTopicIds.isEmpty() && followedAuthorIds.isEmpty()) {
-        shouldHideOnboarding = false
     }
 }
 

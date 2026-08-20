@@ -39,19 +39,6 @@ class FakeUserDataRepository @Inject constructor(
     override val userData: Flow<UserData> =
         niaPreferencesDataSource.userData
 
-    override suspend fun setFollowedTopicIds(followedTopicIds: Set<String>) =
-        niaPreferencesDataSource.setFollowedTopicIds(followedTopicIds)
-
-    override suspend fun setTopicIdFollowed(followedTopicId: String, followed: Boolean) =
-        niaPreferencesDataSource.setTopicIdFollowed(followedTopicId, followed)
-
-    override suspend fun setNewsResourceBookmarked(newsResourceId: String, bookmarked: Boolean) {
-        niaPreferencesDataSource.setNewsResourceBookmarked(newsResourceId, bookmarked)
-    }
-
-    override suspend fun setNewsResourceViewed(newsResourceId: String, viewed: Boolean) =
-        niaPreferencesDataSource.setNewsResourceViewed(newsResourceId, viewed)
-
     override suspend fun setThemeBrand(themeBrand: ThemeBrand) {
         niaPreferencesDataSource.setThemeBrand(themeBrand)
     }
