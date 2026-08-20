@@ -35,7 +35,7 @@ fun NetworkWikiSuggestionItem.asExternalModel(itemLanguage: WikiLanguage): WikiS
 
 fun NetworkWikiSuggestionsResponse.asExternalModel(itemLanguage: WikiLanguage): WikiSuggestionsResult =
     WikiSuggestionsResult(
-        items = pages.map({page -> page.asExternalModel(itemLanguage)}),
+        items = pages.map({ page -> page.asExternalModel(itemLanguage) }),
     )
 
 // 把 "//..." 风格的相对路径转成 "https://..." 这样的绝对路径

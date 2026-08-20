@@ -33,12 +33,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,12 +52,12 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.google.samples.apps.nowinandroid.core.designsystem.icon.NiaIcons
+import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.ui.R.string
 import com.google.samples.apps.nowinandroid.feature.search.api.R as searchR
-import androidx.compose.ui.text.input.ImeAction
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 
 @Composable
 internal fun SearchToolbar(
@@ -191,11 +189,11 @@ internal fun SearchTextField(
 internal fun SearchLanguageDropDownMenu(
     selectedLanguage: WikiLanguage,
     onLanguageSelected: (WikiLanguage) -> Unit,
-){
+) {
     var expanded by remember { mutableStateOf(false) }
-    Box{
+    Box {
         OutlinedButton(
-            onClick = {expanded = true},
+            onClick = { expanded = true },
             shape = RoundedCornerShape(8.dp),
             border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
         ) {

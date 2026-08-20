@@ -44,7 +44,7 @@ fun NetworkWikiSuggestionItem.asExternalFeedModel(itemLanguage: WikiLanguage): W
     )
 
 fun NetworkWikiSuggestionsResponse.asExternalFeedModel(itemLanguage: WikiLanguage): List<WikiFeedItem> =
-    pages.map({page -> page.asExternalFeedModel(itemLanguage)})
+    pages.map({ page -> page.asExternalFeedModel(itemLanguage) })
 
 private fun String.toAbsoluteWikiUrl(): String =
     when {
