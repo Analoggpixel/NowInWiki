@@ -23,7 +23,6 @@
 
 - 不是 Wikipedia / Wikimedia 官方应用
 - 不是可编辑、讨论、登录的社区客户端
-- 不是完整的 Now in Android 新闻示例（Topics / News / Sync 等已移除）
 
 ---
 
