@@ -72,13 +72,15 @@ demoDebug
 
 应用内「关于 → 内容许可」有对应说明。网络请求遵循 [Wikimedia User-Agent 政策](https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_User-Agent_Policy)：使用可识别的应用名 + **公开联系 URL**（不要用个人邮箱）。
 
-默认联系 URL 在 `gradle.properties` 的 `wiki.contact.url`；也可在本机 `local.properties`（勿提交）设置：
+默认联系 URL（Wikimedia User-Agent）在 `gradle.properties` 的 `wiki.contact.url`，当前为：
+
+https://github.com/Analoggpixel/NowInWiki/issues
+
+也可在本机 `local.properties`（勿提交）覆盖：
 
 ```properties
-WIKI_CONTACT_URL=https://github.com/<user>/<repo>/issues
+WIKI_CONTACT_URL=https://github.com/Analoggpixel/NowInWiki/issues
 ```
-
-仓库公开后请改成真实 Issues 地址。
 
 ### 本仓库源代码
 
@@ -94,7 +96,7 @@ WIKI_CONTACT_URL=https://github.com/<user>/<repo>/issues
 - 部分 UI 文案与模块命名仍带有 NiA 历史痕迹
 - `applicationId` 暂仍为上游包名，后续可能调整
 - README / 文档中的旧 NiA 截图不代表当前界面
-- 联系与反馈以 GitHub Issues 为准（仓库公开后）
+- 联系与反馈：https://github.com/Analoggpixel/NowInWiki/issues
 
 ---
 

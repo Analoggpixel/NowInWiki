@@ -24,7 +24,8 @@
     <string name="feature_settings_impl_about_nia_link">Now in Android</string>
     <string name="feature_settings_impl_about_third_party_licenses">第三方开源许可</string>
     <string name="feature_settings_impl_about_contact">联系方式</string>
-    <string name="feature_settings_impl_about_contact_body">如需反馈本非官方客户端的问题，请在项目发布到 GitHub 后通过 Issues 联系。本应用不是 Wikimedia 官方支持渠道。</string>
+    <string name="feature_settings_impl_about_contact_body">如需反馈本非官方客户端的问题，请在 GitHub Issues 提交：\nhttps://github.com/Analoggpixel/NowInWiki/issues\n\n本应用不是 Wikimedia 官方支持渠道。</string>
+    <string name="feature_settings_impl_about_contact_link">打开 Issues</string>
     <string name="feature_settings_impl_about_version">版本 %1$s</string>
     <string name="feature_settings_impl_about_version_unknown">未知</string>
     <string name="feature_settings_impl_profile_random_error">无法打开随机条目</string>

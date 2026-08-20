@@ -210,6 +210,10 @@ internal fun AboutScreen(
             AboutDetailDialog(
                 title = stringResource(string.feature_settings_impl_about_contact),
                 body = stringResource(string.feature_settings_impl_about_contact_body),
+                linkLabel = stringResource(string.feature_settings_impl_about_contact_link),
+                onLinkClick = {
+                    uriHandler.openUri(PROJECT_ISSUES_URL)
+                },
                 onDismiss = { openDetail = null },
             )
         }
@@ -340,3 +344,4 @@ private fun AboutScreenPreview() {
 
 private const val CC_BY_SA_DEED_URL = "https://creativecommons.org/licenses/by-sa/4.0/deed.zh"
 private const val NIA_GITHUB_URL = "https://github.com/android/nowinandroid"
+private const val PROJECT_ISSUES_URL = "https://github.com/Analoggpixel/NowInWiki/issues"

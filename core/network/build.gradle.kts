@@ -57,8 +57,8 @@ val backendUrl = providers.fileContents(
 }.orElse("http://example.com")
 
 // Public contact for Wikimedia User-Agent (URL only — no personal email).
-// Prefer your GitHub Issues page after the repo is published.
-// Override (gitignored): local.properties → WIKI_CONTACT_URL=https://github.com/<user>/<repo>/issues
+// Prefer GitHub Issues as the public contact URL (no personal email).
+// Override (gitignored): local.properties → WIKI_CONTACT_URL=...
 // Or set wiki.contact.url in gradle.properties.
 val wikiContactUrlFromLocal = providers.fileContents(
     isolated.rootProject.projectDirectory.file("local.properties")
@@ -69,7 +69,7 @@ val wikiContactUrlFromLocal = providers.fileContents(
 }.orElse("")
 
 val wikiContactUrl = wikiContactUrlFromLocal
-    .zip(providers.gradleProperty("wiki.contact.url").orElse("https://github.com/")) { local, fromGradle ->
+    .zip(providers.gradleProperty("wiki.contact.url").orElse("https://github.com/Analoggpixel/NowInWiki/issues")) { local, fromGradle ->
         local.ifBlank { fromGradle }
     }
 

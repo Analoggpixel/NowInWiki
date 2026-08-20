@@ -60,7 +60,8 @@
     <string name="feature_settings_impl_about_nia_link">Now in Android</string>
     <string name="feature_settings_impl_about_third_party_licenses">Third-party licenses</string>
     <string name="feature_settings_impl_about_contact">Contact</string>
-    <string name="feature_settings_impl_about_contact_body">For feedback or questions about this unofficial client, open an issue on the project’s GitHub repository once it is published. This app is not an official Wikimedia support channel.</string>
+    <string name="feature_settings_impl_about_contact_body">For feedback or questions about this unofficial client, open an issue on GitHub:\nhttps://github.com/Analoggpixel/NowInWiki/issues\n\nThis app is not an official Wikimedia support channel.</string>
+    <string name="feature_settings_impl_about_contact_link">Open Issues</string>
     <string name="feature_settings_impl_about_version">Version %1$s</string>
     <string name="feature_settings_impl_about_version_unknown">unknown</string>
     <string name="feature_settings_impl_profile_random_error">Unable to open a random article.</string>
