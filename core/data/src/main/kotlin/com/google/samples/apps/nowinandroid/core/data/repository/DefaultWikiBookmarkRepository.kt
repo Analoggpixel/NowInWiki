@@ -29,8 +29,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-private const val DEFAULT_WIKI_BOOKMARK_FOLDER_NAME = "默认收藏"
-
 internal class DefaultWikiBookmarkRepository @Inject constructor(
     private val folderDao: WikiBookmarkFolderDao,
     private val bookmarkDao: WikiBookmarkDao,

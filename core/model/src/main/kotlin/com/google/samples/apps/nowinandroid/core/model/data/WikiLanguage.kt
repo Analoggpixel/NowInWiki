@@ -17,15 +17,22 @@
 package com.google.samples.apps.nowinandroid.core.model.data
 
 /**
- * Wikipedia language editions supported by the app.
+ * Wikipedia language editions (and script variants) supported by the app.
  *
- * [code] is the subdomain used by Wikipedia hosts, e.g. `zh` → `zh.wikipedia.org`.
+ * - [code]: stable id for prefs / history / navigation (may differ from the wiki subdomain).
+ * - [hostCode]: subdomain for `https://{hostCode}.wikipedia.org`.
+ * - [variant]: MediaWiki language-converter variant (e.g. `zh-hans`); null when unused.
  */
-enum class WikiLanguage(val code: String) {
-    ENGLISH("en"),
-    CHINESE("zh"),
-    JAPANESE("ja"),
-    SPANISH("es"),
+enum class WikiLanguage(
+    val code: String,
+    val hostCode: String,
+    val variant: String? = null,
+) {
+    CHINESE_SIMPLIFIED("zh-hans", "zh", "zh-hans"),
+    CHINESE_TRADITIONAL("zh-hant", "zh", "zh-hant"),
+    ENGLISH("en", "en"),
+    JAPANESE("ja", "ja"),
+    SPANISH("es", "es"),
     ;
 
     companion object {
@@ -35,8 +42,9 @@ enum class WikiLanguage(val code: String) {
 
     fun toDisplayName(): String =
         when (this) {
+            CHINESE_SIMPLIFIED -> "简体中文"
+            CHINESE_TRADITIONAL -> "繁體中文"
             ENGLISH -> "English"
-            CHINESE -> "中文"
             JAPANESE -> "日本語"
             SPANISH -> "español"
         }

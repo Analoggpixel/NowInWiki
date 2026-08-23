@@ -25,6 +25,7 @@ import androidx.compose.ui.test.performClick
 import com.google.samples.apps.nowinandroid.core.model.data.WikiBookmark
 import com.google.samples.apps.nowinandroid.core.model.data.WikiBookmarkFolder
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.feature.bookmarks.api.R
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertTrue
@@ -37,6 +38,8 @@ class BookmarksScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
+    private fun getString(id: Int) = composeTestRule.activity.resources.getString(id)
+
     @Test
     fun loading_showsLoadingSpinner() {
         composeTestRule.setContent {
@@ -47,7 +50,7 @@ class BookmarksScreenTest {
         }
 
         composeTestRule
-            .onNodeWithContentDescription("Loading wiki bookmarks")
+            .onNodeWithContentDescription(getString(R.string.feature_bookmarks_api_loading_folders))
             .assertExists()
     }
 
@@ -61,7 +64,7 @@ class BookmarksScreenTest {
         }
 
         composeTestRule
-            .onNodeWithText("新建收藏夹")
+            .onNodeWithText(getString(R.string.feature_bookmarks_api_create_folder))
             .assertExists()
             .assertHasClickAction()
     }
@@ -75,8 +78,16 @@ class BookmarksScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithText("默认收藏").assertExists().assertHasClickAction()
-        composeTestRule.onNodeWithText("1 item").assertExists()
+        composeTestRule
+            .onNodeWithText(getString(R.string.feature_bookmarks_api_default_folder_name))
+            .assertExists()
+            .assertHasClickAction()
+        composeTestRule
+            .onNodeWithText(
+                composeTestRule.activity.resources
+                    .getQuantityString(R.plurals.feature_bookmarks_api_folder_item_count, 1, 1),
+            )
+            .assertExists()
         composeTestRule.onNodeWithText("Kotlin").assertDoesNotExist()
     }
 
@@ -91,14 +102,16 @@ class BookmarksScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithText("默认收藏").performClick()
+        composeTestRule
+            .onNodeWithText(getString(R.string.feature_bookmarks_api_default_folder_name))
+            .performClick()
         assertTrue(openedFolderId == 1L)
     }
 
     private val sampleFolders = listOf(
         WikiBookmarkFolder(
             id = 1,
-            name = "默认收藏",
+            name = "Saved",
             bookmarks = listOf(
                 WikiBookmark(
                     id = 11,

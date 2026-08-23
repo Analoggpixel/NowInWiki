@@ -16,4 +16,6 @@
 -->
 <resources>
     <string name="feature_wikipage_api_title">Wikipedia</string>
+    <string name="feature_wikipage_api_load_error">Unable to load this page.</string>
+    <string name="feature_wikipage_api_loading">Loading article</string>
 </resources>

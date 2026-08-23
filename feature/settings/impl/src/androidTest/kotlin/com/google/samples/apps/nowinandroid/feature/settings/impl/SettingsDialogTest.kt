@@ -22,8 +22,8 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig.DARK
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand.ANDROID
+import com.google.samples.apps.nowinandroid.core.model.data.AppUiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand.DEFAULT
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsUiState.Loading
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsUiState.Success
@@ -45,7 +45,7 @@ class SettingsDialogTest {
         brand = brand,
         useDynamicColor = useDynamicColor,
         darkThemeConfig = darkThemeConfig,
-        preferredWikiLanguage = WikiLanguage.CHINESE,
+        appUiLanguage = AppUiLanguage.FOLLOW_SYSTEM,
         wikiReaderTextScale = WikiReaderTextScale.DEFAULT,
     )
 
@@ -58,7 +58,7 @@ class SettingsDialogTest {
                 onChangeDynamicColorPreference = {},
                 onChangeThemeBrand = {},
                 onChangeDarkThemeConfig = {},
-                onChangePreferredWikiLanguage = {},
+                onChangeAppUiLanguage = {},
                 onChangeWikiReaderTextScale = {},
             )
         }
@@ -77,7 +77,7 @@ class SettingsDialogTest {
                 onChangeDynamicColorPreference = {},
                 onChangeThemeBrand = {},
                 onChangeDarkThemeConfig = {},
-                onChangePreferredWikiLanguage = {},
+                onChangeAppUiLanguage = {},
                 onChangeWikiReaderTextScale = {},
             )
         }
@@ -104,7 +104,7 @@ class SettingsDialogTest {
                 onChangeDynamicColorPreference = {},
                 onChangeThemeBrand = {},
                 onChangeDarkThemeConfig = {},
-                onChangePreferredWikiLanguage = {},
+                onChangeAppUiLanguage = {},
                 onChangeWikiReaderTextScale = {},
             )
         }
@@ -125,7 +125,7 @@ class SettingsDialogTest {
                 onChangeDynamicColorPreference = {},
                 onChangeThemeBrand = {},
                 onChangeDarkThemeConfig = {},
-                onChangePreferredWikiLanguage = {},
+                onChangeAppUiLanguage = {},
                 onChangeWikiReaderTextScale = {},
             )
         }
@@ -145,7 +145,7 @@ class SettingsDialogTest {
                 onChangeDynamicColorPreference = {},
                 onChangeThemeBrand = {},
                 onChangeDarkThemeConfig = {},
-                onChangePreferredWikiLanguage = {},
+                onChangeAppUiLanguage = {},
                 onChangeWikiReaderTextScale = {},
             )
         }

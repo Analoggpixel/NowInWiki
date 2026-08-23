@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_wikipage_api_title">维基百科</string>
+    <string name="feature_wikipage_api_load_error">无法加载此页面。</string>
+    <string name="feature_wikipage_api_loading">正在加载条目</string>
+</resources>

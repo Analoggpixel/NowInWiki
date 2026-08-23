@@ -19,9 +19,10 @@ package com.google.samples.apps.nowinandroid.feature.settings.impl
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.nowinandroid.core.data.repository.UserDataRepository
+import com.google.samples.apps.nowinandroid.core.model.data.AppUiLanguage
+import com.google.samples.apps.nowinandroid.core.model.locale.AppUiLanguageController
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsUiState.Loading
 import com.google.samples.apps.nowinandroid.feature.settings.impl.SettingsUiState.Success
@@ -37,6 +38,7 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
+    private val appUiLanguageController: AppUiLanguageController,
 ) : ViewModel() {
     val settingsUiState: StateFlow<SettingsUiState> =
         userDataRepository.userData
@@ -46,7 +48,7 @@ class SettingsViewModel @Inject constructor(
                         brand = userData.themeBrand,
                         useDynamicColor = userData.useDynamicColor,
                         darkThemeConfig = userData.darkThemeConfig,
-                        preferredWikiLanguage = userData.preferredWikiLanguage,
+                        appUiLanguage = userData.appUiLanguage,
                         wikiReaderTextScale = userData.wikiReaderTextScale,
                     ),
                 )
@@ -75,9 +77,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updatePreferredWikiLanguage(preferredWikiLanguage: WikiLanguage) {
+    fun updateAppUiLanguage(appUiLanguage: AppUiLanguage) {
         viewModelScope.launch {
-            userDataRepository.setPreferredWikiLanguage(preferredWikiLanguage)
+            userDataRepository.setAppUiLanguage(appUiLanguage)
+            appUiLanguageController.apply(appUiLanguage)
         }
     }
 
@@ -95,7 +98,7 @@ data class UserEditableSettings(
     val brand: ThemeBrand,
     val useDynamicColor: Boolean,
     val darkThemeConfig: DarkThemeConfig,
-    val preferredWikiLanguage: WikiLanguage,
+    val appUiLanguage: AppUiLanguage,
     val wikiReaderTextScale: WikiReaderTextScale,
 )
 

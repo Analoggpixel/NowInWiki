@@ -67,6 +67,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.samples.apps.nowinandroid.core.designsystem.icon.NiaIcons
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
+import com.google.samples.apps.nowinandroid.core.model.data.AppUiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
 import com.google.samples.apps.nowinandroid.feature.settings.impl.R.string
@@ -83,12 +84,10 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val settingsUiState by viewModel.settingsUiState.collectAsStateWithLifecycle()
-    val languageName = when (val state = settingsUiState) {
-        is Success -> state.settings.preferredWikiLanguage.toDisplayName()
-        else -> stringResource(string.feature_settings_impl_profile_language_loading)
+    val appLanguageName = when (val state = settingsUiState) {
+        is Success -> state.settings.appUiLanguage.displayName()
+        else -> stringResource(string.feature_settings_impl_profile_app_language_loading)
     }
-    val preferredLanguage = (settingsUiState as? Success)?.settings?.preferredWikiLanguage
-        ?: WikiLanguage.CHINESE
     var showSettingsDialog by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val randomErrorMessage = stringResource(string.feature_settings_impl_profile_random_error)
@@ -103,12 +102,14 @@ fun ProfileScreen(
     }
 
     ProfileScreen(
-        languageName = languageName,
+        appLanguageName = appLanguageName,
         onBookmarksClick = onBookmarksClick,
         onHistoryClick = onHistoryClick,
         onAboutClick = onAboutClick,
         onSettingsClick = { showSettingsDialog = true },
-        onRandomClick = { profileViewModel.onRandomArticleClick(preferredLanguage) },
+        onRandomClick = {
+            profileViewModel.onRandomArticleClick(WikiLanguage.CHINESE_SIMPLIFIED)
+        },
         snackbarHostState = snackbarHostState,
         modifier = modifier,
     )
@@ -123,7 +124,7 @@ fun ProfileScreen(
 
 @Composable
 internal fun ProfileScreen(
-    languageName: String,
+    appLanguageName: String,
     onBookmarksClick: () -> Unit,
     onHistoryClick: () -> Unit,
     onAboutClick: () -> Unit,
@@ -149,8 +150,8 @@ internal fun ProfileScreen(
                     Spacer(Modifier.height(12.dp))
                     ProfileHeader()
                     Spacer(Modifier.height(16.dp))
-                    LanguageCard(
-                        languageName = languageName,
+                    AppLanguageCard(
+                        languageName = appLanguageName,
                         onChangeClick = onSettingsClick,
                     )
                     Spacer(Modifier.height(20.dp))
@@ -226,7 +227,7 @@ private fun ProfileHeader() {
 }
 
 @Composable
-private fun LanguageCard(
+private fun AppLanguageCard(
     languageName: String,
     onChangeClick: () -> Unit,
 ) {
@@ -242,14 +243,14 @@ private fun LanguageCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(string.feature_settings_impl_profile_language_title),
+                    text = stringResource(string.feature_settings_impl_profile_app_language_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = stringResource(
-                        string.feature_settings_impl_profile_language_current,
+                        string.feature_settings_impl_profile_app_language_current,
                         languageName,
                     ),
                     style = MaterialTheme.typography.bodySmall,
@@ -263,7 +264,7 @@ private fun LanguageCard(
                 contentColor = MaterialTheme.colorScheme.primary,
             ) {
                 Text(
-                    text = stringResource(string.feature_settings_impl_profile_language_change),
+                    text = stringResource(string.feature_settings_impl_profile_app_language_change),
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                 )
@@ -423,7 +424,7 @@ private fun MenuRow(
 private fun ProfileScreenPreview() {
     NiaTheme {
         ProfileScreen(
-            languageName = WikiLanguage.CHINESE.toDisplayName(),
+            appLanguageName = AppUiLanguage.CHINESE_SIMPLIFIED.displayName(),
             onBookmarksClick = {},
             onHistoryClick = {},
             onAboutClick = {},

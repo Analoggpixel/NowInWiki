@@ -18,10 +18,10 @@ package com.google.samples.apps.nowinandroid.core.datastore
 
 import android.util.Log
 import androidx.datastore.core.DataStore
+import com.google.samples.apps.nowinandroid.core.model.data.AppUiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import kotlinx.coroutines.flow.map
 import java.io.IOException
@@ -53,11 +53,11 @@ class NiaPreferencesDataSource @Inject constructor(
                     DarkThemeConfigProto.DARK_THEME_CONFIG_DARK -> DarkThemeConfig.DARK
                 },
                 useDynamicColor = it.useDynamicColor,
-                preferredWikiLanguage = WikiLanguage.fromCode(
-                    if (it.preferredWikiLanguage.isBlank()) {
-                        WikiLanguage.CHINESE.code
+                appUiLanguage = AppUiLanguage.fromCode(
+                    if (it.appUiLanguage.isBlank()) {
+                        AppUiLanguage.FOLLOW_SYSTEM.code
                     } else {
-                        it.preferredWikiLanguage
+                        it.appUiLanguage
                     },
                 ),
                 wikiReaderTextScale = it.wikiReaderTextScale.toExternalModel(),
@@ -82,9 +82,9 @@ class NiaPreferencesDataSource @Inject constructor(
         }
     }
 
-    suspend fun setPreferredWikiLanguage(preferredWikiLanguage: WikiLanguage) {
+    suspend fun setAppUiLanguage(appUiLanguage: AppUiLanguage) {
         userPreferences.updateData {
-            it.copy { this.preferredWikiLanguage = preferredWikiLanguage.code }
+            it.copy { this.appUiLanguage = appUiLanguage.code }
         }
     }
 
@@ -137,3 +137,5 @@ private fun WikiReaderTextScale.toProto(): WikiReaderTextScaleProto =
         WikiReaderTextScale.LARGE -> WikiReaderTextScaleProto.WIKI_READER_TEXT_SCALE_LARGE
         WikiReaderTextScale.EXTRA_LARGE -> WikiReaderTextScaleProto.WIKI_READER_TEXT_SCALE_EXTRA_LARGE
     }
+
+

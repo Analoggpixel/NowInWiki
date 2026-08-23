@@ -16,9 +16,10 @@
 
 package com.google.samples.apps.nowinandroid.feature.settings.impl
 
+import com.google.samples.apps.nowinandroid.core.model.data.AppUiLanguage
+import com.google.samples.apps.nowinandroid.core.model.locale.AppUiLanguageController
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig.DARK
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand.ANDROID
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import com.google.samples.apps.nowinandroid.core.testing.repository.TestUserDataRepository
 import com.google.samples.apps.nowinandroid.core.testing.util.MainDispatcherRule
@@ -44,7 +45,7 @@ class SettingsViewModelTest {
 
     @Before
     fun setup() {
-        viewModel = SettingsViewModel(userDataRepository)
+        viewModel = SettingsViewModel(userDataRepository, AppUiLanguageController { })
     }
 
     @Test
@@ -65,7 +66,7 @@ class SettingsViewModelTest {
                     brand = ANDROID,
                     darkThemeConfig = DARK,
                     useDynamicColor = false,
-                    preferredWikiLanguage = WikiLanguage.CHINESE,
+                    appUiLanguage = AppUiLanguage.FOLLOW_SYSTEM,
                     wikiReaderTextScale = WikiReaderTextScale.DEFAULT,
                 ),
             ),

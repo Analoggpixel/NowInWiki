@@ -294,7 +294,7 @@ private fun WikiHistoryScreenPreview() {
                     ),
                     WikiHistoryEntry(
                         title = "维基百科",
-                        language = WikiLanguage.CHINESE,
+                        language = WikiLanguage.CHINESE_SIMPLIFIED,
                     ),
                 ),
             ),

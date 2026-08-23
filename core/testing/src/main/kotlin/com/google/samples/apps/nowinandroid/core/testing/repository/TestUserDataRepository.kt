@@ -17,10 +17,10 @@
 package com.google.samples.apps.nowinandroid.core.testing.repository
 
 import com.google.samples.apps.nowinandroid.core.data.repository.UserDataRepository
+import com.google.samples.apps.nowinandroid.core.model.data.AppUiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
@@ -31,7 +31,7 @@ val emptyUserData = UserData(
     themeBrand = ThemeBrand.DEFAULT,
     darkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
     useDynamicColor = false,
-    preferredWikiLanguage = WikiLanguage.CHINESE,
+    appUiLanguage = AppUiLanguage.FOLLOW_SYSTEM,
     wikiReaderTextScale = WikiReaderTextScale.DEFAULT,
     shouldHideOnboarding = false,
 )
@@ -64,9 +64,9 @@ class TestUserDataRepository : UserDataRepository {
         }
     }
 
-    override suspend fun setPreferredWikiLanguage(preferredWikiLanguage: WikiLanguage) {
+    override suspend fun setAppUiLanguage(appUiLanguage: AppUiLanguage) {
         currentUserData.let { current ->
-            _userData.tryEmit(current.copy(preferredWikiLanguage = preferredWikiLanguage))
+            _userData.tryEmit(current.copy(appUiLanguage = appUiLanguage))
         }
     }
 

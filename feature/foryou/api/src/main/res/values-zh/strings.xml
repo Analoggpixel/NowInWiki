@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_foryou_api_title">发现</string>
+    <string name="feature_foryou_api_done">完成</string>
+    <string name="feature_foryou_api_loading">正在加载…</string>
+    <string name="feature_foryou_api_navigate_up">返回</string>
+    <string name="feature_foryou_api_onboarding_guidance_title">你对什么感兴趣？</string>
+    <string name="feature_foryou_api_onboarding_guidance_subtitle">你关注的话题更新会显示在这里。先关注一些话题吧。</string>
+    <string name="feature_foryou_api_empty">暂无推荐内容。</string>
+    <string name="feature_foryou_api_error">无法加载推荐内容。</string>
+</resources>

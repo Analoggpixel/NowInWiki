@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -61,6 +62,8 @@ import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
 import com.google.samples.apps.nowinandroid.core.ui.TrackScreenViewEvent
 import com.google.samples.apps.nowinandroid.core.ui.WikiBookmarkToggleButton
+import com.google.samples.apps.nowinandroid.core.ui.R as UiR
+import com.google.samples.apps.nowinandroid.feature.bookmarks.api.R
 
 @Composable
 internal fun WikiBookmarkFolderScreen(
@@ -144,7 +147,7 @@ private fun FolderTopBar(
         IconButton(onClick = onBackClick) {
             Icon(
                 imageVector = NiaIcons.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(UiR.string.core_ui_back),
             )
         }
         Text(
@@ -245,7 +248,7 @@ private fun FolderLoadingState(modifier: Modifier = Modifier) {
             .wrapContentSize(Alignment.Center)
             .testTag("bookmarks:folder-loading"),
     ) {
-        NiaLoadingWheel(contentDesc = "Loading wiki bookmark folder")
+        NiaLoadingWheel(contentDesc = stringResource(R.string.feature_bookmarks_api_loading_folder))
     }
 }
 
@@ -263,12 +266,12 @@ private fun FolderEmptyState(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
-                text = "This folder is empty",
+                text = stringResource(R.string.feature_bookmarks_api_folder_empty_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = "Saved pages in this folder will show up here.",
+                text = stringResource(R.string.feature_bookmarks_api_folder_empty_message),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -286,7 +289,7 @@ private fun FolderNotFoundState(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = "Folder not found",
+            text = stringResource(R.string.feature_bookmarks_api_folder_not_found),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
         )
@@ -301,7 +304,7 @@ private fun WikiBookmarkFolderScreenPreview() {
             uiState = WikiBookmarkFolderUiState.Success(
                 folder = WikiBookmarkFolder(
                     id = 1,
-                    name = "默认收藏",
+                    name = "Saved",
                     bookmarks = listOf(
                         WikiBookmark(
                             id = 1,

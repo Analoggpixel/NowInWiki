@@ -59,6 +59,7 @@ import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
 import com.google.samples.apps.nowinandroid.core.ui.WikiBookmarkToggleButton
 import com.google.samples.apps.nowinandroid.core.ui.R as UiR
+import com.google.samples.apps.nowinandroid.feature.wikipage.api.R as wikiPageR
 
 @Composable
 internal fun WikiPageScreen(
@@ -123,7 +124,7 @@ internal fun WikiPageScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    NiaLoadingWheel(contentDesc = "Loading Wikipedia page")
+                    NiaLoadingWheel(contentDesc = stringResource(wikiPageR.string.feature_wikipage_api_loading))
                 }
             }
             WikiPageUiState.Error -> {
@@ -134,7 +135,7 @@ internal fun WikiPageScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "Unable to load this page.",
+                        text = stringResource(wikiPageR.string.feature_wikipage_api_load_error),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -143,7 +144,7 @@ internal fun WikiPageScreen(
             is WikiPageUiState.Success -> {
                 val pageTitle = uiState.page.title
                 val siteBaseUrl =
-                    "https://${language.code}.wikipedia.org/wiki/${Uri.encode(pageTitle)}"
+                    "https://${language.hostCode}.wikipedia.org/wiki/${Uri.encode(pageTitle)}"
                 val preparedHtml = remember(
                     uiState.page.html,
                     uiState.page.resourceUrls,

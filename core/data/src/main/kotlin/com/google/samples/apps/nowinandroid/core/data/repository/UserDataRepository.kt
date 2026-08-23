@@ -16,10 +16,10 @@
 
 package com.google.samples.apps.nowinandroid.core.data.repository
 
+import com.google.samples.apps.nowinandroid.core.model.data.AppUiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.UserData
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import kotlinx.coroutines.flow.Flow
 
@@ -46,9 +46,9 @@ interface UserDataRepository {
     suspend fun setDynamicColorPreference(useDynamicColor: Boolean)
 
     /**
-     * Sets the preferred default wiki language.
+     * Sets the preferred app UI language (strings.xml locale).
      */
-    suspend fun setPreferredWikiLanguage(preferredWikiLanguage: WikiLanguage)
+    suspend fun setAppUiLanguage(appUiLanguage: AppUiLanguage)
 
     /**
      * Sets the preferred text scale for wiki article WebView content.

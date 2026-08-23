@@ -25,6 +25,7 @@ import com.google.samples.apps.nowinandroid.core.model.data.WikiBookmark
 import com.google.samples.apps.nowinandroid.core.model.data.WikiBookmarkFolder
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.testing.util.MainDispatcherRule
+import com.google.samples.apps.nowinandroid.feature.bookmarks.api.R
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -35,13 +36,19 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 
+@RunWith(RobolectricTestRunner::class)
 class BookmarksViewModelTest {
     @get:Rule
     val dispatcherRule = MainDispatcherRule()
+
+    private val context = RuntimeEnvironment.getApplication()
 
     private val foldersFlow = MutableStateFlow<List<WikiBookmarkFolder>>(emptyList())
     private var nextFolderId = 100L
@@ -93,6 +100,7 @@ class BookmarksViewModelTest {
     @Before
     fun setup() {
         viewModel = BookmarksViewModel(
+            context = context,
             observeWikiBookmarkFoldersUseCase = ObserveWikiBookmarkFoldersUseCase(fakeRepository),
             toggleWikiBookmarkUseCase = ToggleWikiBookmarkUseCase(fakeRepository),
             createWikiBookmarkFolderUseCase = CreateWikiBookmarkFolderUseCase(fakeRepository),
@@ -121,7 +129,7 @@ class BookmarksViewModelTest {
             listOf(
                 WikiBookmarkFolder(
                     id = 1,
-                    name = "默认收藏",
+                    name = "Saved",
                     bookmarks = listOf(
                         WikiBookmark(
                             id = 11,
@@ -143,14 +151,14 @@ class BookmarksViewModelTest {
 
     @Test
     fun startRename_setsRenameState() = runTest {
-        viewModel.startRenameFolder(folderId = 1L, currentName = "默认收藏")
+        viewModel.startRenameFolder(folderId = 1L, currentName = "Saved")
         assertEquals(
-            FolderRenameUiState(folderId = 1L, draftName = "默认收藏"),
+            FolderRenameUiState(folderId = 1L, draftName = "Saved"),
             viewModel.renameState.value,
         )
 
-        viewModel.onRenameDraftChanged("旅行")
-        assertEquals("旅行", viewModel.renameState.value?.draftName)
+        viewModel.onRenameDraftChanged("Travel")
+        assertEquals("Travel", viewModel.renameState.value?.draftName)
 
         viewModel.confirmRenameFolder()
         assertNull(viewModel.renameState.value)
@@ -158,7 +166,7 @@ class BookmarksViewModelTest {
 
     @Test
     fun cancelRename_clearsRenameState() = runTest {
-        viewModel.startRenameFolder(folderId = 1L, currentName = "默认收藏")
+        viewModel.startRenameFolder(folderId = 1L, currentName = "Saved")
         viewModel.cancelRenameFolder()
         assertNull(viewModel.renameState.value)
     }
@@ -168,17 +176,17 @@ class BookmarksViewModelTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
 
         foldersFlow.value = listOf(
-            WikiBookmarkFolder(id = 1, name = "默认收藏", bookmarks = emptyList()),
-            WikiBookmarkFolder(id = 2, name = "旅行", bookmarks = emptyList()),
+            WikiBookmarkFolder(id = 1, name = "Saved", bookmarks = emptyList()),
+            WikiBookmarkFolder(id = 2, name = "Travel", bookmarks = emptyList()),
         )
 
         viewModel.createBookmarkFolder()
 
-        // 已有 2 个夹 → 默认名「收藏夹3」
+        val expectedName = context.getString(R.string.feature_bookmarks_api_new_folder_name, 3)
         assertEquals(
-            FolderRenameUiState(folderId = 100L, draftName = "收藏夹3"),
+            FolderRenameUiState(folderId = 100L, draftName = expectedName),
             viewModel.renameState.value,
         )
-        assertEquals("收藏夹3", foldersFlow.value.last().name)
+        assertEquals(expectedName, foldersFlow.value.last().name)
     }
 }

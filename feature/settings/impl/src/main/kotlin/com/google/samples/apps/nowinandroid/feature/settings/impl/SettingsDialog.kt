@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaTextButton
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.supportsDynamicTheming
+import com.google.samples.apps.nowinandroid.core.model.data.AppUiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig.DARK
 import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig.FOLLOW_SYSTEM
@@ -56,7 +57,6 @@ import com.google.samples.apps.nowinandroid.core.model.data.DarkThemeConfig.LIGH
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand.ANDROID
 import com.google.samples.apps.nowinandroid.core.model.data.ThemeBrand.DEFAULT
-import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiReaderTextScale
 import com.google.samples.apps.nowinandroid.core.ui.TrackScreenViewEvent
 import com.google.samples.apps.nowinandroid.feature.settings.impl.R.string
@@ -75,7 +75,7 @@ fun SettingsDialog(
         onChangeThemeBrand = viewModel::updateThemeBrand,
         onChangeDynamicColorPreference = viewModel::updateDynamicColorPreference,
         onChangeDarkThemeConfig = viewModel::updateDarkThemeConfig,
-        onChangePreferredWikiLanguage = viewModel::updatePreferredWikiLanguage,
+        onChangeAppUiLanguage = viewModel::updateAppUiLanguage,
         onChangeWikiReaderTextScale = viewModel::updateWikiReaderTextScale,
     )
 }
@@ -88,7 +88,7 @@ fun SettingsDialog(
     onChangeThemeBrand: (themeBrand: ThemeBrand) -> Unit,
     onChangeDynamicColorPreference: (useDynamicColor: Boolean) -> Unit,
     onChangeDarkThemeConfig: (darkThemeConfig: DarkThemeConfig) -> Unit,
-    onChangePreferredWikiLanguage: (preferredWikiLanguage: WikiLanguage) -> Unit,
+    onChangeAppUiLanguage: (appUiLanguage: AppUiLanguage) -> Unit,
     onChangeWikiReaderTextScale: (wikiReaderTextScale: WikiReaderTextScale) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
@@ -128,7 +128,7 @@ fun SettingsDialog(
                             onChangeThemeBrand = onChangeThemeBrand,
                             onChangeDynamicColorPreference = onChangeDynamicColorPreference,
                             onChangeDarkThemeConfig = onChangeDarkThemeConfig,
-                            onChangePreferredWikiLanguage = onChangePreferredWikiLanguage,
+                            onChangeAppUiLanguage = onChangeAppUiLanguage,
                             onChangeWikiReaderTextScale = onChangeWikiReaderTextScale,
                         )
                     }
@@ -159,9 +159,19 @@ private fun ColumnScope.SettingsPanel(
     onChangeThemeBrand: (themeBrand: ThemeBrand) -> Unit,
     onChangeDynamicColorPreference: (useDynamicColor: Boolean) -> Unit,
     onChangeDarkThemeConfig: (darkThemeConfig: DarkThemeConfig) -> Unit,
-    onChangePreferredWikiLanguage: (preferredWikiLanguage: WikiLanguage) -> Unit,
+    onChangeAppUiLanguage: (appUiLanguage: AppUiLanguage) -> Unit,
     onChangeWikiReaderTextScale: (wikiReaderTextScale: WikiReaderTextScale) -> Unit,
 ) {
+    SettingsDialogSectionTitle(text = stringResource(string.feature_settings_impl_app_language))
+    Column(Modifier.selectableGroup()) {
+        AppUiLanguage.entries.forEach { language ->
+            SettingsDialogThemeChooserRow(
+                text = language.displayName(),
+                selected = settings.appUiLanguage == language,
+                onClick = { onChangeAppUiLanguage(language) },
+            )
+        }
+    }
     SettingsDialogSectionTitle(text = stringResource(string.feature_settings_impl_theme))
     Column(Modifier.selectableGroup()) {
         SettingsDialogThemeChooserRow(
@@ -233,29 +243,6 @@ private fun ColumnScope.SettingsPanel(
             onClick = { onChangeWikiReaderTextScale(WikiReaderTextScale.EXTRA_LARGE) },
         )
     }
-    SettingsDialogSectionTitle(text = "Default content language")
-    Column(Modifier.selectableGroup()) {
-        SettingsDialogThemeChooserRow(
-            text = WikiLanguage.CHINESE.toDisplayName(),
-            selected = settings.preferredWikiLanguage == WikiLanguage.CHINESE,
-            onClick = { onChangePreferredWikiLanguage(WikiLanguage.CHINESE) },
-        )
-        SettingsDialogThemeChooserRow(
-            text = WikiLanguage.ENGLISH.toDisplayName(),
-            selected = settings.preferredWikiLanguage == WikiLanguage.ENGLISH,
-            onClick = { onChangePreferredWikiLanguage(WikiLanguage.ENGLISH) },
-        )
-        SettingsDialogThemeChooserRow(
-            text = WikiLanguage.JAPANESE.toDisplayName(),
-            selected = settings.preferredWikiLanguage == WikiLanguage.JAPANESE,
-            onClick = { onChangePreferredWikiLanguage(WikiLanguage.JAPANESE) },
-        )
-        SettingsDialogThemeChooserRow(
-            text = WikiLanguage.SPANISH.toDisplayName(),
-            selected = settings.preferredWikiLanguage == WikiLanguage.SPANISH,
-            onClick = { onChangePreferredWikiLanguage(WikiLanguage.SPANISH) },
-        )
-    }
 }
 
 @Composable
@@ -304,14 +291,14 @@ private fun PreviewSettingsDialog() {
                     brand = DEFAULT,
                     darkThemeConfig = FOLLOW_SYSTEM,
                     useDynamicColor = false,
-                    preferredWikiLanguage = WikiLanguage.CHINESE,
+                    appUiLanguage = AppUiLanguage.FOLLOW_SYSTEM,
                     wikiReaderTextScale = WikiReaderTextScale.DEFAULT,
                 ),
             ),
             onChangeThemeBrand = {},
             onChangeDynamicColorPreference = {},
             onChangeDarkThemeConfig = {},
-            onChangePreferredWikiLanguage = {},
+            onChangeAppUiLanguage = {},
             onChangeWikiReaderTextScale = {},
         )
     }
@@ -327,7 +314,7 @@ private fun PreviewSettingsDialogLoading() {
             onChangeThemeBrand = {},
             onChangeDynamicColorPreference = {},
             onChangeDarkThemeConfig = {},
-            onChangePreferredWikiLanguage = {},
+            onChangeAppUiLanguage = {},
             onChangeWikiReaderTextScale = {},
         )
     }

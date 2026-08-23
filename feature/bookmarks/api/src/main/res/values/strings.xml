@@ -17,8 +17,24 @@
 <resources>
     <string name="feature_bookmarks_api_title">Saved</string>
     <string name="feature_bookmarks_api_loading">Loading saved…</string>
-    <string name="feature_bookmarks_api_empty_error">No saved updates</string>
-    <string name="feature_bookmarks_api_empty_description">Updates you save will be stored here\nto read later</string>
+    <string name="feature_bookmarks_api_loading_folders">Loading saved folders</string>
+    <string name="feature_bookmarks_api_loading_folder">Loading saved folder</string>
+    <string name="feature_bookmarks_api_empty_error">No saved pages</string>
+    <string name="feature_bookmarks_api_empty_description">Pages you save will appear here.</string>
     <string name="feature_bookmarks_api_removed">Bookmark removed</string>
     <string name="feature_bookmarks_api_undo">UNDO</string>
+    <string name="feature_bookmarks_api_create_folder">Create folder</string>
+    <string name="feature_bookmarks_api_default_folder_name">Saved</string>
+    <string name="feature_bookmarks_api_new_folder_name">Folder %1$d</string>
+    <string name="feature_bookmarks_api_confirm_rename">Confirm rename</string>
+    <string name="feature_bookmarks_api_rename_folder">Rename folder</string>
+    <string name="feature_bookmarks_api_folder_empty_title">This folder is empty</string>
+    <string name="feature_bookmarks_api_folder_empty_message">Saved pages in this folder will show up here.</string>
+    <string name="feature_bookmarks_api_folder_not_found">Folder not found</string>
+
+    <!-- Quantity strings: "1 item" vs "N items". Use with pluralStringResource in Compose. -->
+    <plurals name="feature_bookmarks_api_folder_item_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
 </resources>

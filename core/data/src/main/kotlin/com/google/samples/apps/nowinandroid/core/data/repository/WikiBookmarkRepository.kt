@@ -99,3 +99,9 @@ interface WikiBookmarkRepository {
         thumbnailUrl: String? = null,
     )
 }
+
+/**
+ * Default folder name when seeding the first bookmark folder.
+ * Keep in sync with `feature_bookmarks_api_default_folder_name`.
+ */
+const val DEFAULT_WIKI_BOOKMARK_FOLDER_NAME = "Saved"

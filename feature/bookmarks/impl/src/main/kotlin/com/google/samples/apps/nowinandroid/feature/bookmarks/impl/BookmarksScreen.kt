@@ -64,6 +64,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -82,6 +84,7 @@ import com.google.samples.apps.nowinandroid.core.model.data.WikiBookmarkFolder
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
 import com.google.samples.apps.nowinandroid.core.ui.TrackScreenViewEvent
+import com.google.samples.apps.nowinandroid.feature.bookmarks.api.R
 
 private const val FOLDER_THUMBNAIL_PREVIEW_COUNT = 3
 
@@ -235,7 +238,7 @@ private fun CreateFolderRow(
             )
         }
         Text(
-            text = "新建收藏夹",
+            text = stringResource(R.string.feature_bookmarks_api_create_folder),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
@@ -256,10 +259,12 @@ private fun WikiBookmarkFolderRow(
     modifier: Modifier = Modifier,
 ) {
     val previewBookmarks = folder.bookmarks.take(FOLDER_THUMBNAIL_PREVIEW_COUNT)
-    val countLabel = when (val count = folder.bookmarks.size) {
-        1 -> "1 item"
-        else -> "$count items"
-    }
+    // Plural-aware label: picks "1 item" or "N items" based on folder.bookmarks.size.
+    val countLabel = pluralStringResource(
+        R.plurals.feature_bookmarks_api_folder_item_count,
+        folder.bookmarks.size, // quantity for one/other rule
+        folder.bookmarks.size, // value for %d
+    )
     val focusRequester = remember { FocusRequester() }
     var textFieldValue by remember(folder.id) {
         mutableStateOf(TextFieldValue(text = folder.name))
@@ -355,7 +360,7 @@ private fun WikiBookmarkFolderRow(
             ) {
                 Icon(
                     imageVector = NiaIcons.Check,
-                    contentDescription = "Confirm rename",
+                    contentDescription = stringResource(R.string.feature_bookmarks_api_confirm_rename),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
@@ -366,7 +371,7 @@ private fun WikiBookmarkFolderRow(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Edit,
-                    contentDescription = "Rename folder",
+                    contentDescription = stringResource(R.string.feature_bookmarks_api_rename_folder),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -431,7 +436,7 @@ private fun LoadingState(modifier: Modifier = Modifier) {
             .testTag("bookmarks:loading"),
     ) {
         NiaLoadingWheel(
-            contentDesc = "Loading wiki bookmarks",
+            contentDesc = stringResource(R.string.feature_bookmarks_api_loading_folders),
         )
     }
 }
@@ -445,7 +450,7 @@ private fun WikiBookmarkFoldersListPreview() {
                 folders = listOf(
                     WikiBookmarkFolder(
                         id = 1,
-                        name = "默认收藏",
+                        name = "Saved",
                         bookmarks = listOf(
                             WikiBookmark(
                                 id = 1,

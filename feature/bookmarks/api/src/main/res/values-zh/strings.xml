@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_bookmarks_api_title">收藏</string>
+    <string name="feature_bookmarks_api_loading">正在加载收藏…</string>
+    <string name="feature_bookmarks_api_loading_folders">正在加载收藏夹</string>
+    <string name="feature_bookmarks_api_loading_folder">正在加载收藏夹</string>
+    <string name="feature_bookmarks_api_empty_error">暂无收藏</string>
+    <string name="feature_bookmarks_api_empty_description">保存的条目会显示在这里。</string>
+    <string name="feature_bookmarks_api_removed">已取消收藏</string>
+    <string name="feature_bookmarks_api_undo">撤销</string>
+    <string name="feature_bookmarks_api_create_folder">新建收藏夹</string>
+    <string name="feature_bookmarks_api_default_folder_name">默认收藏</string>
+    <string name="feature_bookmarks_api_new_folder_name">收藏夹 %1$d</string>
+    <string name="feature_bookmarks_api_confirm_rename">确认重命名</string>
+    <string name="feature_bookmarks_api_rename_folder">重命名收藏夹</string>
+    <string name="feature_bookmarks_api_folder_empty_title">此收藏夹为空</string>
+    <string name="feature_bookmarks_api_folder_empty_message">保存到此收藏夹的条目会显示在这里。</string>
+    <string name="feature_bookmarks_api_folder_not_found">未找到收藏夹</string>
+
+    <!-- Quantity strings: Chinese uses "other" for all counts. -->
+    <plurals name="feature_bookmarks_api_folder_item_count">
+        <item quantity="other">%d 条</item>
+    </plurals>
+</resources>

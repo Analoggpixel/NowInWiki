@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.core.model.data
+package com.google.samples.apps.nowinandroid.core.model.locale
+
+import com.google.samples.apps.nowinandroid.core.model.data.AppUiLanguage
 
 /**
- * Class summarizing user preference data for the wiki client.
+ * Applies [AppUiLanguage] to the running app process (platform locale / activity recreate).
+ * Implemented in the app module; feature modules call this after persisting the preference.
  */
-data class UserData(
-    val themeBrand: ThemeBrand,
-    val darkThemeConfig: DarkThemeConfig,
-    val useDynamicColor: Boolean,
-    val appUiLanguage: AppUiLanguage,
-    val wikiReaderTextScale: WikiReaderTextScale,
-    val shouldHideOnboarding: Boolean,
-)
+fun interface AppUiLanguageController {
+    fun apply(language: AppUiLanguage)
+}

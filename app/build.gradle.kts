@@ -68,6 +68,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.appcompat)
     implementation(projects.feature.foryou.api)
     implementation(projects.feature.foryou.impl)
     implementation(projects.feature.bookmarks.api)
@@ -81,11 +82,13 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.ui)
     implementation(projects.core.designsystem)
+    implementation(libs.androidx.compose.material.iconsExtended)
     implementation(projects.core.data)
     implementation(projects.core.model)
     implementation(projects.core.analytics)
 
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.compose.material3.adaptive)

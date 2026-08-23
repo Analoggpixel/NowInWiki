@@ -21,6 +21,7 @@ plugins {
 
 android {
     namespace = "com.google.samples.apps.nowinandroid.feature.bookmarks.impl"
+    testOptions.unitTests.isIncludeAndroidResources = true
 }
 
 dependencies {
@@ -29,6 +30,7 @@ dependencies {
     implementation(projects.feature.wikipage.api)
 
     testImplementation(projects.core.testing)
+    testImplementation(libs.robolectric)
 
     androidTestImplementation(libs.bundles.androidx.compose.ui.test)
     androidTestImplementation(projects.core.testing)

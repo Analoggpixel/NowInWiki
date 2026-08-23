@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.nowinandroid.feature.bookmarks.impl
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.nowinandroid.core.domain.CreateWikiBookmarkFolderUseCase
@@ -23,7 +24,9 @@ import com.google.samples.apps.nowinandroid.core.domain.ObserveWikiBookmarkFolde
 import com.google.samples.apps.nowinandroid.core.domain.RenameWikiBookmarkFolderUseCase
 import com.google.samples.apps.nowinandroid.core.domain.ToggleWikiBookmarkUseCase
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.feature.bookmarks.api.R
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +45,7 @@ data class FolderRenameUiState(
 
 @HiltViewModel
 class BookmarksViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     observeWikiBookmarkFoldersUseCase: ObserveWikiBookmarkFoldersUseCase,
     private val toggleWikiBookmarkUseCase: ToggleWikiBookmarkUseCase,
     private val createWikiBookmarkFolderUseCase: CreateWikiBookmarkFolderUseCase,
@@ -100,7 +104,10 @@ class BookmarksViewModel @Inject constructor(
                 WikiBookmarksUiState.Loading -> return@launch
             }
 
-            val name = "收藏夹${folderCount + 1}"
+            val name = context.getString(
+                R.string.feature_bookmarks_api_new_folder_name,
+                folderCount + 1,
+            )
             val folderId = createWikiBookmarkFolderUseCase(name = name) ?: return@launch
             startRenameFolder(folderId = folderId, currentName = name)
         }

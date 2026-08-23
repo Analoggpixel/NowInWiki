@@ -49,8 +49,8 @@ internal fun parseInternalWikiArticleTitle(
         return null
     }
     val allowedHosts = setOf(
-        "${language.code}.wikipedia.org",
-        "${language.code}.m.wikipedia.org",
+        "${language.hostCode}.wikipedia.org",
+        "${language.hostCode}.m.wikipedia.org",
     )
     if (host !in allowedHosts) {
         Log.d(

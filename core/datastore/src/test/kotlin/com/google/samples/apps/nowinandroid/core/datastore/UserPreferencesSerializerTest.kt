@@ -39,7 +39,6 @@ class UserPreferencesSerializerTest {
     @Test
     fun writingAndReadingUserPreferences_outputsCorrectValue() = runTest {
         val expectedUserPreferences = userPreferences {
-            preferredWikiLanguage = "en"
             useDynamicColor = true
         }
 

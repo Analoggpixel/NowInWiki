@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,18 @@
 package com.google.samples.apps.nowinandroid.core.model.data
 
 /**
- * Class summarizing user preference data for the wiki client.
+ * In-app UI locale preference (strings.xml), not wiki content language.
  */
-data class UserData(
-    val themeBrand: ThemeBrand,
-    val darkThemeConfig: DarkThemeConfig,
-    val useDynamicColor: Boolean,
-    val appUiLanguage: AppUiLanguage,
-    val wikiReaderTextScale: WikiReaderTextScale,
-    val shouldHideOnboarding: Boolean,
-)
+enum class AppUiLanguage(
+    val code: String,
+) {
+    FOLLOW_SYSTEM("system"),
+    ENGLISH("en"),
+    CHINESE_SIMPLIFIED("zh"),
+    ;
+
+    companion object {
+        fun fromCode(code: String): AppUiLanguage =
+            entries.find { it.code == code } ?: FOLLOW_SYSTEM
+    }
+}
