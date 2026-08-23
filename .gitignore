@@ -47,3 +47,7 @@ captures/
 
 # Kotlin
 .kotlin
+
+# JVM crash dumps from local test runs
+hs_err_pid*.log
+replay_pid*.log
