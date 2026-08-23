@@ -44,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -56,20 +57,19 @@ import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
 import com.google.samples.apps.nowinandroid.core.model.data.WikiFeedItem
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
+import com.google.samples.apps.nowinandroid.feature.foryou.api.R as forYouR
 
 @Composable
 fun ForYouScreenNew(
     onItemClick: (WikiFeedItem) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ForYouViewModelNew = hiltViewModel(),
+    viewModel: ForYouViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
-    val preferredLanguage by viewModel.preferredLanguage.collectAsStateWithLifecycle()
     ForYouScreenNew(
         uiState = uiState,
         isRefreshing = isRefreshing,
-        preferredLanguage = preferredLanguage,
         onItemClick = onItemClick,
         onRefresh = viewModel::onRefresh,
         modifier = modifier,
@@ -81,7 +81,6 @@ internal fun ForYouScreenNew(
     modifier: Modifier = Modifier,
     uiState: ForYouFeedUiState,
     isRefreshing: Boolean = false,
-    preferredLanguage: WikiLanguage,
     onItemClick: (WikiFeedItem) -> Unit,
     onRefresh: () -> Unit,
 ) {
@@ -105,13 +104,13 @@ internal fun ForYouScreenNew(
                 }
                 ForYouFeedUiState.Empty -> {
                     FeedMessage(
-                        message = "No feed items found.",
+                        message = stringResource(forYouR.string.feature_foryou_api_empty),
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
                 ForYouFeedUiState.Error -> {
                     FeedMessage(
-                        message = "Unable to load feed.",
+                        message = stringResource(forYouR.string.feature_foryou_api_error),
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -305,7 +304,6 @@ private fun ForYouScreenNewPreview() {
             onRefresh = {},
             modifier = Modifier,
             isRefreshing = false,
-            preferredLanguage = WikiLanguage.ENGLISH,
         )
     }
 }

@@ -18,58 +18,44 @@ package com.google.samples.apps.nowinandroid.feature.foryou.impl
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.samples.apps.nowinandroid.core.data.repository.UserDataRepository
 import com.google.samples.apps.nowinandroid.core.domain.GetWikiFeedUseCase
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ForYouViewModelNew @Inject constructor(
+class ForYouViewModel @Inject constructor(
     private val getWikiFeedUseCase: GetWikiFeedUseCase,
-    private val userDataRepository: UserDataRepository,
 ) : ViewModel() {
+
+    private val feedLanguage = WikiLanguage.CHINESE_SIMPLIFIED
 
     private val _uiState = MutableStateFlow<ForYouFeedUiState>(ForYouFeedUiState.Loading)
     val uiState: StateFlow<ForYouFeedUiState> = _uiState.asStateFlow()
 
     /**
-     * 供 [androidx.compose.material3.pulltorefresh.PullToRefreshBox] 使用。
+     * ? [androidx.compose.material3.pulltorefresh.PullToRefreshBox] ???
      *
-     * 下拉刷新流程（不是「先改 isRefreshing，再调 onRefresh」）：
-     * 1. 手指下拉时，PullToRefreshBox 内部处理跟手动画，此时 isRefreshing 仍为 false。
-     * 2. 超过阈值并松手后，组件回调 Screen 传入的 onRefresh（接到本 ViewModel 的 [onRefresh]）。
-     * 3. 在 [onRefresh] 里把 isRefreshing 设为 true，指示器进入「正在刷新」转圈。
-     * 4. 请求结束后把 isRefreshing 设回 false，组件收起指示器。
+     * ???????????? isRefreshing??? onRefresh???
+     * 1. ??????PullToRefreshBox ??????????? isRefreshing ?? false?
+     * 2. ????????????? Screen ??? onRefresh???? ViewModel ? [onRefresh]??
+     * 3. ? [onRefresh] ?? isRefreshing ?? true???????????????
+     * 4. ?????? isRefreshing ?? false?????????
      *
-     * 因此 isRefreshing 必须由 ViewModel 在刷新期间显式维护，否则指示器会马上消失。
+     * ?? isRefreshing ??? ViewModel ?????????????????????
      */
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
-
-    val preferredLanguage: StateFlow<WikiLanguage> =
-        userDataRepository.userData
-            .map { it.preferredWikiLanguage }
-            .distinctUntilChanged()
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = WikiLanguage.CHINESE,
-            )
 
     init {
         loadFeed()
     }
 
-    fun loadFeed(language: WikiLanguage = WikiLanguage.ENGLISH) {
+    fun loadFeed(language: WikiLanguage = feedLanguage) {
         viewModelScope.launch {
             _uiState.value = ForYouFeedUiState.Loading
             runCatching {
@@ -87,11 +73,11 @@ class ForYouViewModelNew @Inject constructor(
     }
 
     /**
-     * PullToRefreshBox 松手后触发的刷新入口。
-     * 刷新时保留当前列表（不切回全屏 Loading）。
-     * 仅当拿到非空列表时才更新 UI；空结果或失败都视为空操作，避免交互被打断。
+     * PullToRefreshBox ???????????
+     * ??????????????? Loading??
+     * ???????????? UI??????????????????????
      */
-    fun onRefresh(language: WikiLanguage = WikiLanguage.ENGLISH) {
+    fun onRefresh(language: WikiLanguage = feedLanguage) {
         if (_isRefreshing.value) return
         viewModelScope.launch {
             _isRefreshing.value = true
