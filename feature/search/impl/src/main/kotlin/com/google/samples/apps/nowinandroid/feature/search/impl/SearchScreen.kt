@@ -80,7 +80,7 @@ internal fun SearchScreen(
 internal fun SearchScreen(
     modifier: Modifier = Modifier,
     searchQuery: String = "",
-    selectedLanguage: WikiLanguage = WikiLanguage.CHINESE,
+    selectedLanguage: WikiLanguage = WikiLanguage.CHINESE_SIMPLIFIED,
     searchSuggestionUiState: SearchSuggestionUiState = SearchSuggestionUiState.Idle,
     recentSearchQueriesUiState: RecentSearchQueriesUiState = RecentSearchQueriesUiState.Loading,
     onSearchQueryChanged: (String) -> Unit = {},

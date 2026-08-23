@@ -18,6 +18,7 @@ package com.google.samples.apps.nowinandroid.feature.search.impl
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,7 @@ import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -41,17 +43,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.google.samples.apps.nowinandroid.core.designsystem.component.DynamicAsyncImage
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionItem
 import com.google.samples.apps.nowinandroid.core.ui.DevicePreviews
 import com.google.samples.apps.nowinandroid.core.ui.WikiBookmarkToggleButton
+import com.google.samples.apps.nowinandroid.feature.search.api.R as searchR
 
 @Composable
 internal fun SearchResultsScreen(
@@ -62,20 +70,19 @@ internal fun SearchResultsScreen(
     modifier: Modifier = Modifier,
     viewModel: SearchResultsViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
     val bookmarkedKeys by viewModel.bookmarkedKeys.collectAsStateWithLifecycle()
+    val pagingItems = viewModel.searchResults.collectAsLazyPagingItems()
 
-    // 把 navLanguage 同步给 selectedLanguage
-    LaunchedEffect(navQuery) {
+    LaunchedEffect(navQuery, navLanguage) {
         viewModel.onSearch(navQuery, navLanguage)
     }
 
     SearchResultsScreen(
         searchQuery = searchQuery,
         selectedLanguage = selectedLanguage,
-        uiState = uiState,
+        pagingItems = pagingItems,
         bookmarkedKeys = bookmarkedKeys,
         onBackClick = onBackClick,
         onSuggestionClick = onSuggestionClick,
@@ -91,7 +98,7 @@ internal fun SearchResultsScreen(
 internal fun SearchResultsScreen(
     searchQuery: String,
     selectedLanguage: WikiLanguage,
-    uiState: SearchResultsUiState,
+    pagingItems: LazyPagingItems<WikiSuggestionItem>,
     onBackClick: () -> Unit,
     onSuggestionClick: (WikiSuggestionItem) -> Unit,
     onSearch: (String, WikiLanguage) -> Unit,
@@ -112,28 +119,35 @@ internal fun SearchResultsScreen(
             onLanguageSelected = onLanguageSelected,
         )
 
-        when (uiState) {
-            SearchResultsUiState.Idle -> Unit
-            SearchResultsUiState.Loading -> SuggestionsLoading(
-                modifier = Modifier.fillMaxWidth(),
-            )
-            SearchResultsUiState.Empty -> SuggestionsMessage(
-                message = "No results found.",
-                modifier = Modifier.fillMaxWidth(),
-            )
-            SearchResultsUiState.Error -> SuggestionsMessage(
-                message = "Unable to load search results.",
-                modifier = Modifier.fillMaxWidth(),
-            )
-            is SearchResultsUiState.Success -> SearchResultsList(
-                items = uiState.items,
-                bookmarkedKeys = bookmarkedKeys,
-                onSuggestionClick = onSuggestionClick,
-                onToggleBookmark = onToggleBookmark,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-            )
+        val refreshState = pagingItems.loadState.refresh
+        when {
+            searchQuery.isBlank() -> Unit
+            refreshState is LoadState.Loading && pagingItems.itemCount == 0 -> {
+                SuggestionsLoading(modifier = Modifier.fillMaxWidth())
+            }
+            refreshState is LoadState.Error && pagingItems.itemCount == 0 -> {
+                SuggestionsMessage(
+                    message = stringResource(searchR.string.feature_search_api_search_results_load_error),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            refreshState is LoadState.NotLoading && pagingItems.itemCount == 0 -> {
+                SuggestionsMessage(
+                    message = stringResource(searchR.string.feature_search_api_search_results_empty),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            else -> {
+                SearchResultsList(
+                    pagingItems = pagingItems,
+                    bookmarkedKeys = bookmarkedKeys,
+                    onSuggestionClick = onSuggestionClick,
+                    onToggleBookmark = onToggleBookmark,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                )
+            }
         }
 
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
@@ -142,7 +156,7 @@ internal fun SearchResultsScreen(
 
 @Composable
 private fun SearchResultsList(
-    items: List<WikiSuggestionItem>,
+    pagingItems: LazyPagingItems<WikiSuggestionItem>,
     bookmarkedKeys: Set<String>,
     onSuggestionClick: (WikiSuggestionItem) -> Unit,
     onToggleBookmark: (WikiSuggestionItem) -> Unit,
@@ -153,24 +167,50 @@ private fun SearchResultsList(
         contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // TODO: 不必要的文字提醒
         item {
             Text(
-                text = "Search results",
+                text = stringResource(searchR.string.feature_search_api_search_results),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(vertical = 8.dp),
             )
         }
         items(
-            items = items,
-            key = { item -> item.id },
-        ) { item ->
+            count = pagingItems.itemCount,
+            key = pagingItems.itemKey { item ->
+                "${item.itemLanguage.code}/${item.listPosition}"
+            },
+        ) { index ->
+            val item = pagingItems[index] ?: return@items
             SearchResultItem(
                 item = item,
                 isBookmarked = bookmarkKey(item.title, item.itemLanguage) in bookmarkedKeys,
                 onClick = { onSuggestionClick(item) },
                 onToggleBookmark = { onToggleBookmark(item) },
             )
+        }
+
+        when (pagingItems.loadState.append) {
+            is LoadState.Loading -> {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+            is LoadState.Error -> {
+                item {
+                    SuggestionsMessage(
+                        message = stringResource(searchR.string.feature_search_api_search_results_load_more_error),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+            else -> Unit
         }
     }
 }
@@ -184,7 +224,7 @@ private fun SearchResultItem(
     modifier: Modifier = Modifier,
 ) {
     val thumbnailUrl = item.thumbnailUrl
-    val excerpt = item.excerpt
+    val subtitle = item.excerpt ?: item.description
 
     Surface(
         modifier = modifier
@@ -220,9 +260,9 @@ private fun SearchResultItem(
                     overflow = TextOverflow.Ellipsis,
                 )
 
-                if (!excerpt.isNullOrBlank()) {
+                if (!subtitle.isNullOrBlank()) {
                     Text(
-                        text = excerpt,
+                        text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.secondary,
                         maxLines = 3,
@@ -243,26 +283,10 @@ private fun SearchResultItem(
 @Composable
 private fun SearchResultsScreenPreview() {
     NiaTheme {
-        SearchResultsScreen(
-            searchQuery = "kotlin",
-            selectedLanguage = WikiLanguage.ENGLISH,
-            uiState = SearchResultsUiState.Success(
-                items = listOf(
-                    WikiSuggestionItem(
-                        id = 1,
-                        key = "Kotlin",
-                        title = "Kotlin",
-                        description = "General-purpose programming language",
-                        thumbnailUrl = null,
-                        itemLanguage = WikiLanguage.ENGLISH,
-                    ),
-                ),
-            ),
-            bookmarkedKeys = setOf(bookmarkKey("Kotlin", WikiLanguage.ENGLISH)),
-            onBackClick = {},
-            onSuggestionClick = {},
-            onToggleBookmark = {},
-            onSearch = { _, _ -> },
+        // Preview uses empty paging stream; interactive preview is limited.
+        Text(
+            text = stringResource(searchR.string.feature_search_api_search_results_preview),
+            modifier = Modifier.padding(16.dp),
         )
     }
 }

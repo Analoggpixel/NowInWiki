@@ -58,7 +58,7 @@ class SearchSuggestionViewModel @Inject constructor(
     )
     val selectedLanguage: StateFlow<WikiLanguage> = savedStateHandle.getStateFlow(
         key = SELECTED_LANGUAGE,
-        initialValue = WikiLanguage.CHINESE,
+        initialValue = WikiLanguage.CHINESE_SIMPLIFIED,
     )
     private val _uiState = MutableStateFlow<SearchSuggestionUiState>(SearchSuggestionUiState.Idle)
     val uiState: StateFlow<SearchSuggestionUiState> = _uiState.asStateFlow()

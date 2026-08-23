@@ -21,6 +21,7 @@ import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiBook
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiFeedRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiHistoryRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiPageRepository
+import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiSearchRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.DefaultWikiSuggestionRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.OfflineFirstUserDataRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.RecentSearchRepository
@@ -29,6 +30,7 @@ import com.google.samples.apps.nowinandroid.core.data.repository.WikiBookmarkRep
 import com.google.samples.apps.nowinandroid.core.data.repository.WikiFeedRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.WikiHistoryRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.WikiPageRepository
+import com.google.samples.apps.nowinandroid.core.data.repository.WikiSearchRepository
 import com.google.samples.apps.nowinandroid.core.data.repository.WikiSuggestionRepository
 import com.google.samples.apps.nowinandroid.core.data.util.ConnectivityManagerNetworkMonitor
 import com.google.samples.apps.nowinandroid.core.data.util.NetworkMonitor
@@ -57,6 +59,11 @@ abstract class DataModule {
     internal abstract fun bindsWikiSuggestionRepository(
         wikiSuggestionRepository: DefaultWikiSuggestionRepository,
     ): WikiSuggestionRepository
+
+    @Binds
+    internal abstract fun bindsWikiSearchRepository(
+        wikiSearchRepository: DefaultWikiSearchRepository,
+    ): WikiSearchRepository
 
     @Binds
     internal abstract fun bindsWikiFeedRepository(

@@ -205,34 +205,15 @@ internal fun SearchLanguageDropDownMenu(
             shape = RoundedCornerShape(16.dp),
             onDismissRequest = { expanded = false },
         ) {
-            DropdownMenuItem(
-                text = { Text("中文") },
-                onClick = {
-                    onLanguageSelected(WikiLanguage.CHINESE)
-                    expanded = false
-                },
-            )
-            DropdownMenuItem(
-                text = { Text("English") },
-                onClick = {
-                    onLanguageSelected(WikiLanguage.ENGLISH)
-                    expanded = false
-                },
-            )
-            DropdownMenuItem(
-                text = { Text("Japanese") },
-                onClick = {
-                    onLanguageSelected(WikiLanguage.JAPANESE)
-                    expanded = false
-                },
-            )
-            DropdownMenuItem(
-                text = { Text("Spanish") },
-                onClick = {
-                    onLanguageSelected(WikiLanguage.SPANISH)
-                    expanded = false
-                },
-            )
+            WikiLanguage.entries.forEach { language ->
+                DropdownMenuItem(
+                    text = { Text(language.toDisplayName()) },
+                    onClick = {
+                        onLanguageSelected(language)
+                        expanded = false
+                    },
+                )
+            }
         }
     }
 }

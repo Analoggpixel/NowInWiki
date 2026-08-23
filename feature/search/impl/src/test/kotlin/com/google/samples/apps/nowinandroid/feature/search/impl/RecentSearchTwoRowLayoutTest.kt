@@ -37,7 +37,7 @@ class RecentSearchTwoRowLayoutTest {
     @Test
     fun shortQueries_fillFirstRowThenSecond() {
         val queries = listOf("a", "b", "c", "d", "e").map(::queryOf)
-        // Each chip ≈ 12*2 + 0.55*14 ≈ 31.7; +8 spacing ≈ 40. packed into 90 → ~2 per row
+        // Each chip �?12*2 + 0.55*14 �?31.7; +8 spacing �?40. packed into 90 �?~2 per row
         val layout = takeRecentSearchesForTwoRows(
             queries = queries,
             maxWidthDp = 90f,
@@ -85,7 +85,7 @@ class RecentSearchTwoRowLayoutTest {
 
     @Test
     fun longQuery_displayTextUsesEllipsisAndWidthIsCapped() {
-        val query = "这是一条特别特别长的搜索词用来测试省略号"
+        val query = "这是一条特别特别长的搜索词用来测试省略�?
         val maxChipWidthDp = 80f
         val display = recentSearchChipDisplayText(
             query = query,
@@ -103,6 +103,6 @@ class RecentSearchTwoRowLayoutTest {
 
     private fun queryOf(text: String) = RecentSearchQuery(
         query = text,
-        language = WikiLanguage.CHINESE,
+        language = WikiLanguage.CHINESE_SIMPLIFIED,
     )
 }

@@ -37,16 +37,3 @@ fun NetworkWikiSuggestionsResponse.asExternalModel(itemLanguage: WikiLanguage): 
     WikiSuggestionsResult(
         items = pages.map({ page -> page.asExternalModel(itemLanguage) }),
     )
-
-// 把 "//..." 风格的相对路径转成 "https://..." 这样的绝对路径
-private fun String.toAbsoluteWikiUrl(): String =
-    when {
-        startsWith("//") -> "https:$this"
-        else -> this
-    }
-
-private fun String.toHighResolution(size: Int = 250): String =
-    replace(
-        Regex("/\\d+px-"),
-        "/${size}px-",
-    )

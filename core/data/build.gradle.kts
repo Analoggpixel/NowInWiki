@@ -32,6 +32,8 @@ dependencies {
     api(projects.core.model)
     api(projects.core.network)
 
+    api(libs.androidx.paging.runtime)
+
     implementation(projects.core.analytics)
 
     testImplementation(libs.kotlinx.coroutines.test)

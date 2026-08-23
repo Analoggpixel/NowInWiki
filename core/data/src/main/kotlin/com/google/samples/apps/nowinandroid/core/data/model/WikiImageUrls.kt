@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.feature.search.impl
+package com.google.samples.apps.nowinandroid.core.data.model
 
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionItem
+/** Turns protocol-relative `//...` URLs into absolute `https://...` URLs. */
+internal fun String.toAbsoluteWikiUrl(): String =
+    when {
+        startsWith("//") -> "https:$this"
+        else -> this
+    }
 
-sealed interface SearchResultsUiState {
-    data object Idle : SearchResultsUiState
-    data object Loading : SearchResultsUiState
-    data object Empty : SearchResultsUiState
-    data object Error : SearchResultsUiState
-
-    data class Success(
-        val items: List<WikiSuggestionItem>,
-    ) : SearchResultsUiState
-}
+/** Rewrites Commons thumbnail path size segments (e.g. `/50px-` → `/250px-`). */
+internal fun String.toHighResolution(size: Int = 250): String =
+    replace(
+        Regex("/\\d+px-"),
+        "/${size}px-",
+    )

@@ -24,10 +24,13 @@ import com.google.samples.apps.nowinandroid.core.database.dao.RecentSearchQueryD
 import com.google.samples.apps.nowinandroid.core.database.dao.WikiBookmarkDao
 import com.google.samples.apps.nowinandroid.core.database.dao.WikiBookmarkFolderDao
 import com.google.samples.apps.nowinandroid.core.database.dao.WikiHistoryDao
+import com.google.samples.apps.nowinandroid.core.database.dao.WikiSearchDao
 import com.google.samples.apps.nowinandroid.core.database.model.RecentSearchQueryEntity
 import com.google.samples.apps.nowinandroid.core.database.model.WikiBookmarkEntity
 import com.google.samples.apps.nowinandroid.core.database.model.WikiBookmarkFolderEntity
 import com.google.samples.apps.nowinandroid.core.database.model.WikiHistoryEntity
+import com.google.samples.apps.nowinandroid.core.database.model.WikiSearchRemoteKeysEntity
+import com.google.samples.apps.nowinandroid.core.database.model.WikiSearchResultEntity
 import com.google.samples.apps.nowinandroid.core.database.util.InstantConverter
 
 @Database(
@@ -36,8 +39,10 @@ import com.google.samples.apps.nowinandroid.core.database.util.InstantConverter
         WikiBookmarkFolderEntity::class,
         WikiBookmarkEntity::class,
         WikiHistoryEntity::class,
+        WikiSearchResultEntity::class,
+        WikiSearchRemoteKeysEntity::class,
     ],
-    version = 18,
+    version = 19,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3, spec = DatabaseMigrations.Schema2to3::class),
@@ -64,4 +69,5 @@ internal abstract class NiaDatabase : RoomDatabase() {
     abstract fun wikiBookmarkFolderDao(): WikiBookmarkFolderDao
     abstract fun wikiBookmarkDao(): WikiBookmarkDao
     abstract fun wikiHistoryDao(): WikiHistoryDao
+    abstract fun wikiSearchDao(): WikiSearchDao
 }

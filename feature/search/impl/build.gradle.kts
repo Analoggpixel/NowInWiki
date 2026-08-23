@@ -25,9 +25,12 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.paging.common)
     implementation(projects.core.domain)
     implementation(projects.feature.search.api)
     implementation(projects.feature.wikipage.api)
+    implementation(libs.androidx.paging.compose)
+    implementation(libs.androidx.paging.runtime)
 
     testImplementation(projects.core.testing)
 

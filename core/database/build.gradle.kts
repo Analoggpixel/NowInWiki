@@ -27,8 +27,11 @@ android {
 
 dependencies {
     api(projects.core.model)
+    implementation(libs.androidx.paging.common)
 
     implementation(libs.kotlinx.datetime)
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.room.paging)
 
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)

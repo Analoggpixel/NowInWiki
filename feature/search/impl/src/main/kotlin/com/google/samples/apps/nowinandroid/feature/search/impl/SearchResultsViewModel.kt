@@ -19,27 +19,34 @@ package com.google.samples.apps.nowinandroid.feature.search.impl
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.samples.apps.nowinandroid.core.domain.GetWikiSuggestionsUseCase
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
+import com.google.samples.apps.nowinandroid.core.domain.GetWikiSearchPagingDataUseCase
 import com.google.samples.apps.nowinandroid.core.domain.ObserveWikiBookmarkFoldersUseCase
 import com.google.samples.apps.nowinandroid.core.domain.SaveRecentSearchQueryUseCase
 import com.google.samples.apps.nowinandroid.core.domain.ToggleWikiBookmarkUseCase
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionItem
-import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionsResult
+import com.google.samples.apps.nowinandroid.core.model.data.asSuggestionItem
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchResultsViewModel @Inject constructor(
-    private val getWikiSuggestionsUseCase: GetWikiSuggestionsUseCase,
+    private val getWikiSearchPagingDataUseCase: GetWikiSearchPagingDataUseCase,
     private val toggleWikiBookmarkUseCase: ToggleWikiBookmarkUseCase,
     observeWikiBookmarkFoldersUseCase: ObserveWikiBookmarkFoldersUseCase,
     private val saveRecentSearchQueryUseCase: SaveRecentSearchQueryUseCase,
@@ -52,15 +59,12 @@ class SearchResultsViewModel @Inject constructor(
     )
     val selectedLanguage: StateFlow<WikiLanguage> = savedStateHandle.getStateFlow(
         key = SELECTED_LANGUAGE,
-        initialValue = WikiLanguage.CHINESE,
+        initialValue = WikiLanguage.CHINESE_SIMPLIFIED,
     )
 
-    private val _uiState = MutableStateFlow<SearchResultsUiState>(SearchResultsUiState.Idle)
-    val uiState: StateFlow<SearchResultsUiState> = _uiState.asStateFlow()
-
     /**
-     * 所有已收藏条目的 [bookmarkKey]（title + language）。
-     * 列表用这一份 Set 判断勾选状态，避免每一行单独 observe。
+     * All bookmarked entries as [bookmarkKey] (title + language).
+     * The list uses this set for checked state instead of observing each row.
      */
     val bookmarkedKeys: StateFlow<Set<String>> =
         observeWikiBookmarkFoldersUseCase()
@@ -76,44 +80,37 @@ class SearchResultsViewModel @Inject constructor(
                 initialValue = emptySet(),
             )
 
+    val searchResults: Flow<PagingData<WikiSuggestionItem>> =
+        combine(searchQuery, selectedLanguage) { query, language ->
+            query.trim() to language
+        }
+            .distinctUntilChanged()
+            .flatMapLatest { (query, language) ->
+                if (query.isEmpty()) {
+                    flowOf(PagingData.empty())
+                } else {
+                    getWikiSearchPagingDataUseCase(
+                        query = query,
+                        language = language,
+                    ).map { pagingData ->
+                        pagingData.map { pageItem -> pageItem.asSuggestionItem() }
+                    }
+                }
+            }
+            .cachedIn(viewModelScope)
+
     fun onSearch(query: String, selectedLanguage: WikiLanguage) {
         val trimmed = query.trim()
         savedStateHandle[SEARCH_RESULTS_QUERY] = trimmed
         savedStateHandle[SELECTED_LANGUAGE] = selectedLanguage
 
-        if (trimmed.isEmpty()) {
-            _uiState.value = SearchResultsUiState.Idle
-            return
-        }
+        if (trimmed.isEmpty()) return
 
         viewModelScope.launch {
-            _uiState.value = SearchResultsUiState.Loading
-
             saveRecentSearchQueryUseCase(
                 query = trimmed,
                 language = selectedLanguage,
             )
-
-            runCatching {
-                getWikiSuggestionsUseCase(
-                    query = trimmed,
-                    language = selectedLanguage,
-                )
-            }.onSuccess(::handleLoaded)
-                .onFailure {
-                    _uiState.value = SearchResultsUiState.Error
-                }
-        }
-    }
-
-    private fun handleLoaded(result: WikiSuggestionsResult) {
-        val firstPageItems = result.items.take(SEARCH_RESULTS_PAGE_SIZE)
-        _uiState.update {
-            if (firstPageItems.isEmpty()) {
-                SearchResultsUiState.Empty
-            } else {
-                SearchResultsUiState.Success(firstPageItems)
-            }
         }
     }
 
@@ -135,9 +132,6 @@ class SearchResultsViewModel @Inject constructor(
             )
         }
     }
-
-    fun isBookmarked(item: WikiSuggestionItem, bookmarkedKeys: Set<String>): Boolean =
-        bookmarkKey(item.title, item.itemLanguage) in bookmarkedKeys
 }
 
 internal fun bookmarkKey(title: String, language: WikiLanguage): String =
@@ -145,4 +139,3 @@ internal fun bookmarkKey(title: String, language: WikiLanguage): String =
 
 private const val SEARCH_RESULTS_QUERY = "searchResultsQuery"
 private const val SELECTED_LANGUAGE = "selectedLanguage"
-private const val SEARCH_RESULTS_PAGE_SIZE = 20

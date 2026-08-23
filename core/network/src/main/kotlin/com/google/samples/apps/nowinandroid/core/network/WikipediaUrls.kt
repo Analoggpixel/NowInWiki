@@ -22,10 +22,13 @@ import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 /**
  * Builds absolute Wikipedia REST / site URLs for a given [WikiLanguage].
  *
+ * Hosts use [WikiLanguage.hostCode] (e.g. both simplified and traditional Chinese → `zh`).
+ * Script variants are applied via `Accept-Language` from [WikiLanguage.variant], not the host.
+ *
  * Used with Retrofit `@Url` so requests are not tied to a fixed `baseUrl` host.
  */
 fun wikipediaRestBaseUrl(language: WikiLanguage): String =
-    "https://${language.code}.wikipedia.org/w/rest.php/v1/"
+    "https://${language.hostCode}.wikipedia.org/w/rest.php/v1/"
 
 /**
  * Page Content Service (PCS) base under `/api/rest_v1/`.
@@ -33,13 +36,57 @@ fun wikipediaRestBaseUrl(language: WikiLanguage): String =
  * Distinct from [wikipediaRestBaseUrl] (`/w/rest.php/v1/`).
  */
 fun wikipediaPcsBaseUrl(language: WikiLanguage): String =
-    "https://${language.code}.wikipedia.org/api/rest_v1/"
+    "https://${language.hostCode}.wikipedia.org/api/rest_v1/"
 
 fun wikipediaSiteBaseUrl(language: WikiLanguage): String =
-    "https://${language.code}.wikipedia.org/"
+    "https://${language.hostCode}.wikipedia.org/"
 
 fun wikipediaSearchPageUrl(language: WikiLanguage, query: String): String =
     "${wikipediaRestBaseUrl(language)}search/page?q=${Uri.encode(query)}"
+
+/**
+ * MediaWiki Action API base (`/w/api.php`).
+ *
+ * Distinct from REST ([wikipediaRestBaseUrl]) and PCS ([wikipediaPcsBaseUrl]).
+ */
+fun wikipediaActionApiUrl(language: WikiLanguage): String =
+    "https://${language.hostCode}.wikipedia.org/w/api.php"
+
+/**
+ * Action API search for result pages via `generator=search`.
+ *
+ * Also requests `prop=pageimages|description` so each hit can include a thumbnail
+ * and short description in one round-trip.
+ *
+ * Use [offset] / response `continue.gsroffset` for pagination (Paging-friendly).
+ * When [WikiLanguage.variant] is set, passes `variant=` for language conversion.
+ *
+ * @see <a href="https://www.mediawiki.org/wiki/API:Search">API:Search</a>
+ */
+fun wikipediaQuerySearchUrl(
+    language: WikiLanguage,
+    query: String,
+    offset: Int,
+    limit: Int,
+    thumbnailSize: Int = DEFAULT_SEARCH_THUMBNAIL_SIZE,
+): String {
+    val builder = Uri.parse(wikipediaActionApiUrl(language)).buildUpon()
+        .appendQueryParameter("action", "query")
+        .appendQueryParameter("format", "json")
+        .appendQueryParameter("formatversion", "2")
+        .appendQueryParameter("generator", "search")
+        .appendQueryParameter("gsrsearch", query)
+        .appendQueryParameter("gsrlimit", limit.toString())
+        .appendQueryParameter("gsroffset", offset.toString())
+        .appendQueryParameter("prop", "pageimages|description")
+        .appendQueryParameter("piprop", "thumbnail")
+        .appendQueryParameter("pithumbsize", thumbnailSize.toString())
+    language.variant?.let { builder.appendQueryParameter("variant", it) }
+    return builder.build().toString()
+}
+
+/** Default width (px) for search-result thumbnails (`pithumbsize`). */
+const val DEFAULT_SEARCH_THUMBNAIL_SIZE = 160
 
 /**
  * PCS mobile-optimized HTML for native reading clients.

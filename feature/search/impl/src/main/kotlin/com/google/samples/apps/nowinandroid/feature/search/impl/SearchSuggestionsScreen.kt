@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -44,6 +45,7 @@ import com.google.samples.apps.nowinandroid.core.designsystem.component.DynamicA
 import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaLoadingWheel
 import com.google.samples.apps.nowinandroid.core.model.data.RecentSearchQuery
 import com.google.samples.apps.nowinandroid.core.model.data.WikiSuggestionItem
+import com.google.samples.apps.nowinandroid.feature.search.api.R as searchR
 
 @Composable
 internal fun SearchSuggestionsScreen(
@@ -70,13 +72,13 @@ internal fun SearchSuggestionsScreen(
         }
         SearchSuggestionUiState.Empty -> {
             SuggestionsMessage(
-                message = "No suggestions found.",
+                message = stringResource(searchR.string.feature_search_api_suggestions_empty),
                 modifier = modifier,
             )
         }
         SearchSuggestionUiState.Error -> {
             SuggestionsMessage(
-                message = "Unable to load suggestions.",
+                message = stringResource(searchR.string.feature_search_api_suggestions_error),
                 modifier = modifier,
             )
         }
@@ -180,7 +182,7 @@ internal fun SuggestionsLoading(
             .padding(vertical = 32.dp),
         contentAlignment = Alignment.Center,
     ) {
-        NiaLoadingWheel(contentDesc = "Loading suggestions")
+        NiaLoadingWheel(contentDesc = stringResource(searchR.string.feature_search_api_loading_suggestions))
     }
 }
 

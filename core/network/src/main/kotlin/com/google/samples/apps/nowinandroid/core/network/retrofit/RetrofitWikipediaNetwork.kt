@@ -22,9 +22,11 @@ import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
 import com.google.samples.apps.nowinandroid.core.network.BuildConfig
 import com.google.samples.apps.nowinandroid.core.network.WikipediaNetworkDataSource
 import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiRandomTitleResponse
+import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiSearchResponse
 import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiSuggestionsResponse
 import com.google.samples.apps.nowinandroid.core.network.wikipediaMobileHtmlOfflineResourcesUrl
 import com.google.samples.apps.nowinandroid.core.network.wikipediaMobileHtmlUrl
+import com.google.samples.apps.nowinandroid.core.network.wikipediaQuerySearchUrl
 import com.google.samples.apps.nowinandroid.core.network.wikipediaRandomTitleUrl
 import com.google.samples.apps.nowinandroid.core.network.wikipediaSearchPageUrl
 import kotlinx.serialization.json.Json
@@ -34,6 +36,7 @@ import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Url
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -42,26 +45,35 @@ private interface RetrofitWikipediaApi {
     @GET
     suspend fun searchSuggestions(
         @Url url: String,
+        @Header("Accept-Language") acceptLanguage: String?,
     ): NetworkWikiSuggestionsResponse
+
+    @GET
+    suspend fun searchPages(
+        @Url url: String,
+        @Header("Accept-Language") acceptLanguage: String?,
+    ): NetworkWikiSearchResponse
 
     @GET
     suspend fun getRandomTitle(
         @Url url: String,
+        @Header("Accept-Language") acceptLanguage: String?,
     ): NetworkWikiRandomTitleResponse
 
     /** Raw body for non-JSON or hand-parsed JSON responses (PCS HTML / resource lists). */
     @GET
     suspend fun getRawBody(
         @Url url: String,
+        @Header("Accept-Language") acceptLanguage: String?,
     ): ResponseBody
 }
 
 /**
  * Retrofit 要求的占位 baseUrl（[BuildConfig.WIKIPEDIA_BASE_URL]）。
  *
- * 真正的 Wikipedia 请求会传入由 [wikipediaSearchPageUrl] / [wikipediaMobileHtmlUrl] 等
- * 按 [WikiLanguage] 拼好的绝对 `@Url`，因此该 host 不参与解析这些接口的实际地址，
- * 仅用于满足 Retrofit.Builder.baseUrl。
+ * 真正的 Wikipedia 请求会传入由 [wikipediaSearchPageUrl] / [wikipediaQuerySearchUrl] /
+ * [wikipediaMobileHtmlUrl] 等按 [WikiLanguage] 拼好的绝对 `@Url`，因此该 host 不参与解析
+ * 这些接口的实际地址，仅用于满足 Retrofit.Builder.baseUrl。
  */
 private const val WIKIPEDIA_BASE_URL = BuildConfig.WIKIPEDIA_BASE_URL
 
@@ -91,11 +103,42 @@ internal class RetrofitWikipediaNetwork @Inject constructor(
         language: WikiLanguage,
     ): NetworkWikiSuggestionsResponse {
         val url = wikipediaSearchPageUrl(language = language, query = query)
-        return wikipediaApi.searchSuggestions(url = url).also {
+        return wikipediaApi.searchSuggestions(
+            url = url,
+            acceptLanguage = language.variant,
+        ).also {
             // Temporary connectivity debug log. Remove after suggestion chain is verified.
             Log.d(
                 "WikiSuggestions",
-                "network searchSuggestions language=${language.code} url=$url pages=${it.pages.size}",
+                "network searchSuggestions language=${language.code} " +
+                    "host=${language.hostCode} variant=${language.variant} " +
+                    "url=$url pages=${it.pages.size}",
+            )
+        }
+    }
+
+    override suspend fun searchPages(
+        query: String,
+        language: WikiLanguage,
+        offset: Int,
+        limit: Int,
+    ): NetworkWikiSearchResponse {
+        val url = wikipediaQuerySearchUrl(
+            language = language,
+            query = query,
+            offset = offset,
+            limit = limit,
+        )
+        return wikipediaApi.searchPages(
+            url = url,
+            acceptLanguage = language.variant,
+        ).also {
+            Log.d(
+                "WikiSearch",
+                "network searchPages language=${language.code} " +
+                    "host=${language.hostCode} variant=${language.variant} " +
+                    "offset=$offset limit=$limit results=${it.results.size} " +
+                    "nextOffset=${it.nextOffset} url=$url",
             )
         }
     }
@@ -106,6 +149,7 @@ internal class RetrofitWikipediaNetwork @Inject constructor(
     ): String =
         wikipediaApi.getRawBody(
             url = wikipediaMobileHtmlUrl(language = language, title = title),
+            acceptLanguage = language.variant,
         ).use { it.string() }
 
     override suspend fun getMobileHtmlOfflineResources(
@@ -114,6 +158,7 @@ internal class RetrofitWikipediaNetwork @Inject constructor(
     ): List<String> {
         val body = wikipediaApi.getRawBody(
             url = wikipediaMobileHtmlOfflineResourcesUrl(language = language, title = title),
+            acceptLanguage = language.variant,
         ).use { it.string() }
         return networkJson.decodeFromString<List<String>>(body)
     }
@@ -121,6 +166,7 @@ internal class RetrofitWikipediaNetwork @Inject constructor(
     override suspend fun getRandomPageTitle(language: WikiLanguage): String {
         val response = wikipediaApi.getRandomTitle(
             url = wikipediaRandomTitleUrl(language),
+            acceptLanguage = language.variant,
         )
         val title = response.items.firstOrNull()?.title?.replace('_', ' ')?.trim().orEmpty()
         if (title.isEmpty()) {

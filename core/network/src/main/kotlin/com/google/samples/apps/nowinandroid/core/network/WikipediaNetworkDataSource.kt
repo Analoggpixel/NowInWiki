@@ -17,16 +17,34 @@
 package com.google.samples.apps.nowinandroid.core.network
 
 import com.google.samples.apps.nowinandroid.core.model.data.WikiLanguage
+import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiSearchResponse
 import com.google.samples.apps.nowinandroid.core.network.model.NetworkWikiSuggestionsResponse
 
 /**
- * Interface representing network calls to the Wikipedia / MediaWiki REST API and PCS.
+ * Interface representing network calls to Wikipedia (REST, Action API, and PCS).
  */
 interface WikipediaNetworkDataSource {
+    /**
+     * REST typeahead suggestions (`GET /w/rest.php/v1/search/page`).
+     */
     suspend fun searchSuggestions(
         query: String,
         language: WikiLanguage,
     ): NetworkWikiSuggestionsResponse
+
+    /**
+     * Action API paginated search via `generator=search`
+     * (includes pageimages thumbnail + description when available).
+     *
+     * @param offset MediaWiki `gsroffset` (0 for the first page).
+     * @param limit MediaWiki `gsrlimit` (page size; typically 20).
+     */
+    suspend fun searchPages(
+        query: String,
+        language: WikiLanguage,
+        offset: Int,
+        limit: Int = DEFAULT_SEARCH_PAGE_LIMIT,
+    ): NetworkWikiSearchResponse
 
     /**
      * PCS mobile-html document for [title] (`GET /api/rest_v1/page/mobile-html/{title}`).
@@ -57,3 +75,6 @@ interface WikipediaNetworkDataSource {
         language: WikiLanguage,
     ): String
 }
+
+/** Default [WikipediaNetworkDataSource.searchPages] page size (`gsrlimit`). */
+const val DEFAULT_SEARCH_PAGE_LIMIT = 20

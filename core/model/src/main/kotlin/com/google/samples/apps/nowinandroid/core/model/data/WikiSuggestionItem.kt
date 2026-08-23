@@ -30,4 +30,6 @@ data class WikiSuggestionItem(
     val excerpt: String? = null,
     val thumbnailUrl: String? = null,
     val itemLanguage: WikiLanguage,
+    /** Stable list index for paging lists; distinct from [id] (page id). */
+    val listPosition: Int = 0,
 )

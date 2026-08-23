@@ -45,15 +45,3 @@ fun NetworkWikiSuggestionItem.asExternalFeedModel(itemLanguage: WikiLanguage): W
 
 fun NetworkWikiSuggestionsResponse.asExternalFeedModel(itemLanguage: WikiLanguage): List<WikiFeedItem> =
     pages.map({ page -> page.asExternalFeedModel(itemLanguage) })
-
-private fun String.toAbsoluteWikiUrl(): String =
-    when {
-        startsWith("//") -> "https:$this"
-        else -> this
-    }
-
-private fun String.toHighResolution(size: Int = 250): String =
-    replace(
-        Regex("/\\d+px-"),
-        "/${size}px-",
-    )
