@@ -34,7 +34,7 @@ class NiaIssueRegistry : IssueRegistry() {
     override val minApi: Int = 12
 
     override val vendor: Vendor = Vendor(
-        vendorName = "NowInWiki",
+        vendorName = "Now in Wiki",
         feedbackUrl = "https://github.com/Analoggpixel/NowInWiki/issues",
         contact = "https://github.com/Analoggpixel/NowInWiki",
     )

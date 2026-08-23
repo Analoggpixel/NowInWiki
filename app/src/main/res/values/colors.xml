@@ -15,6 +15,9 @@
      limitations under the License.
 -->
 <resources>
-    <color name="ic_launcher_background_tint">#000000</color>
-    <color name="ic_launcher_foreground_tint">#FCFCFC</color>
+    <!-- Material You primary-container palette for wiki book icon -->
+    <color name="splash_background">#D3E3FD</color>
+    <color name="ic_launcher_background_tint">#A8C7FA</color>
+    <color name="ic_launcher_tile_tint">#D3E3FD</color>
+    <color name="ic_launcher_foreground_tint">#041E49</color>
 </resources>

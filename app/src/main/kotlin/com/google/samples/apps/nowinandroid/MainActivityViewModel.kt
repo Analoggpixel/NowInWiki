@@ -42,6 +42,21 @@ class MainActivityViewModel @Inject constructor(
         initialValue = Loading,
         started = SharingStarted.WhileSubscribed(5_000),
     )
+
+    /** Survives configuration changes (e.g. rotation) so splash only plays once per process. */
+    var isSplashContentReady: Boolean = false
+        private set
+
+    var isSplashAnimationFinished: Boolean = false
+        private set
+
+    fun onSplashContentReady() {
+        isSplashContentReady = true
+    }
+
+    fun onSplashAnimationFinished() {
+        isSplashAnimationFinished = true
+    }
 }
 
 sealed interface MainActivityUiState {

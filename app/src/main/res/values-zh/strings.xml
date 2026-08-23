@@ -15,6 +15,6 @@
      limitations under the License.
 -->
 <resources>
-    <string name="app_name">NowInWiki</string>
+    <string name="app_name">Now in Wiki</string>
     <string name="not_connected">⚠️ 未连接到互联网</string>
 </resources>

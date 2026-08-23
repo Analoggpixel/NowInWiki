@@ -17,15 +17,18 @@
 package com.google.samples.apps.nowinandroid
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,6 +37,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.metrics.performance.JankStats
 import androidx.tracing.trace
 import com.google.samples.apps.nowinandroid.MainActivityUiState.Loading
+import com.google.samples.apps.nowinandroid.MainActivityUiState.Success
 import com.google.samples.apps.nowinandroid.core.analytics.AnalyticsHelper
 import com.google.samples.apps.nowinandroid.core.analytics.LocalAnalyticsHelper
 import com.google.samples.apps.nowinandroid.core.data.util.NetworkMonitor
@@ -41,18 +45,21 @@ import com.google.samples.apps.nowinandroid.core.data.util.TimeZoneMonitor
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
 import com.google.samples.apps.nowinandroid.core.ui.LocalTimeZone
 import com.google.samples.apps.nowinandroid.ui.NiaApp
+import com.google.samples.apps.nowinandroid.ui.NowInWikiSplashScreen
 import com.google.samples.apps.nowinandroid.ui.rememberNiaAppState
 import com.google.samples.apps.nowinandroid.util.isSystemInDarkTheme
+import com.google.samples.apps.nowinandroid.util.AppUiLanguageApplier.applyIfNeeded
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     /**
      * Lazily inject [JankStats], which is used to track jank throughout the app.
@@ -71,9 +78,16 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
 
+    private var isSplashContentReady by mutableStateOf(false)
+    private var isSplashAnimationFinished by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // ViewModel survives rotation; restore splash flags so the animation does not replay.
+        isSplashContentReady = viewModel.isSplashContentReady
+        isSplashAnimationFinished = viewModel.isSplashAnimationFinished
 
         // We keep this as a mutable state, so that we can track changes inside the composition.
         // This allows us to react to dark/light mode changes.
@@ -123,29 +137,61 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Keep the splash screen on-screen until the UI state is loaded. This condition is
-        // evaluated each time the app needs to be redrawn so it should be fast to avoid blocking
-        // the UI.
-        splashScreen.setKeepOnScreenCondition { viewModel.uiState.value.shouldKeepSplashScreen() }
+        // Apply persisted UI language; recreates the activity when the locale changes.
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState
+                    .filterIsInstance<Success>()
+                    .map { it.userData.appUiLanguage }
+                    .distinctUntilChanged()
+                    .collect(::applyIfNeeded)
+            }
+        }
+
+        // Keep the system splash only until startup data is ready and Compose has drawn the
+        // first frame. The branded animation runs in Compose after the system splash dismisses.
+        splashScreen.setKeepOnScreenCondition {
+            viewModel.uiState.value.shouldKeepSplashScreen() || !isSplashContentReady
+        }
 
         setContent {
-            val appState = rememberNiaAppState(
-                networkMonitor = networkMonitor,
-                timeZoneMonitor = timeZoneMonitor,
-            )
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val showSplashOverlay = uiState.shouldKeepSplashScreen() || !isSplashAnimationFinished
 
-            val currentTimeZone by appState.currentTimeZone.collectAsStateWithLifecycle()
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (!showSplashOverlay) {
+                    val appState = rememberNiaAppState(
+                        networkMonitor = networkMonitor,
+                        timeZoneMonitor = timeZoneMonitor,
+                    )
 
-            CompositionLocalProvider(
-                LocalAnalyticsHelper provides analyticsHelper,
-                LocalTimeZone provides currentTimeZone,
-            ) {
-                NiaTheme(
-                    darkTheme = themeSettings.darkTheme,
-                    androidTheme = themeSettings.androidTheme,
-                    disableDynamicTheming = themeSettings.disableDynamicTheming,
-                ) {
-                    NiaApp(appState)
+                    val currentTimeZone by appState.currentTimeZone.collectAsStateWithLifecycle()
+
+                    CompositionLocalProvider(
+                        LocalAnalyticsHelper provides analyticsHelper,
+                        LocalTimeZone provides currentTimeZone,
+                    ) {
+                        NiaTheme(
+                            darkTheme = themeSettings.darkTheme,
+                            androidTheme = themeSettings.androidTheme,
+                            disableDynamicTheming = themeSettings.disableDynamicTheming,
+                        ) {
+                            NiaApp(appState)
+                        }
+                    }
+                }
+
+                if (showSplashOverlay) {
+                    NowInWikiSplashScreen(
+                        onContentReady = {
+                            viewModel.onSplashContentReady()
+                            isSplashContentReady = true
+                        },
+                        onAnimationFinished = {
+                            viewModel.onSplashAnimationFinished()
+                            isSplashAnimationFinished = true
+                        },
+                    )
                 }
             }
         }
